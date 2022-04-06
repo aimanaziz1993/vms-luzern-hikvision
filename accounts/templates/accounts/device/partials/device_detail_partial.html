@@ -1,0 +1,39 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{ page_title }} Details</h4>
+      {% comment %} <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> {% endcomment %}
+</div>
+
+<!-- Modal body -->
+<div class="modal-body">
+    <div class="container-fluid">
+        <p><strong>Created At: </strong> {{ device.created_at|default_if_none:"-" }}</p>
+        <p><strong>Last Updated: </strong> {{ device.updated_at|default_if_none:"-" }}</p>
+        <hr>
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-3">
+                <strong>Building : </strong> {{ device.building.name|default_if_none:"-" }}
+            </div>
+            <div class="col-md-3 col-sm-3">
+                <strong>Floor : </strong> {{ device.floor.name|default_if_none:"-" }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-sm-4">
+                <strong>Device Name : </strong> {{ device.name|default_if_none:"-" }}
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <strong>IP Address : </strong> {{ device.ip_addr|default_if_none:"-" }}
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <strong>Device ID. : </strong> {{ device.device_id|default_if_none:"-" }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal footer -->
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    {% comment %} <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> {% endcomment %}
+</div>
+  

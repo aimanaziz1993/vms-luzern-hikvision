@@ -1,0 +1,249 @@
+{% block extrastyles %}
+
+<style>
+    /* .iti {
+        display: inherit;
+    } */
+
+    .iti .error {
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .iti input {
+        padding-left: 100px;
+    }
+</style>
+
+{% endblock extrastyles %}
+
+<div class="container py-4">
+    <form id="check_in" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row px-4 mt-4">
+            <div id="errorDiv" class="col-md alert alert-warning alert-dismissible fade hide mb-4" id="update_alert" role="alert">
+                <span id="error-span" class="error-all hide"></span>
+            </div>
+            {% if form.errors %}
+                {% for field in form.non_field_errors %}
+                    <div class="col-md alert alert-warning alert-dismissible fade show mb-4" id="update_alert" role="alert">
+                        <strong>{{ field | escape }}</strong>
+                    </div>
+                {% endfor %}
+            {% endif %}
+          </div>
+          <div class="img-responsive row d-flex justify-content-center">
+            <img id='visitor-photo2' src="http://{{ request.get_host }}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
+            <br/>
+          </div>
+          <input type="hidden" name="visitor_id" value="{{ visitor.id }}" />
+          {% for field in form %}
+            <div class="form-group{% if field.errors %} has-error{% endif %}">
+              {% if field.id_for_label == 'id_contact_no' %}
+                <label for="phone">Contact No.: </label></br>
+                <input class="form-control form_input" type="tel" id="phone2" placeholder="123456789" required>
+                <input type="hidden" name="country2" id="country2" value="">
+                {{ form.contact_no }}
+                <div>
+                  <span id="valid-msg" class="hide"></span>
+                  <span id="error-msg" class="hide text-danger small py-1"></span>
+                </div>
+              {% elif field.id_for_label == 'id_identification_no' %}
+                <label for="id_identification_no">Identification No.: </label></br>
+                {{ form.identification_no }}
+                <div>
+                  <p><span id="valid-nric" class="hide small text-success py-1"></span></p>
+                  <p><span id="error-nric" class="hide small text-danger py-1"></span></p>
+                </div> 
+              {% else %}
+              <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+              {{field}}
+              {% endif %}
+              
+              {% for error in field.errors %}
+                <p class="help-block text-danger">{{ error }}</p>
+              {% endfor %}
+              {% for nfe in field.non_field_errors %}
+                <p class="help-block text-danger">{{ nfe }}</p>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        <input id="submit" type="submit" class="btn btn-info btn-sm mt-3" value="Confirm Check In"></input>
+    </form>
+</div>
+
+{% block javascripts %}
+<script>
+
+    var input = document.querySelector("#phone2");
+    var country = document.querySelector("#country2");
+    var errorMsg = document.querySelector("#error-msg");
+    var validMsg = document.querySelector("#valid-msg");
+
+    var mobile = document.getElementById('id_contact_no');
+    input.value = mobile.value;
+  
+    // phone number validation
+    var errorMap = ["Invalid number", "Invalid country code", "Phone no. is too short", "Phone no. is too long", "Invalid number", "Invalid"];
+  
+    // Initialise phone number
+    window.intlTelInput(input, {
+        preferredCountries: ["sg", "my"],
+        separateDialCode: true,
+        formatOnDisplay: false,
+        utilsScript: "/static/js/vendor/intl-tel-input-17.0.0/build/js/utils.js"
+    });
+  
+    var iti = window.intlTelInputGlobals.getInstance(input);
+  
+    var reset = function() {
+        input.classList.remove("error");
+        errorMsg.innerHTML = "";
+        validMsg.innerHTML = "";
+        errorMsg.classList.add("hide");
+        validMsg.classList.add("hide");
+    };
+
+    // set it's initial value
+    country.value = iti.getSelectedCountryData().dialCode;
+
+    input.addEventListener("countrychange", function(e) {
+        var code = iti.getSelectedCountryData().dialCode;
+        country.value = code;
+    });
+
+    // on blur: validate
+    input.addEventListener('blur', function() {
+        reset();
+
+        let code_len = country.value.length;
+        let subst = input.value.trim().substring(0,1);
+
+        if (subst == '0') {
+            let update_input = input.value.trim().split(input.value.trim().substring(0,1));
+            input.value = update_input[1];
+            $('input[name=contact_no]').val('+' + country.value + input.value);
+
+        } else if ( subst == '+') {
+
+            if (code_len == 2) {
+                let update_input = input.value.trim().split(input.value.trim().substring(0,3));
+                input.value = update_input[1];
+                // document.getElementById('id_contact_no').value = '+' + country.value + input.value;
+                $('input[name=contact_no]').val('+' + country.value + this.value);
+
+            } else if ( code_len == 3) {
+                let update_input = input.value.trim().split(input.value.trim().substring(0,4));
+                input.value = update_input[1];
+                // document.getElementById('id_contact_no').value = '+' + country.value + input.value;
+                $('input[name=contact_no]').val('+' + country.value + input.value);
+
+            }else {
+                // document.getElementById('id_contact_no').value = '+' + country.value + input.value;
+                $('input[name=contact_no]').val('+' + country.value + input.value);
+            }
+        } else {
+            // $('input[name=contact_no]').val('+' + country.value + input.value.trim());
+            $('input[name=contact_no]').val('+' + country.value + input.value.trim());
+        }
+
+        if (input.value.trim()) {
+            if (iti.isValidNumber()) {
+                validMsg.classList.remove("hide");
+                $('#submit').show('slow');
+            } else {
+                input.classList.add("error");
+                var errorCode = iti.getValidationError();
+
+                if (errorCode == -99) {
+                    errorMsg.innerHTML = errorMap[5];
+                    errorMsg.classList.remove("hide");
+                    $('#submit').hide('slow');
+                } else {
+                    errorMsg.innerHTML = errorMap[errorCode];
+                    errorMsg.classList.remove("hide");
+                    $('#submit').hide('slow');
+                }
+            }
+        }
+    });
+
+    // on keyup / change flag: reset
+    input.addEventListener('change', reset);
+    input.addEventListener('keyup', reset);
+
+    $('input[type=file]').change(function(e){
+        console.log('photo updated');
+        preview_image(this);
+    })
+
+    // $('input[type=tel]').change(function () {
+    //     // mobile.value = '+' + country.value + this.value;
+    //     $('input[name=contact_no]').val('+' + country.value + this.value);
+    // });
+
+    function preview_image(input) 
+    {
+
+        if (input.files && input.files[0]) {
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#visitor-photo2').attr('src', e.target.result);
+            }
+            
+            var photoData = reader.readAsDataURL(input.files[0]); // convert to base64 string
+        }
+    }
+
+    var nric = document.querySelector("#id_identification_no");
+    var errorNRIC = document.querySelector("#error-nric");
+    var validNRIC = document.querySelector("#valid-nric");
+
+    var resetNric = function() {
+        errorNRIC.innerHTML = "";
+        validNRIC.innerHTML = "";
+        errorNRIC.classList.add("hide");
+        validNRIC.classList.add("hide");
+    };
+
+    $(document).ready(function () {
+
+        $('#id_identification_no').change(function(e) {
+            resetNric();
+
+            if (this.value !== '') {
+
+                $.ajax({
+                    headers: { "X-CSRFToken": getCookie('csrftoken') },
+                    url : '/self-register/validate-nric/',
+                    method : "POST",
+                    data: {
+                        'nric': this.value,
+                    },
+                    success : function(data) {
+
+                        if (data.valid) {
+                            validNRIC.innerHTML = data.message;
+                            $('#submit').show('slow');
+                        } else {
+                            errorNRIC.innerHTML = data.message;
+                            $('#submit').hide('slow');
+
+                        }
+                    },
+                    error : function(response) {
+                        console.log(response)
+                    },
+                    cache: false,
+                });
+            }
+        })
+
+        // nric.addEventListener('change', resetNric);
+        nric.addEventListener('keyup', resetNric);
+    });
+  
+</script>
+
+{% endblock javascripts %}

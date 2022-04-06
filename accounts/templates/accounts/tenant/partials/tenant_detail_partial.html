@@ -1,0 +1,112 @@
+<div class="modal-header">
+    {% if visitor %}
+    <h4 class="modal-title">{{ page_title }}-Visitor Appointment Details</h4>
+    {% elif staff %}
+    <h4 class="modal-title">{{ page_title }}-Staff Details</h4>
+    {% else %}
+    <h4 class="modal-title">{{ page_title }} Details</h4>
+    {% endif %}
+      {% comment %} <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> {% endcomment %}
+</div>
+
+<!-- Modal body -->
+{% if visitor %}
+<div class="modal-body">
+    <div class="container-fluid">
+        <p><strong>Registered At:</strong> {{ visitor.created_at|default_if_none:"-" }}</p>
+        <p><strong>Start Date/Time:</strong> {{ visitor.start_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
+        <p><strong>End Date/Time:</strong> {{ visitor.end_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
+        <hr>
+        <div class="row mb-4">
+            <div class="col-md-4">
+                {% if visitor.photo %}
+                <img src="/static{{ visitor.photo.url }}" width="150px">
+                {% else %}
+                <img src="/static/img/profile.png" width="150px">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <p><strong>Name : </strong> {{ visitor.name|upper|default_if_none:"-" }}</p>
+                <p><strong>Identification No. : </strong> {{ visitor.identification_no|default_if_none:"-" }}</p>
+                <p><strong>Contact : </strong> {{ visitor.contact_no|default_if_none:"-" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif staff %}
+<div class="modal-body">
+    <div class="container-fluid">
+        <p>Registered At: {{ staff.created_at|default_if_none:"-" }}</p>
+        <hr>
+        <div class="row mb-4">
+            <div class="col-md-4">
+                {% if staff.photo %}
+                <img src="/static{{ staff.photo.url }}" width="150px">
+                {% else %}
+                <img src="/static/img/profile.png" width="150px">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <p><strong>Name : </strong> {{ staff.name|upper|default_if_none:"-" }}</p>
+                <p><strong>Identification No. : </strong> {{ staff.identification_no|default_if_none:"-" }}</p>
+                <p><strong>Contact : </strong> {{ staff.contact_no|default_if_none:"-" }}</p>
+                <p><strong>Email : </strong> {{ staff.email|default_if_none:"-" }}</p>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <span>Remarks: </span>
+                <textarea id="remarks" name="remarks" rows="4" cols="50" readonly style="border-color: gray; color:#858796;">
+                    {{ staff.remarks|default_if_none:"-" }}
+                </textarea>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="modal-body">
+    <div class="container-fluid">
+        <p>Last Login: {{ tenant.user.last_login|default_if_none:"-" }}</p>
+        <div class="row mb-4">
+            <div class="col-md-4 col-sm-4">
+                <strong>Building : </strong> {{ tenant.building|default_if_none:"-" }}
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <strong>Floor : </strong> {{ tenant.floor|default_if_none:"-" }}
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <strong>Unit No. : </strong> {{ tenant.unit_no|default_if_none:"-" }}
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm-6">
+               <strong>Email : </strong> {{ tenant.user.email|default_if_none:"-" }}
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm-6">
+                <strong>Company : </strong> {{ tenant.company_name|default_if_none:"-" }}
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <strong>Registered Address : </strong> {{ tenant.registered_address|default_if_none:"-" }}
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm-6">
+                <strong>Contact Person : </strong> {{ tenant.contact_person|default_if_none:"-" }}
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <strong>Contact No. : </strong> {{ tenant.contact_no|default_if_none:"-" }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<!-- Modal footer -->
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    {% comment %} <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> {% endcomment %}
+</div>
+  

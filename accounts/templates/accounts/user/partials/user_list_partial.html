@@ -1,0 +1,31 @@
+{% load cms %}
+
+{% if object_list %}
+  {% for user in object_list %}
+
+  <tr>
+    <td style="text-align: center;">{{ user.pk }}</td>
+    <td>{{ user.last_login|default_if_none:"-" }}</td>
+    <td>{{ user.username }}</td>
+    <td>{{ user.email|default_if_none:"-" }}</td>
+    <td>
+        {% if user.is_superuser %}
+        Superuser
+        {% elif user.is_administrator %}
+        Administrator
+        {% elif user.is_tenant %}
+        Tenant
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {{ user.date_joined }}
+    </td>
+  </tr>
+  {% endfor %}
+{% else %}
+
+<tr>
+  <td colspan="3" style="text-align: center;">No users data</td>
+</tr>
+
+{% endif %}

@@ -1,0 +1,16 @@
+{% if floors %}
+  {% for floor in floors %}
+
+  <tr>
+    <td style="text-align: center;">{{ floor.pk }}</td>
+    <td>{{ floor.building.name }}</td>
+    <td>{{ floor.name }}</td>
+  </tr>
+  {% endfor %}
+{% else %}
+
+<tr>
+  <td colspan="2" style="text-align: center;">No floor data</td>
+</tr>
+
+{% endif %}

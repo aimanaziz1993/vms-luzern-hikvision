@@ -1,0 +1,144 @@
+<ul class="navbar-nav bg-white sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'home' %}">
+        <!-- <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+        </div> -->
+        <div class="sidebar-brand-icon">
+            <img src="/static/img/Logo-Blivracle.png" width="150px">
+        </div>
+        <!-- <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div> -->
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0 mb-4">
+
+    <!-- Nav Item - Dashboard -->
+    {% if user.is_administrator %}
+    <li class="nav-item {% if request.path == '/administrator/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'home' %}">
+            <!-- <i class="fas fa-fw fa-tachometer-alt"></i> -->
+            {% if request.path == '/administrator/' %}
+                <img src="/static/icon/home-active.png" alt="home">
+            {% else %}
+                <img src="/static/icon/home-no-active.png" alt="home">
+            {% endif %}
+            <span>Dashboard</span></a>
+    </li>
+    
+    <!-- Divider -->
+    <!-- <hr class="sidebar-divider"> -->
+
+    <!-- Heading -->
+    <div class="sidebar-heading mt-4">
+        Interface
+    </div>
+
+    <li class="nav-item {% if request.path == '/administrator/tenant-list/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'administrators:tenant-list' %}">
+            {% if request.path == '/administrator/tenant-list/' %}
+                <img src="/static/icon/people-active.png" alt="home">
+            {% else %}
+                <img src="/static/icon/people-no-active.png" alt="home">
+            {% endif %}
+            <span>Tenant Management</span></a>
+    </li>
+    <li class="nav-item {% if request.path == '/administrator/device-list/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'administrators:device-list' %}">
+            <!-- <i class="fas fa-fw fa-tachometer-alt"></i> -->
+            {% if request.path == '/administrator/device-list/' %}
+                <img src="/static/icon/device-active.png" alt="home">
+            {% else %}
+                <img src="/static/icon/device-no-active.png" alt="home">
+            {% endif %}
+            <span>Device Management</span></a>
+    </li>
+
+    {% elif user.is_tenant %}
+    <li class="nav-item {% if request.path == '/tenant/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'home' %}">
+            {% if request.path == '/tenant/' %}
+                <img src="/static/icon/home-active.png" alt="home">
+            {% else %}
+                <img src="/static/icon/home-no-active.png" alt="home">
+            {% endif %}
+            <span>Dashboard</span></a>
+    </li>
+
+    <!-- Heading -->
+    <div class="sidebar-heading mt-4">
+        Interface
+    </div>
+
+    <li class="nav-item {% if request.path == '/tenant/staff-list/' or request.path == '/tenant/staff-list/pending/' or request.path == '/tenant/staff-list/approved/' or request.path == '/tenant/staff-list/rejected/' or request.path == '/tenant/staff-list/blocked/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'tenants:tenant-staff-list' %}">
+            {% if request.path == '/tenant/staff-list/' or request.path == '/tenant/staff-list/pending/' or request.path == '/tenant/staff-list/approved/' or request.path == '/tenant/staff-list/rejected/' or request.path == '/tenant/staff-list/blocked/' %}
+                <img src="/static/icon/staff-active.png" alt="home">
+            {% else %}
+                <img src="/static/icon/staff-no-active.png" alt="home">
+            {% endif %}
+            <span>Staffs Management</span></a>
+    </li>
+    <li class="nav-item {% if request.path == '/tenant/visitor-list/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'tenants:tenant-visitor-list' %}">
+            {% if request.path == '/tenant/visitor-list/' %}
+                <img src="/static/icon/visitor-active.png" alt="home">
+            {% else %}
+                <img src="/static/icon/visitor-no-active.png" alt="home">
+            {% endif %}
+            <span>Visitors Management</span></a>
+    </li>
+
+
+    {% elif user.is_superuser %}
+
+    <li class="nav-item {% if request.path == '/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'home' %}">
+            {% if request.path == '/' %}
+                <img src="/static/icon/home-active.png" alt="home">
+            {% else %}
+                <img src="/static/icon/home-no-active.png" alt="home">
+            {% endif %}
+            <span>Dashboard</span></a>
+    </li>
+
+    <!-- Heading -->
+    <div class="sidebar-heading mt-4">
+        Interface
+    </div>
+
+    <li class="nav-item {% if request.path == '/superuser/user-list/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'superusers:user-list' %}">
+            {% if request.path == '/superuser/user-list/' %}
+                <img src="/static/icon/people-active.png" alt="home">
+            {% else %}
+                <img src="/static/icon/people-no-active.png" alt="home">
+            {% endif %}
+            <span>Users List</span></a>
+    </li>
+
+    {% else %}
+
+
+    {% endif %}
+
+    <!-- Divider -->
+    <!-- <hr class="sidebar-divider"> -->
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block mt-4">
+
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+    <!-- Sidebar Message -->
+    <!-- <div class="sidebar-card d-none d-lg-flex">
+        <img class="sidebar-card-illustration mb-2" src="img/undraw_rocket.svg" alt="...">
+        <p class="text-center mb-2"><strong>SB Admin Pro</strong> is packed with premium features, components, and more!</p>
+        <a class="btn btn-success btn-sm" href="https://startbootstrap.com/theme/sb-admin-pro">Upgrade to Pro!</a>
+    </div> -->
+
+</ul>

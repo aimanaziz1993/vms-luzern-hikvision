@@ -1,0 +1,28 @@
+
+
+:root {
+	/* Define each variable in their light and dark mode */
+	--text: white;
+}
+
+body {
+    color: black;
+	background: white;
+}
+
+h2, p {
+    color: black;
+}
+
+/* a {
+    color: var(--accent, navy);
+} */
+
+a:link {
+    text-decoration: none;
+}
+
+a:hover {
+    color: black;
+    transform: scale(1.1);
+}

@@ -1,0 +1,28 @@
+{% load cms %}
+{% if object_list %}
+  {% for tenant in object_list %}
+
+  <tr>
+    <td style="text-align: center;">{{ tenant.pk }}</td>
+    <td>{{ tenant.user.username }}</td>
+    <td>{{ tenant.user.email }}</td>
+    <td>{{ tenant.building }}</td>
+    <td>{{ tenant.floor }}</td>
+    <td>{{ tenant.unit_no|default_if_none:"-" }}</td>
+    <td style="text-align: center;">
+      <a href="{% get_url 'detail' tenant %}" class="btn btn-info btn-circle btn-sm js-load-form">
+          <i class="fas fa-eye text-white-100"></i>
+      </a>
+      <a href="{% get_url 'delete' tenant %}" class="btn btn-danger btn-circle btn-sm js-load-form">
+        <i class="fas fa-trash text-white-100"></i>
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+{% else %}
+
+<tr>
+  <td colspan="6" style="text-align: center;">No tenant data</td>
+</tr>
+
+{% endif %}

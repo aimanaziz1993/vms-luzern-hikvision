@@ -1,0 +1,19 @@
+{% autoescape off %}
+Status: {{ visitor.is_approved }}
+Ref: {{ visitor.code }}
+
+You have new booked appointment. Refer below for appointment details:
+
+Details:
+
+Name: {{ visitor.name|default_if_none:"-" }}
+Identification No.: {{ visitor.identification_no|default_if_none:"-" }}
+Contact No.: {{ visitor.contact_no|default_if_none:"-" }}
+Start Date/Time: {{ visitor.start_date|default_if_none:"-" }}
+End Date/Time: {{ visitor.end_date|default_if_none:"-" }}
+
+Thank you.
+
+Sincerely,
+The VMS-Luzern Team
+{% endautoescape %}

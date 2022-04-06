@@ -1,0 +1,28 @@
+{% load cms %}
+
+<form  method="post" novalidate="novalidate" action="{% url 'administrators:floor-create' %}" class="js-save-form">
+  {% csrf_token %}
+  <div class="modal-header">
+    <h4 class="modal-title">{% if not form.instance.pk %}Add Floor{% else %} {{form.instance}} - Update Floor Details {% endif %}</h4>
+    {% comment %} <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button> {% endcomment %}
+
+  </div>
+  <div class="modal-body">
+    {% for field in form %}
+      <div class="form-group{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{field}}
+        {% for error in field.errors %}
+          <p class="help-block text-danger">{{ error }}</p>
+        {% endfor %}
+        {% for error in field.non_field_errors %}
+          <p class="help-block text-danger">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <button type="submit" class="btn btn-primary">{% if not form.instance.pk %}Create {% else %} {{form.instance}} Update {% endif %}</button>
+  </div>
+</form>

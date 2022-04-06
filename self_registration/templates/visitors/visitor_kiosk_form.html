@@ -1,0 +1,50 @@
+<form id="selfregister-kiosk-visitor" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row px-4 mt-4">
+      {% if form.errors %}
+          {% for field in form.non_field_errors %}
+              <div class="col-md alert alert-warning alert-dismissible fade show mb-4" id="update_alert" role="alert">
+                  <strong>{{ field | escape }}</strong>
+              </div>
+          {% endfor %}
+      {% endif %}
+    </div>
+    <div class="img-responsive row d-flex justify-content-center">
+      <img id='visitor-photo' src="/static/icon/avatar.png" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
+      <br/>
+    </div>
+    {% for field in form %}
+      <div class="form-group{% if field.errors %} has-error{% endif %}">
+        {% if field.id_for_label == 'id_contact_no' %}
+          <label for="phone">Contact No.: </label></br>
+          <input class="form-control form_input" type="tel" id="phone" placeholder="12345678" required>
+          <input type="hidden" name="country" id="country" value="">
+          {{ form.contact_no }}
+          <div>
+            <span id="valid-msg" class="hide"></span>
+            <span id="error-msg" class="hide text-danger small py-1"></span>
+          </div>
+        {% elif field.id_for_label == 'id_identification_no' %}
+          <label for="id_identification_no">Identification No.: </label></br>
+          {{ form.identification_no }}
+          <div>
+            <p><span id="valid-nric" class="hide small text-success py-1"></span></p>
+            <p><span id="error-nric" class="hide small text-danger py-1"></span></p>
+          </div> 
+        {% else %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+        {{field}}
+        {% endif %}
+        
+        {% for error in field.errors %}
+          <p class="help-block text-danger">{{ error }}</p>
+        {% endfor %}
+        {% for nfe in field.non_field_errors %}
+          <p class="help-block text-danger">{{ nfe }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+    
+    <input id="submit" type="submit" class="btn btn-info btn-sm" value="Submit Registration"></input>
+
+</form>

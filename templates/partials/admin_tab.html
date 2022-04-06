@@ -1,0 +1,69 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  {% if user.is_administrator %}
+    {% if request.path == '/administrator/' %}
+      <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    {% elif request.path == '/administrator/tenant-list/' %}
+      <h1 class="h3 mb-0 text-gray-800">Tenant Management</h1>
+    {% elif request.path == '/administrator/device-list/' %}
+      <h1 class="h3 mb-0 text-gray-800">Device Management</h1>
+    {% else %}
+
+    {% endif %}
+
+  {% elif user.is_tenant %}
+
+    {% if request.path == '/tenant/' %}
+      <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    {% elif request.path == '/tenant/staff-list/' %}
+      <h1 class="h3 mb-0 text-gray-800">Staffs Management</h1>
+    {% elif request.path == '/tenant/visitor-list/' %}
+      <h1 class="h3 mb-0 text-gray-800">Visitors Management</h1>
+    {% else %}
+
+    {% endif %}
+
+  {% elif user.is_superuser %}
+    {% if request.path == '/' %}
+      <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    {% elif request.path == '/superuser/user-list/' %}
+      <h1 class="h3 mb-0 text-gray-800">Users List</h1>
+    {% else %}
+    
+    {% endif %}
+  
+  {% else %}
+
+  {% endif %}
+  <a href="{{ request.get_full_path }}" class="d-none d-sm-inline-block btn btn-sm btn-primary btn-icon-split shadow-sm">
+    <span class="icon text-white-100">
+      <i class="fas fa-redo-alt fa-sm"></i>
+    </span>
+    <span class="text">Reload</span>
+  </a>
+</div>
+
+{% if user.is_tenant %}
+
+  {% if request.path == '/tenant/staff-list/' or request.path == '/tenant/staff-list/pending/' or request.path == '/tenant/staff-list/approved/' or request.path == '/tenant/staff-list/rejected/' or request.path == '/tenant/staff-list/blocked/' %}
+    <div class="row filter">
+      <div class="col d-flex flex-row align-items-center justify-content-start">
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/staff-list/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:tenant-staff-list' %}">All</a>
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/staff-list/pending/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:staff-update-list' 'pending' %}">Pending</a>
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/staff-list/approved/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:staff-update-list' 'approved' %}">Approved</a>
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/staff-list/rejected/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:staff-update-list' 'rejected' %}">Rejected</a>
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/staff-list/blocked/' %}warning{% else %}secondary{% endif %}" href="{% url 'tenants:staff-update-list' 'blocked' %}">Blocked</a>
+      </div>
+    </div>
+  {% endif %}
+
+{% endif %}
+
+
+
+  {% comment %} <nav class="nav nav-pills nav-tabs nav-justified d-flex flex-row">
+    <div class="home"><a class="nav-link {% if request.path == '/administrator/' %}active{% endif %}" href="{% url 'administrators:home_view' %}">Home</a></div>
+    <div class="tenantlist"><a class="nav-link {% if request.path == '/administrator/tenant-list/' %}active{% endif %}" href="{% url 'administrators:tenant-list' %}">Tenant List</a></div>
+    <div class="devicelist"><a class="nav-link {% if request.path == '/administrator/device-list/' %}active{% endif %}" href="{% url 'administrators:device-list' %}">Device List</a></div>
+  </nav> {% endcomment %}
+

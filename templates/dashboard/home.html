@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load cms %}
+
+{% block extrastyles %}
+<link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+<style>
+.nav-mytabs {
+  /* margin-top: 2rem; */
+  display: flex;
+}
+ 
+.nav-mytabs li:not(:last-child) {
+  margin-right: 7px;
+}
+ 
+.nav-mytabs a {
+  position: relative;
+  top: 4px;
+  padding: 10px 25px;
+  border-radius: 2px 2px 0 0;
+  background: white;
+  color: black;
+  opacity: 0.7;
+  transition: all 0.1s ease-in-out;
+}
+ 
+.nav-mytabs a.active, 
+.nav-mytabs a:hover {
+  opacity: 1;
+  top: 0;
+  border-bottom: 1px solid blue;
+}
+ 
+.mytab-content {
+  position: relative;
+  z-index: 2;
+  padding: 25px;
+  border-radius: 0 4px 4px 4px;
+  background: white;
+}
+</style>
+
+{% endblock  %}
+
+{% block content %}
+  <!-- TENANT -->
+  {% if user.is_tenant %}
+    {% include 'partials/admin_tab.html' %}
+    <h2>Welcome {{ user.username }} <span class="icon-emo-happy"></span></h2>
+    <p class="lead">
+      Login Status: {{ user.is_tenant|yesno:"Tenant,Guest" }}.
+    </p>
+    <a class="btn btn-sm btn-info generateCode" href="/tenant/generate-code/" onclick="handleGenerateCode(event, '{{ user.id }}'); return false;">Generate new code</a>
+    <div class="row">
+      <div class="col-md-6">
+        <p class="lead">
+          Share this to your Staff for registration. Remember this is only for one-time permanent registration:
+        </p>
+      </div>
+    </div>
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <input id="staff" class="form-control" type="text" readonly value="{{request.get_host}}{{ user.tenant.generate_url_preview_staffs }}">
+      </div>
+      <div class="col-md-2">
+        <div class="textCopyStaff">
+          <button onclick="copyToClipboard('staff')">
+            <svg id="copyStaff" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+              <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+              <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+            </svg>
+            <svg id="copyCheckStaff" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+              <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+              <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <p class="lead">
+          Share this to your Visitor for appointment registration:
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <input id="visitor" class="form-control" type="text" readonly value="{{request.get_host}}{{ user.tenant.generate_url_preview_visitors }}">
+      </div>
+      <div class="col-md-2">
+          <div class="textCopyVisitor">
+            <button onclick="copyToClipboard('visitor')">
+              <svg id="copyVisitor" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+              </svg>
+              <svg id="copyCheckVisitor" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check-fill" viewBox="0 0 16 16">
+                <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3Zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3Z"/>
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5v-1Zm6.854 7.354-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708Z"/>
+              </svg>
+            </button>
+          </div>
+      </div>
+    </div>
+
+    <script>
+      function handleGenerateCode(e, id) {
+        e.preventDefault();
+
+        url = $('.generateCode').attr("href");
+        
+        $.ajax({
+          headers: { "X-CSRFToken": getCookie('csrftoken') },
+          url: url,
+          method: 'POST',
+          data: {
+              'user_id':id, //user_id pk
+          }, 
+          beforeSend: function(response){
+              console.log('before');
+          },
+          success: function(response){
+              // location.reload();
+              swal.fire({
+                position: 'top-end',
+                type: 'success',
+                icon: 'success',
+                title: 'New code has been generated',
+                showConfirmButton: false,
+                timer: 1300
+              });
+              setTimeout(function(){
+                  window.location.reload();
+              }, 1300);
+          },
+          error: function(response){
+              swal.fire("!Opps ", "Something went wrong, try again later", "error");
+              // location.reload();
+          }
+        });
+      }
+    </script>
+
+    <script>
+      function copyToClipboard(element) {
+        
+        if (element == 'staff') {
+          var copyInput = document.getElementById(element);
+          $('.textCopyStaff').click(function(event) {
+            event.preventDefault();
+            document.getElementById("copyCheckStaff").disabled = true;  
+
+            $('#copyStaff').toggle();
+            $('#copyCheckStaff').toggle();
+          })
+
+        } else {
+          var copyInput = document.getElementById(element);
+          $('.textCopyVisitor').click(function(event) {
+            event.preventDefault();
+            document.getElementById("copyCheckVisitor").disabled = true;  
+
+            $('#copyVisitor').toggle();
+            $('#copyCheckVisitor').toggle();
+          })
+        }
+          /* Select the text field */
+          copyInput.select();
+          copyInput.setSelectionRange(0, 99999); /* For mobile devices */
+
+          /* Copy the text inside the text field */
+          navigator.clipboard.writeText(copyInput.value);
+      }
+
+    </script>
+  
+  <!-- ADMINISTRATOR -->
+  {% elif user.is_administrator %}
+  
+    {% include 'partials/admin_tab.html' %}
+    <h2>Welcome {{ user.username }} <span class="icon-emo-happy"></span></h2>
+    <p class="lead">
+      Login Status: {{ user.is_administrator|yesno:"Administrator,Guest" }}. You can add new tenant here, get started by creating a <a href="{% url 'create_tenant' %}">Tenant account</a>.
+    </p>
+    <!-- <p class="lead">
+      Enable/Disable High Security: <input type="checkbox" name="security" id="security" disabled>
+    </p> -->
+
+    {% if security.security %}
+      <span> <strong>Enabled</strong>/Disabled High Security: </span> <input type="checkbox" name="toggleSecurity" onchange="toggleAction(this)" checked data-toggle="toggle" data-on="Enabled" data-off="Disabled" data-onstyle="success" data-offstyle="secondary" value={{ security.pk }}>
+    {% else %}
+      <span>Enabled/<strong>Disabled</strong> High Security: </span> <input type="checkbox" name="toggleSecurity" onchange="toggleAction(this)" data-toggle="toggle" data-on="Enabled" data-off="Disabled" data-onstyle="success" data-offstyle="secondary" value={{ security.pk }}>
+    {% endif %}
+  
+  
+  <!-- SUPERUSER -->
+  {% elif user.is_superuser %}
+    <h2>Welcome {{ user.username }} <span class="icon-emo-happy"></span></h2>
+    <p class="lead">
+      Login Status: {{ user.is_superuser|yesno:"Superuser,Guest" }}.
+    </p>
+    <a href="{% url 'create_admin' %}" class="btn btn-primary" role="button">Create Administrator Account</a>
+
+  <!-- NOT AUTHENTICATED -->
+  {% else %}
+    <h2>Welcome to the VMS-Luzern <span class="icon-emo-happy"></span></h2>
+    <p class="lead">
+      If you already have an account, go ahead and <a href="{% url 'login' %}">log in</a>. 
+      {% comment %} If you are new to the buildings, get started by contacting building administrator to get a <a href="{% url 'create_tenant' %}">Tenant account</a>. {% endcomment %}
+    </p>
+    <h3 class="h3">What's this about?</h3>
+    <p class="col-md-8 lead text-muted">
+      This is a platform about Visitor Management System for a building with a purpose to control security access for each visitor through entire building floor.
+    </p>
+    <p class="col-md-8 lead text-muted">
+      There's two account type which can logged into the system for managing visitors. Administrator account is responsible for setting up Facial Recognition Device while Host account (Tenant) of the building
+      is for the user to control access record for their staff and their visitors.
+    </p>
+  {% endif %}
+  
+{% endblock %}
+
+{% block javascripts %}
+  {% if request.user.is_administrator %}
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script>
+
+    function initToggle(){
+        $('[name=toggleSecurity]').bootstrapToggle();
+    }
+
+    function toggleAction(toggle)
+    {   
+        $.ajax({
+            headers: { "X-CSRFToken": getCookie('csrftoken') },
+            url: '/administrator/change-security/',
+            method: 'POST',
+            data: {
+                'pk':toggle.value, //security's pk
+                // 'device_name': devices,
+            }, 
+            beforeSend: function(response){
+                console.log('before');
+            },
+            success: function(response){
+                console.log('success')
+
+                swal.fire({
+                    'title': "Status: OK",
+                    'text': "Security status changed.",
+                    'timer': 2000
+                });
+                // location.reload();
+            },
+            error: function(response){
+                swal.fire("!Opps ", "Something went wrong, try again later", "error");
+                // location.reload();
+            }
+        });
+    }
+  </script>
+  {% endif %}
+
+{% endblock javascripts %}

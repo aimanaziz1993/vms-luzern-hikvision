@@ -1,0 +1,35 @@
+{% extends "base2.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card mt-3 mb-3">
+        <div class="card-header">
+            <h2>Profile Update</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">{% csrf_token %}
+                <div class="col-md-12 d-flex justify-content-around">
+                    {% comment %} {{ form.as_p }} {% endcomment %}
+                    {% for field in form %}
+                    <div class="form-group{% if field.errors %} has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{field}}
+                        {% for error in field.errors %}
+                        <p class="help-block text-danger">{{ error }}</p>
+                        {% endfor %}
+                        {% for error in field.non_field_errors %}
+                        <p class="help-block text-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-12 d-flex align-items-center justify-content-center">
+                    <button class="btn btn-secondary btn-sm mr-4"><a href="{% url 'home' %}" style="color: white;">Back</a></button>
+                    <button type="submit" class="btn btn-primary btn-sm">{% if not form.instance.pk %}Create {% else %} {{form.instance}} | Update {% endif %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
