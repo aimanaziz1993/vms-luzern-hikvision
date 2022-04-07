@@ -1,5 +1,5 @@
 {% autoescape off %}
-Status: {{ visitor.is_approved }}
+Status: {% if visitor.is_approved == 1 %}{{'Pending Host Approval'}}{% elif visitor.is_approved == 2 %}{{'Not Approved'}} {% else %}{{'Not Approved'}}{% endif %}
 Ref: {{ visitor.code }}
 
 You have new booked appointment. Refer below for appointment details:

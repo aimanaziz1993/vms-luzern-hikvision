@@ -5,19 +5,34 @@
   <tr>
     {% comment %} <td style="text-align: center;">{{ obj.pk }}</td> {% endcomment %}
     <td style="text-align: center;">{{ forloop.counter }}</td>
-    <td>{{ obj.name }}
-      
-    </td>
+    <td>{{ obj.name }}</td>
+    
     <td>{{ obj.remarks|default_if_none:"-" }}</td>
+
+    {% if visitor_list %}
+      <td>{{ obj.start_date|date:"d-M-y, h:i:s a" }}</td>
+      <td>{{ obj.end_date|date:"d-M-y, h:i:s a" }}</td>
+    {% endif %}
+
+    <td>{{ obj.created_at|date:"d-M-y, h:i:s a" }}</td>
+
+    {% if visitor_list %}
+      {% if obj.is_checkin %}
+        <td style="text-align: center;">YES</td>
+      {% else %}
+        <td style="text-align: center;">No</td>
+      {% endif %}
+    {% endif %}
+
     <td style="text-align: center;">
-      {% if obj.appointment.is_approved == 1 %}
+      {% if obj.is_approved == 1 %}
       <a href="{% get_url 'approval' obj %}" class="btn btn-info btn-sm approval" data-toggle="tooltip" data-placement="top" title="Proceed to Approve/Disapprove" onclick="handleApproval(event, '{{ obj.pk }}', '{{ obj.name }}'); return false;">
         Pending &nbsp;
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
           <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
         </svg>
       </a>
-      {% elif obj.appointment.is_approved == 2 %}
+      {% elif obj.is_approved == 2 %}
       <a href="" class="btn btn-success btn-sm" onclick="return false;">
         Approved &nbsp;
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shield-check" viewBox="0 0 16 16">
@@ -25,7 +40,7 @@
           <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
         </svg>
       </a>
-      {% elif obj.appointment.is_approved == 3 %}
+      {% elif obj.is_approved == 3 %}
       <a href="" class="btn btn-danger btn-sm" onclick="return false;">
         Rejected &nbsp;
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation" viewBox="0 0 16 16">
@@ -54,11 +69,14 @@
     </td>
   </tr>
   {% endfor %}
+{% elif visitor_list %}
+  <tr>
+    <td colspan="9" style="text-align: center;">No available list</td>
+  </tr>
 {% else %}
-
-<tr>
-  <td colspan="5" style="text-align: center;">No available list</td>
-</tr>
+  <tr>
+    <td colspan="6" style="text-align: center;">No available list</td>
+  </tr>
 
 {% endif %}
 

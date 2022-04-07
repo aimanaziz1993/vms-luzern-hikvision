@@ -52,6 +52,7 @@ urlpatterns = [
 
         # VISITOR
         path('visitor-list/', tenant.TenantVisitorList.as_view(), name='tenant-visitor-list'),
+        path('visitor-list/<str:status>/', tenant.TenantVisitorListFilter.as_view(), name='visitor-update-list'),
         path('visitor/<int:pk>/detail', tenant.TenantVisitorDetail.as_view(), name='tenant-visitor-detail'),
 
         path('visitor/<int:pk>/approval/', tenant.visitor_approval, name='tenant-visitor-approval'),

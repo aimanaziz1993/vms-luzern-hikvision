@@ -15,10 +15,10 @@
 
     {% if request.path == '/tenant/' %}
       <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-    {% elif request.path == '/tenant/staff-list/' %}
+    {% elif request.path == '/tenant/staff-list/' or request.path == '/tenant/staff-list/pending/' or request.path == '/tenant/staff-list/approved/' or request.path == '/tenant/staff-list/rejected/' or request.path == '/tenant/staff-list/blocked/' %}
       <h1 class="h3 mb-0 text-gray-800">Staffs Management</h1>
-    {% elif request.path == '/tenant/visitor-list/' %}
-      <h1 class="h3 mb-0 text-gray-800">Visitors Management</h1>
+    {% elif request.path == '/tenant/visitor-list/' or request.path == '/tenant/visitor-list/pending/' or request.path == '/tenant/visitor-list/approved/' or request.path == '/tenant/visitor-list/rejected/' %}
+      <h1 class="h3 mb-0 text-gray-800">Visitors Appointment Management</h1>
     {% else %}
 
     {% endif %}
@@ -53,6 +53,17 @@
         <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/staff-list/approved/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:staff-update-list' 'approved' %}">Approved</a>
         <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/staff-list/rejected/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:staff-update-list' 'rejected' %}">Rejected</a>
         <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/staff-list/blocked/' %}warning{% else %}secondary{% endif %}" href="{% url 'tenants:staff-update-list' 'blocked' %}">Blocked</a>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if request.path == '/tenant/visitor-list/' or request.path == '/tenant/visitor-list/pending/' or request.path == '/tenant/visitor-list/approved/' or request.path == '/tenant/visitor-list/rejected/' %}
+    <div class="row filter">
+      <div class="col d-flex flex-row align-items-center justify-content-start">
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/visitor-list/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:tenant-visitor-list' %}">All</a>
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/visitor-list/pending/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:visitor-update-list' 'pending' %}">Pending</a>
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/visitor-list/approved/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:visitor-update-list' 'approved' %}">Approved</a>
+        <a class="btn btn-pills btn-sm btn-{% if request.path == '/tenant/visitor-list/rejected/' %}warning{% else %}secondary{% endif %} mr-2" href="{% url 'tenants:visitor-update-list' 'rejected' %}">Rejected</a>
       </div>
     </div>
   {% endif %}

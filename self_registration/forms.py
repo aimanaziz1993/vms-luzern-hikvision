@@ -9,18 +9,21 @@ from .models import Staff, Visitor
 
 class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
-    appointment = forms.ModelChoiceField(
+    tenant = forms.ModelChoiceField(
+        label=u'Select Host',
+        empty_label=u'Select Host or Tenant:',
         queryset=Tenant.objects.all(),
         widget=forms.Select
     )
 
     class Meta:
         model = Visitor
-        fields = ('photo', 'name', 'identification_no', 'contact_no', 'appointment', 'remarks',)
+        fields = ('photo', 'name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
 
         labels = {
             'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
             'identification_no': 'Identification No',
+            'tenant': 'Select Host',
             'remarks': 'Remarks [ Optional ]'
         }
 
@@ -30,22 +33,22 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
             'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': forms.HiddenInput(),
-            # 'start_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
-            # 'end_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
+            'start_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
+            'end_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
             'remarks': Textarea( attrs={'class': 'form-control form_input mb-4', 'rows':6, 'cols':15} ),
         }
 
         def __init__(self, *args, **kwargs):
             super(VisitorRegistrationForm, self).__init__(*args, **kwargs)
-            # self.fields['start_date'].input_formats = ('%Y-%m-%dT%H:%M',)
-            # self.fields['end_date'].input_formats = ('%Y-%m-%dT%H:%M',)
+            self.fields['start_date'].input_formats = ('%Y-%m-%dT%H:%M',)
+            self.fields['end_date'].input_formats = ('%Y-%m-%dT%H:%M',)
     
 
 class VisitorRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
     class Meta:
         model = Visitor
-        fields = ('photo', 'name', 'identification_no', 'contact_no', 'remarks', )
+        fields = ('photo', 'name', 'identification_no', 'contact_no', 'start_date', 'end_date', 'remarks', )
 
         labels = {
             'photo': 'Face Picture. Take your best possible selfie. [ Important ]',

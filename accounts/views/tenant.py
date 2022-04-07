@@ -64,6 +64,28 @@ class TenantVisitorList(ListView):
         return tenant.refs_tenant_visitor.all().order_by('-created_at')
 
 @method_decorator([login_required, tenant_required], name='dispatch')
+class TenantVisitorListFilter(ListView):
+    model = Tenant
+    template_name = 'accounts/tenant_visitor_list_filter.html'
+
+    def get_queryset(self, *args, **kwargs):
+        qs = self.kwargs['status']
+        tenant = Tenant.objects.get(user=self.request.user)
+        visitor = tenant.refs_tenant_visitor.all()
+
+        if qs == 'pending':
+            query_id = 1
+        elif qs == 'approved':
+            query_id = 2
+        elif qs == 'rejected':
+            query_id = 3
+        else:
+            query_id = 4
+
+        visitor = visitor.filter(is_approved=query_id)
+        return visitor
+
+@method_decorator([login_required, tenant_required], name='dispatch')
 class TenantVisitorDetail(AjaxDetailView):
     model = Tenant
 
@@ -203,16 +225,16 @@ def home(request):
     context = {'segment': 'Tenant Home'}
 
     # Visitors Monthly Chart
-    # visitor = Visitor.objects.filter(appointment=request.user.id)
-    # visitor = visitor.annotate(month=TruncMonth('start_date')).values('month').annotate(total=Count('id'))
+    visitor = Visitor.objects.filter(tenant=request.user.id)
+    visitor = visitor.annotate(month=TruncMonth('start_date')).values('month').annotate(total=Count('id'))
     labels = []
     data = []
 
-    # for item in visitor:
-    #     date = item['month']
-    #     get_month = datetime.strftime(date, '%B')
-    #     labels.append(get_month)
-    #     data.append(item['total'])
+    for item in visitor:
+        date = item['month']
+        get_month = datetime.strftime(date, '%B')
+        labels.append(get_month)
+        data.append(item['total'])
 
     context["labels"] = json.dumps(labels)
     context["data"] = json.dumps(data)

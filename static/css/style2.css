@@ -1499,7 +1499,8 @@
   
   .table thead th {
     vertical-align: bottom;
-    border-bottom: 2px solid #e3e6f0;
+    /* border-bottom: 2px solid #e3e6f0; */
+    border-bottom: 4px solid #FF0000;
   }
   
   .table tbody + tbody {

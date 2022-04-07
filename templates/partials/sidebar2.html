@@ -80,9 +80,9 @@
             {% endif %}
             <span>Staffs Management</span></a>
     </li>
-    <li class="nav-item {% if request.path == '/tenant/visitor-list/' %}active{% endif %}">
+    <li class="nav-item {% if request.path == '/tenant/visitor-list/' or request.path == '/tenant/visitor-list/pending/' or request.path == '/tenant/visitor-list/approved/' or request.path == '/tenant/visitor-list/rejected/' %}active{% endif %}">
         <a class="nav-link" href="{% url 'tenants:tenant-visitor-list' %}">
-            {% if request.path == '/tenant/visitor-list/' %}
+            {% if request.path == '/tenant/visitor-list/' or request.path == '/tenant/visitor-list/pending/' or request.path == '/tenant/visitor-list/approved/' or request.path == '/tenant/visitor-list/rejected/' %}
                 <img src="/static/icon/visitor-active.png" alt="home">
             {% else %}
                 <img src="/static/icon/visitor-no-active.png" alt="home">

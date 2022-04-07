@@ -1,23 +1,7 @@
-{% block extrastyles %}
+{% load static %}
+{% load cms %}
 
-<style>
-    /* .iti {
-        display: inherit;
-    } */
-
-    .iti .error {
-        font-size: 1rem;
-        width: 100%;
-    }
-
-    .iti input {
-        padding-left: 100px;
-    }
-</style>
-
-{% endblock extrastyles %}
-
-<div class="container py-4">
+<div class="container py-3">
     <form id="check_in" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row px-4 mt-4">
@@ -33,7 +17,8 @@
             {% endif %}
           </div>
           <div class="img-responsive row d-flex justify-content-center">
-            <img id='visitor-photo2' src="http://{{ request.get_host }}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
+            {% comment %} <img id='visitor-photo2' src="http://{{ request.get_host }}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar"> {% endcomment %}
+            <img id='visitor-photo2' src="{{request.scheme}}://{{request.META.HTTP_HOST}}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
             <br/>
           </div>
           <input type="hidden" name="visitor_id" value="{{ visitor.id }}" />
@@ -45,15 +30,15 @@
                 <input type="hidden" name="country2" id="country2" value="">
                 {{ form.contact_no }}
                 <div>
-                  <span id="valid-msg" class="hide"></span>
-                  <span id="error-msg" class="hide text-danger small py-1"></span>
+                  <span id="detail-valid-msg" class="hide"></span>
+                  <span id="detail-error-msg" class="hide text-danger small py-1"></span>
                 </div>
               {% elif field.id_for_label == 'id_identification_no' %}
                 <label for="id_identification_no">Identification No.: </label></br>
                 {{ form.identification_no }}
                 <div>
-                  <p><span id="valid-nric" class="hide small text-success py-1"></span></p>
-                  <p><span id="error-nric" class="hide small text-danger py-1"></span></p>
+                  <p><span id="detail-valid-nric" class="hide small text-success py-1"></span></p>
+                  <p><span id="detail-error-nric" class="hide small text-danger py-1"></span></p>
                 </div> 
               {% else %}
               <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
@@ -68,7 +53,7 @@
               {% endfor %}
             </div>
           {% endfor %}
-        <input id="submit" type="submit" class="btn btn-info btn-sm mt-3" value="Confirm Check In"></input>
+        <input id="submit2" type="submit" class="btn btn-info btn-sm mt-3" value="Confirm Check In"></input>
     </form>
 </div>
 
@@ -77,8 +62,8 @@
 
     var input = document.querySelector("#phone2");
     var country = document.querySelector("#country2");
-    var errorMsg = document.querySelector("#error-msg");
-    var validMsg = document.querySelector("#valid-msg");
+    var errorMsg = document.querySelector("#detail-error-msg");
+    var validMsg = document.querySelector("#detail-valid-msg");
 
     var mobile = document.getElementById('id_contact_no');
     input.value = mobile.value;
@@ -129,28 +114,24 @@
             if (code_len == 2) {
                 let update_input = input.value.trim().split(input.value.trim().substring(0,3));
                 input.value = update_input[1];
-                // document.getElementById('id_contact_no').value = '+' + country.value + input.value;
                 $('input[name=contact_no]').val('+' + country.value + this.value);
 
             } else if ( code_len == 3) {
                 let update_input = input.value.trim().split(input.value.trim().substring(0,4));
                 input.value = update_input[1];
-                // document.getElementById('id_contact_no').value = '+' + country.value + input.value;
                 $('input[name=contact_no]').val('+' + country.value + input.value);
 
             }else {
-                // document.getElementById('id_contact_no').value = '+' + country.value + input.value;
                 $('input[name=contact_no]').val('+' + country.value + input.value);
             }
         } else {
-            // $('input[name=contact_no]').val('+' + country.value + input.value.trim());
             $('input[name=contact_no]').val('+' + country.value + input.value.trim());
         }
 
         if (input.value.trim()) {
             if (iti.isValidNumber()) {
                 validMsg.classList.remove("hide");
-                $('#submit').show('slow');
+                $('#submit2').show('slow');
             } else {
                 input.classList.add("error");
                 var errorCode = iti.getValidationError();
@@ -158,11 +139,11 @@
                 if (errorCode == -99) {
                     errorMsg.innerHTML = errorMap[5];
                     errorMsg.classList.remove("hide");
-                    $('#submit').hide('slow');
+                    $('#submit2').hide('slow');
                 } else {
                     errorMsg.innerHTML = errorMap[errorCode];
                     errorMsg.classList.remove("hide");
-                    $('#submit').hide('slow');
+                    $('#submit2').hide('slow');
                 }
             }
         }
@@ -197,8 +178,8 @@
     }
 
     var nric = document.querySelector("#id_identification_no");
-    var errorNRIC = document.querySelector("#error-nric");
-    var validNRIC = document.querySelector("#valid-nric");
+    var errorNRIC = document.querySelector("#detail-error-nric");
+    var validNRIC = document.querySelector("#detail-valid-nric");
 
     var resetNric = function() {
         errorNRIC.innerHTML = "";
@@ -225,10 +206,10 @@
 
                         if (data.valid) {
                             validNRIC.innerHTML = data.message;
-                            $('#submit').show('slow');
+                            $('#submit2').show('slow');
                         } else {
                             errorNRIC.innerHTML = data.message;
-                            $('#submit').hide('slow');
+                            $('#submit2').hide('slow');
 
                         }
                     },

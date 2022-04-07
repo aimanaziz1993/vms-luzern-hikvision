@@ -9,11 +9,41 @@
     .actions {
         text-align: center;
     }
-
-    .refresh {
-        display: flex;
-        align-items: center;
-        justify-content: end;
+    .buttons-pdf {
+        background-color: transparent;
+        color: #FF0000;
+        border: none;
+        border-color: none;
+    }
+    .buttons-pdf:hover {
+        background-color: #9ea2ae;
+        color: black;
+        border: none;
+        border-color: none;
+    }
+    .buttons-csv {
+        background-color: transparent;
+        color: #1CC88A;
+        border: none;
+        border-color: none;
+    }
+    .buttons-csv:hover {
+        background-color: #9ea2ae;
+        color: black;
+        border: none;
+        border-color: none;
+    }
+    .buttons-print {
+        background-color: transparent;
+        color: #9ea2ae;
+        border: none;
+        border-color: none;
+    }
+    .buttons-print:hover {
+        background-color: #9ea2ae;
+        color: black;
+        border: none;
+        border-color: none;
     }
 </style>
 
@@ -29,11 +59,12 @@
             <table id="table__vms" class="table table-striped table-bordered table-centered table-nowrap mb-0 rounded">
               <thead>
                   <tr>
-                  <th width="5%" style="text-align: center;">Id</th>
-                  <th>Name</th>
-                  <th>Remarks</th>
-                  <th width="5%" style="text-align: center;">Status</th>
-                  <th width="15%" class="actions">Actions</th>
+                    <th width="5%" style="text-align: center;">ID</th>
+                    <th>Name</th>
+                    <th>Remarks</th>
+                    <th>Registered At</th>
+                    <th width="10%" style="text-align: center;">Status</th>
+                    <th width="10%" class="actions">Actions</th>
                   </tr>
               </thead>
               <tbody>

@@ -55,6 +55,16 @@
 <script src="/static/js/vendor/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
 <script>
 
+    $.fn.noMask = function(regex) { 
+        this.on("keypress", function(e) {
+            if (regex.test(String.fromCharCode(e.which))) {
+                return false;
+            }
+        });
+    }
+    
+    $("input[type=tel]").noMask( /[a-zA-Z]/ );
+
     var input = document.querySelector("#phone");
     var country = document.querySelector("#country");
     var errorMsg = document.querySelector("#error-msg");
@@ -72,7 +82,7 @@
   
     var iti = window.intlTelInputGlobals.getInstance(input);
   
-    var reset = function() {
+    var resetMobile = function() {
         input.classList.remove("error");
         errorMsg.innerHTML = "";
         validMsg.innerHTML = "";
@@ -90,13 +100,38 @@
 
     // on blur: validate
     input.addEventListener('blur', function() {
-        reset();
+        resetMobile();
+
+        let code_len = country.value.length;
+        let subst = input.value.trim().substring(0,1);
+
+        if (subst == '0') {
+            let update_input = input.value.trim().split(input.value.trim().substring(0,1));
+            input.value = update_input[1];
+            document.getElementById('id_contact_no').value = '+' + country.value + input.value;
+
+        } else if ( subst == '+') {
+
+            if (code_len == 2) {
+                let update_input = input.value.trim().split(input.value.trim().substring(0,3));
+                input.value = update_input[1];
+                document.getElementById('id_contact_no').value = '+' + country.value + input.value;
+
+            } else if ( code_len == 3) {
+                let update_input = input.value.trim().split(input.value.trim().substring(0,4));
+                input.value = update_input[1];
+                document.getElementById('id_contact_no').value = '+' + country.value + input.value;
+
+            }else {
+                document.getElementById('id_contact_no').value = '+' + country.value + input.value;
+            }
+        } else {
+            $('input[name=contact_no]').val('+' + country.value + input.value.trim());
+        }
 
         if (input.value.trim()) {
             if (iti.isValidNumber()) {
-                validMsg.innerHTML = "Ok";
                 validMsg.classList.remove("hide");
-                validMsg.classList.add("text-success");
                 $('#submit').show('slow');
             } else {
                 input.classList.add("error");
@@ -105,12 +140,10 @@
                 if (errorCode == -99) {
                     errorMsg.innerHTML = errorMap[5];
                     errorMsg.classList.remove("hide");
-                    validMsg.classList.add("hide");
                     $('#submit').hide('slow');
                 } else {
                     errorMsg.innerHTML = errorMap[errorCode];
                     errorMsg.classList.remove("hide");
-                    validMsg.classList.add("hide");
                     $('#submit').hide('slow');
                 }
             }
@@ -118,19 +151,14 @@
     });
 
     // on keyup / change flag: reset
-    input.addEventListener('change', reset);
-    input.addEventListener('keyup', reset);
+    input.addEventListener('change', resetMobile);
+    input.addEventListener('keyup', resetMobile);
 
     $(document).ready(function () { //document ready call
       $("#id_photo").change(function(){
           console.log('photo uploaded');
           preview_image(this);
       });
-
-      $('#phone').change(function () {
-          document.getElementById('id_contact_no').value = '+' + country.value + this.value;
-      });
-      
     });
 
     function preview_image(input) 

@@ -1,10 +1,41 @@
 {% extends 'base2.html' %}
 
+{% block extrastyles %}
+
+<style>
+    #checkin-box {
+        min-width: 50vw;
+    }
+
+    .iti {
+        width: 100%%
+    }
+
+    .iti .error {
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .iti input {
+        padding-left: 100px;
+    }
+
+    #submit {
+
+    }
+
+    #submit:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+{% endblock extrastyles %}
+
 {% block content_guest %}
 
 <div class="row">
     <div class="col-12 d-flex align-items-center justify-content-center">
-        <div class="card">
+        <div id="checkin-box" class="card checkin-box">
             <div class="card-header">
                 <h4 class="m-0 font-weight-bold text-primary">Check In</h4>
             </div>
@@ -13,7 +44,7 @@
                     {% csrf_token %}
                     <div class="form_group">
                         <label for="search">Search for Visit Details: </label></br>
-                        <input class="form-control form_input" type="text" id="search" name="search" placeholder="Ref code">
+                        <input class="form-control form_input" type="text" id="search" name="search" placeholder="Enter Ref Code">
                     </div>
                     <div>
                         <span id="error-not-found" class="hide text-danger small"></span>
@@ -46,141 +77,146 @@
     var errordiv = document.querySelector("#errorDiv");
     var errorspan = document.querySelector("#error-span");
 
-    var reset = function() {
-        
+    var resetSearch = function() {
+        successMsg.innerHTML = "",
+        errorMsg.innerHTML = "",
+        successMsg.classList.add("hide");
+        errorMsg.classList.add("hide");
     }
 
-$('#search_check_in').on('submit', function(event){
-    event.preventDefault();
+    var search_input = document.querySelector("#search");
 
-    var url = $(this).attr("action");
-    var search = $('input[name=search]').val();
+    search_input.addEventListener('blur', function() {
+        resetSearch();
+        $('#updateDetails').hide();
+        $('#submit').show();
 
-    $.ajax({
-        headers: { "X-CSRFToken": $('input[name=csrfmiddlewaretoken]').val() },
-        url : url,
-        method : "POST",
-        data: {
-            'search': search,
-        },
-        dataType: 'json',
+    })
 
-        success : function(data) {
+    $('#search_check_in').on('submit', function(event){
+        event.preventDefault();
 
-            if (data.error) {
-                errorMsg.innerHTML = data.data;
-                errorMsg.classList.remove("hide");
-                successMsg.innerHTML = '';
-                successMsg.classList.add("hide");
-            } else {
-                console.log(data);
-                successMsg.innerHTML = 'Details Found.';
-                successMsg.classList.remove("hide");
-                $('.show-if-visitor').show('slow');
-                $('#submit').hide('slow');
+        var url = $(this).attr("action");
+        var search = $('input[name=search]').val();
 
-                $('input[name=detail]').value = data.visitor_pk;
-            }
-        },
-        error : function(xhr, ajaxOptions, thrownError) {
-            swal.fire("!Opps ", "Something went wrong. You might entered a wrong code. Try Again. Thank you.", "error");
-        },
+        $.ajax({
+            headers: { "X-CSRFToken": $('input[name=csrfmiddlewaretoken]').val() },
+            url : url,
+            method : "POST",
+            data: {
+                'search': search,
+            },
+            dataType: 'json',
+
+            success : function(data) {
+
+                if (data.error) {
+                    errorMsg.innerHTML = data.data;
+                    errorMsg.classList.remove("hide");
+                    successMsg.innerHTML = '';
+                    successMsg.classList.add("hide");
+                } else {
+                    console.log(data);
+                    successMsg.innerHTML = 'Details Found.';
+                    successMsg.classList.remove("hide");
+                    $('#updateDetails').show();
+                    $('.show-if-visitor').show('slow');
+                    $('#submit').hide('slow');
+                    $('input[name=detail]').value = data.visitor_pk;
+                }
+            },
+            error : function(xhr, ajaxOptions, thrownError) {
+                swal.fire("!Opps ", "Something went wrong. You might entered a wrong code. Try Again. Thank you.", "error");
+            },
+        });
     });
-});
 
-function getDetail(event) {
-    var modal = $('#detail_modal');
-    modal.modal('show');
-
-    var url = $(event.target).closest('a').attr('href');
-
-    var search = $('input[name=search]').val();
-
-    $.ajax({
-        type: "GET",
-        url: url,
-        data: {
-            search: search, 
-        }
-    }).done(function(data, textStatus, jqXHR) {
-        // formAjaxSubmit(modal, url);
-        modal.find('.modal-body').html(data);
+    function getDetail(event) {
+        var modal = $('#detail_modal');
         modal.modal('show');
 
-        $('#check_in').on('submit', function(event){
-            event.preventDefault();
-            console.log("checked in submitted!")
-            checkedin_update(url, modal);
+        var url = $(event.target).closest('a').attr('href');
+
+        var search = $('input[name=search]').val();
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: {
+                search: search, 
+            }
+        }).done(function(data, textStatus, jqXHR) {
+            // formAjaxSubmit(modal, url);
+            modal.find('.modal-body').html(data);
+            modal.modal('show');
+
+            $('#check_in').on('submit', function(event){
+                event.preventDefault();
+                console.log("checked in submitted!")
+                checkedin_update(url, modal);
+            });
+
+        }).fail(function(jqXHR, textStatus, data, errorThrown) {
+            console.log(data);
+        });
+    }
+
+    function checkedin_update(url, modal) {
+        console.log('post started...')
+
+        var form = modal.find('.modal-body form');
+
+        formData = new FormData(form[0]);
+
+        $.ajax({
+            headers: { "X-CSRFToken":  $('input[name=csrfmiddlewaretoken]').val() },
+            url : "/self-register/check-in/details/",
+            method : "POST",
+            // data: $(form).serialize(),
+            data: formData,
+            contentType: 'multipart/form-data',
+
+            success : function(data) {
+                console.log('success');
+
+                if (data.error) {
+                    if (data.message) {
+                        errordiv.classList.remove("hide");
+                        errordiv.classList.add("show");
+                        errorspan.innerHTML = data.message.__all__[0];
+                    } else {
+                        errordiv.classList.remove("hide");
+                        errordiv.classList.add("show");
+                        errorspan.innerHTML = data;
+                    }
+                } else {
+                    // modal.modal('hide');
+
+                    swal.fire({
+                        'title': "Status: DONE",
+                        'text': "Checked In Successful. You can proceed to scan face now. Thank you.",
+                        'timer': 2500
+                    });
+
+                    setTimeout(function(){
+                        window.location.reload();
+                    }, 2500);
+                }
+            },
+            error : function(xhr, ajaxOptions, thrownError) {
+                // modal.modal('hide');
+                swal.fire("!Opps ", "Something went wrong, try again later", "error");
+            },
+            cache: false,
+            contentType: false,
+            processData: false
         });
 
-    }).fail(function(jqXHR, textStatus, data, errorThrown) {
-        console.log(data);
-    });
-}
-
-function checkedin_update(url, modal) {
-    console.log('post started...')
-
-    var form = modal.find('.modal-body form');
-
-    formData = new FormData(form[0]);
-
-    $.ajax({
-        headers: { "X-CSRFToken":  $('input[name=csrfmiddlewaretoken]').val() },
-        url : "/self-register/check-in/details/",
-        method : "POST",
-        // data: $(form).serialize(),
-        data: formData,
-        contentType: 'multipart/form-data',
-
-        success : function(data) {
-            console.log('success');
-
-            if (data.error) {
-                console.log(data);
-                if (data.message) {
-                    errordiv.classList.remove("hide");
-                    errordiv.classList.add("show");
-                    errorspan.innerHTML = data.message.__all__[0];
-                } else {
-                    errordiv.classList.remove("hide");
-                    errordiv.classList.add("show");
-                    errorspan.innerHTML = data;
-                }
-            } else {
-                modal.modal('hide');
-
-                swal.fire({
-                    'title': "Status: DONE",
-                    'text': "Checked In Successful. You can proceed to the floor now. Thank you.",
-                    'timer': 2500
-                });
-
-                setTimeout(function(){
-                    window.location.reload();
-                }, 2500);
-
-            }
-        },
-        error : function(xhr, ajaxOptions, thrownError) {
-            modal.modal('hide');
-
-            swal.fire("!Opps ", "Something went wrong, try again later", "error");
-
-            setTimeout(function(){
-                window.location.reload();
-            }, 2500);
-        },
-        cache: false,
-        contentType: false,
-        processData: false
-    });
-
-    // } else {
-    //     // alert('You have entered invalid phone number!');
-    //     throw new Error("Stop script");
-    // }
-}
+        // } else {
+        //     // alert('You have entered invalid phone number!');
+        //     throw new Error("Stop script");
+        // }
+    }
 </script>
 
 {% endblock javascripts %}

@@ -21,12 +21,13 @@ from sorl.thumbnail import get_thumbnail
 def visitor_reg(request, *args, **kwargs):
     try:
         context = {}
+        security = False
         try:
             security = SecurityOption.objects.first()
             security = security.security
         except:
-            pass
-
+            security = False
+        
         form = VisitorRegistrationForm(request.POST or None)
         code = str(kwargs.get('refs_tenant'))
         tenant = Tenant.objects.get(code=code)
@@ -37,10 +38,12 @@ def visitor_reg(request, *args, **kwargs):
                 form.clean()
                 visitor = form.save(commit=False)
                 visitor.tenant = tenant
-                visitor.save()
 
-                # visitor.appointment.add(tenant)
-                # visitor.save()
+                if security:
+                    visitor.is_approved = 1
+                else:
+                    visitor.is_approved = 2
+                visitor.save()
 
                 if visitor.photo:
                     im = get_thumbnail(visitor.photo, '300x300', crop='center', quality=99)
@@ -61,10 +64,6 @@ def visitor_reg(request, *args, **kwargs):
                 except Exception as e:
                     raise e
 
-                # logic for security
-                if security:
-                    pass
-
                 messages.success(request, 'Success')
                 return render(request, 'visitors/success.html', { 'code': visitor.code })
             else:
@@ -75,37 +74,54 @@ def visitor_reg(request, *args, **kwargs):
         context['form'] = form
         return render(request, 'visitors/visitor_self_register.html', context)
     except:
-        print('here')
-        security = SecurityOption.objects.first()
-        security = security.security
-
         context = {}
         context['code'] = None
+        security = False
+        try:
+            security = SecurityOption.objects.first()
+            security = security.security
+        except:
+            pass
+        
         form = VisitorKioskRegistrationForm(request.POST or None, request.FILES or None)
 
         if request.method == 'POST':
-            # appointments = request.POST.getlist('appointment')
+            tenant_id = request.POST.get('tenant')
+            tenant = Tenant.objects.get(user_id=tenant_id)
 
             if form.is_valid():
                 form.clean()
                 visitor = form.save(commit=False)
+                visitor.tenant = tenant
 
-                # if security:
-                #     visitor.is_approved = 1
-                # else:
-                #     visitor.is_approved = 2
+                if security:
+                    visitor.is_approved = 1
+                else:
+                    visitor.is_approved = 2
                 
                 visitor.save()
                 
-                # for a in appointments:
-                #     visitor.appointment.add(a)
-
-                # visitor.save()
-
+                # Store thumbnail picture version
                 if visitor.photo:
                     im = get_thumbnail(visitor.photo, '300x300', crop='center', quality=99)
 
-                messages.success(request, 'Success')
+                # Emailing when enable
+                email_template = 'email/visitor_registration.html'
+                email_context = { 'visitor': visitor }
+
+                try:
+                    html_email = render_to_string(email_template, email_context)
+                    email = send_mail(
+                        'VMS-Luzern: Visitor Appointment Registration',
+                        html_email,
+                        'webmaster@localhost',
+                        [ tenant.user.email ],
+                        fail_silently=False
+                    )
+                except Exception as e:
+                    raise e
+
+                messages.success(request, 'Visitor Registration Success. Thank you.')
                 return render(request, 'visitors/success.html', { 'code': visitor.code })
 
         context = { 'segment': 'visitors kiosk', 'form': form }
@@ -122,12 +138,12 @@ def staff_reg(request, *args, **kwargs):
         if request.method == 'POST':
             form = StaffRegistrationForm(request.POST, request.FILES)
             if form.is_valid():
-                staff = form.save()
-                staff.appointment.add(tenant)
+                staff = form.save(commit=False)
+                staff.tenant = tenant
+                staff.is_approved = 1
                 staff.save()
 
                 email_template = 'email/staff_pending.html'
-
                 email_context = { 'code': staff.code }
 
                 try:
@@ -142,15 +158,12 @@ def staff_reg(request, *args, **kwargs):
                 except Exception as e:
                     raise e
 
-                messages.success(request, 'Success')
+                messages.success(request, 'Staff Registration Success. Thank you.')
                 return render(request, 'staffs/success.html', { 'code': staff.code })
 
         context = { 'segment': 'staffs', 'tenant': tenant, 'form': form, 'code': code }
         return render(request, 'staffs/staff_self_register.html', context)
     except:
-        # context = {}
-        # context['code'] = None
-        # return render(request, 'staffs/staff_self_register.html', context)
         return HttpResponseForbidden('<h1>403 Forbidden</h1>', content_type='text/html')
 
 def check_in(request):
@@ -163,16 +176,12 @@ def check_in(request):
 
             # for v in visitor:
 
-            if visitor.is_approved == 1 and visitor.is_active == True:
+            if visitor.is_approved == 1:
                 return JsonResponse({
                     'error': True,
                     'data': 'Your registration is currently pending approval from Host. Kindly call the Host to approve your appointment. Thank you.'
                 })
-            elif visitor.is_approved == 2 and visitor.is_active == True:
-                return JsonResponse({
-                    'error': False,
-                })
-            elif visitor.is_approved == 2 and visitor.is_active == False:
+            elif visitor.is_approved == 2 and visitor.is_checkin == True:
                 return JsonResponse({
                     'error': True,
                     'data': "You have checked in before. Kindly register for a new appointment to obtain new code for check in.",
@@ -213,13 +222,15 @@ def details_checkin(request, *args, **kwargs):
         if visitor.is_approved == 2:
             if form.is_valid():
                 visitor_update = form.save(commit=False)
-                # visitor_update.code = generate_ref_code()
-                visitor_update.is_active = False
-                # Add field is checked in
-                # visitor_update.is_checked_in = True
+                visitor_update.is_checkin = True
                 visitor_update.save()
 
                 # Try Except push to FRA Logic with the updated info
+
+                # FULL_URL_WITH_QUERY_STRING: request.build_absolute_uri()
+                # FULL_URL: request.build_absolute_uri('?')
+                # ABSOLUTE_ROOT: request.build_absolute_uri('/')[:-1].strip("/")
+                # ABSOLUTE_ROOT_URL: request.build_absolute_uri('/').strip("/")
 
 
                 return render(request, 'check_in/checkin_success.html', { 'visitor': visitor_update })
@@ -235,6 +246,11 @@ def details_checkin(request, *args, **kwargs):
             return JsonResponse({
                 'error': True,
                 'data': "Your registration is currently pending approval from Host. Kindly call the Host to approve your appointment. Thank you.",
+            })
+        else:
+            return JsonResponse({
+                'error': True,
+                'data': "Check in successfull. You can try to register again if the code is already invalid.",
             })
 
     return render(request, template_name, {
