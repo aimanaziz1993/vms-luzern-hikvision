@@ -225,8 +225,9 @@ def details_checkin(request, *args, **kwargs):
         
         if visitor.is_approved == 2:
             if form.is_valid():
+                # Step 1: Check date time with datetime now / also done using form.clean(), save data for temp process to allow FRA data push first
                 form.clean()
-                visitor_update = form.save(commit=False)
+                visitor_update = form.save(commit=True)
 
                 # Try Except push to FRA Logic with the updated info
                 device = Device.objects.get(pk=visitor_update.tenant.device.pk)
@@ -245,48 +246,69 @@ def details_checkin(request, *args, **kwargs):
                         if visitor_update.code:
                             pass
                         
-                        # Try push add person first, if failed reject check-in
-                        # Step 1: Add Picture Data First, Check FPID returned
+                        # Try push Step 1 add person first, if failed reject check-in
                         try:
+                            # Person Add - Step 1: Initiate instance,
+                            person_instance = Person()
+                            user_type = 'visitor'
+
+                            # Step 2: Check Person ID if exist
+
+                            # Person Add - Step 2: Manipulating date to match time local format --> "endTime":"2023-02-09T17:30:08",
+                            valid_begin = visitor_update.start_date.strftime("%Y-%m-%dT%H:%M:00")
+                            valid_end = visitor_update.end_date.strftime("%Y-%m-%dT%H:%M:00")
+                            
+                            add_res = person_instance.add(visitor_update, user_type, valid_begin, valid_end, host, auth)
+                            print(add_res)
+                            a_status = add_res['statusCode'] or None
+
+                            if a_status != 1:
+                                
+                                if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
+                                    edit_res = person_instance.update(visitor_update, user_type, valid_begin, valid_end, host, auth)
+                                    print(edit_res)
+                                    e_status = edit_res['statusCode'] or None
+
+                                    if e_status != 1:
+                                        return JsonResponse({
+                                            'error': True,
+                                            'data': "Check in failed during editing person into FRA. Please try again. Thank you.",
+                                        })
+                                else:
+                                    return JsonResponse({
+                                        'error': True,
+                                        'data': "Check in failed during adding person into FRA. Please try again. Thank you.",
+                                    })
+
+                            # Push Step 2: Add Picture Data, Check FPID returned
                             face_data_instance = FaceData()
                             face_add_response = face_data_instance.face_data_add(1, visitor_update.code, visitor_update.name, faceURL, host, auth)
                             print(face_add_response)
 
-                            status = face_add_response['statusCode']
+                            f_status = face_add_response['statusCode']
                             error_msg = face_add_response['subStatusCode']
-
-                            if status != 1:
-                                return JsonResponse({
-                                    'error': True,
-                                    'data': f"Check in failed. Reason: {error_msg}. Please try again. Thank you.",
-                                })
-
-                        # Step 2: If exist, Search Person & Update (Overwrite person picture), If not exist, add new person
-                            # use code as employee ID / FPID
-                            # update include valid start & end time
-
-                        # Step 3: Add card for employee of the building, Tenant & Building owner only (Not applicable to visitor check in)
-                        
-                            exit()
-                            person_instance = Person()
-                            user_type = 'visitor'
                             
+                            if f_status != 1:
+                                # if add face failed, edit person face from FRA using FPID
+                                if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
+                                    if face_add_response['subStatusCode'] == 'deviceUserAlreadyExistFace':
+                                        edit_face = face_data_instance.face_data_update(1, visitor_update.code, visitor_update.name, faceURL, host, auth)
+                                        print(edit_face)
+                                        fe_status = edit_face['statusCode'] or None
 
-                            # Step 1: Check date time with datetime now / also done using form.clean()
+                                        if fe_status != 1:
+                                            return JsonResponse({
+                                                'error': True,
+                                                'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
+                                            })
+                                else:
+                                    return JsonResponse({
+                                        'error': True,
+                                        'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
+                                    })
 
-                            # Step 2: Manipulating date to match --> "endTime":"2023-02-09T17:30:08",
-                            valid_begin = visitor_update.start_date.strftime("%Y-%m-%dT%H:%M:00")
-                            valid_end = visitor_update.end_date.strftime("%Y-%m-%dT%H:%M:00")
+                            # Step 3: Add card for employee of the building, Tenant & Building owner only (Not applicable to visitor check in)
 
-                            add_res = person_instance.add(visitor_update, user_type, valid_begin, valid_end, host, auth)
-                            print(add_res)
-                            digit = add_res['statusCode'] or None
-
-                            if digit != 1:
-                                return JsonResponse({
-                                    'error': True,
-                                    'data': "Check in failed during adding person into FRA. Please try again. Thank you.",
-                                })
 
                             return JsonResponse({
                                 'error': False

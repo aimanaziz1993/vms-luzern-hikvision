@@ -153,36 +153,58 @@ class Person(object):
         result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
         return result
 
-    def update(self, id, name, user_type, password, gender, doors, host, auth):
+    def update(self, data, user_type, valid_begin, valid_end, host, auth):
         
         path = host+'/ISAPI/AccessControl/UserInfo/Modify?format=json'
+        # body = {
+        #             "UserInfo":
+        #                 {
+        #                     "employeeNo":str(id),
+        #                     "name": name,
+        #                     "userType": user_type,
+        #                     "Valid":{
+        #                         "enable": False,
+        #                         "beginTime":"2017-08-01T17:30:08",
+        #                         "endTime":"2022-08-01T17:30:08",
+        #                         "timeType":"local"
+        #                         },
+        #                     "doorRight": doors,
+        #                     "RightPlan": [
+        #                         {
+        #                             "doorNo": 1,
+        #                             "planTemplateNo": "1"
+        #                         }
+        #                     ],
+                            
+        #                     "password":password,
+        #                     "gender":gender
+        #                 }
+        #         }
         body = {
                     "UserInfo":
                         {
-                            "employeeNo":str(id),
-                            "name": name,
+                            "employeeNo": str(data.code),
+                            "name": data.name,
                             "userType": user_type,
                             "Valid":{
-                                "enable": False,
-                                "beginTime":"2017-08-01T17:30:08",
-                                "endTime":"2022-08-01T17:30:08",
+                                "enable": True,
+                                "beginTime": str(valid_begin),
+                                "endTime": str(valid_end),
                                 "timeType":"local"
                                 },
-                            "doorRight": doors,
-                            "RightPlan": [
-                                {
-                                    "doorNo": 1,
-                                    "planTemplateNo": "1"
-                                }
-                            ],
-                            
-                            "password":password,
-                            "gender":gender
+                            # "doorRight": doors,
+                            # "RightPlan": [
+                            #     {
+                            #         "doorNo": 1,
+                            #         "planTemplateNo": "1"
+                            #     }
+                            # ],
                         }
                 }
         response = requests.put(path, data=json.dumps(body), auth=auth)
         
-        result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        result = json.loads( json.dumps( response.json() ) )
         return result
 
     def get_count(self, host, auth):
@@ -268,19 +290,28 @@ class FaceData(object):
         result = json.loads(json.dumps(response.json()))
         return result
 
-    def face_data_update(self, faceLibType, FDID, FPID, name, gender, bornTime, city, faceURL, host, auth):
+    def face_data_update(self, FDID, FPID, name, faceURL, host, auth):
         
-        path = f'{host}/ISAPI/Intelligent/FDLib/FDSearch?format=json&FDID={FDID}&FPID={FPID}&faceLibType={faceLibType}'
+        path = f'{host}/ISAPI/Intelligent/FDLib/FDSearch?format=json&FDID={FDID}&FPID={FPID}&faceLibType=blackFD'
+        # body = {
+        #     "name": name,
+        #     "gender": gender,
+        #     "bornTime": bornTime, #"19940226T000000+0500"
+        #     "city": city,
+        #     "faceURL": faceURL
+        # }
         body = {
+            "faceLibType": "blackFD",
+            "FDID": str(FDID), # always 1 or get info from face picture library
+            "FPID": str(FPID),
             "name": name,
-            "gender": gender,
-            "bornTime": bornTime, #"19940226T000000+0500"
-            "city": city,
+            "bornTime": "", # ISO8601 time format
             "faceURL": faceURL
         }
         response = requests.put(path, data=json.dumps(body), auth=auth)
         
-        result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        result = json.loads(json.dumps(response.json()))
         return result
 
     def face_data_delete(self, faceLibType, FDID, FPIDList, host, auth):
@@ -309,7 +340,8 @@ class FaceData(object):
             "faceLibType": f'{faceLibType}',
             "FDID": f'{FDID}',
             "FPID": f'{FPID}'
-            }
+        }
         response = requests.post(path, data=json.dumps(body), auth=auth)
-        result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        result = json.loads(json.dumps(response.json()))
         return result

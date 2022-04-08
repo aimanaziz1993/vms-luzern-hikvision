@@ -1,10 +1,5 @@
 *.pyc
-FRA_link/__pycache__/
-FRA_link_app/__pycache__/
-FRA_link_app/migrations/__pycache__/
-FRA_link_app_v2/__pycache__/
-FRA_link_app_v2/migrations/__pycache__/
-FRA_link_app_v2/utils/__pycache__/
+__pycache__/
 media/
 act.bat
 run.bat
