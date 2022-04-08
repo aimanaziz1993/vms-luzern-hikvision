@@ -1,9 +1,20 @@
+"""
+# print('http scheme', request.scheme)
+# print('http url 2', request.build_absolute_uri('?'))
+# print('absolute root url 2', request.build_absolute_uri('/')[:-1].strip("/"))
+"""
+
 import uuid
+import string
+import random
 from datetime import timedelta
 
 def generate_ref_code():
     code = str( uuid.uuid4() ).replace("-", "")[:12]
     return code
+
+def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def timedeltaObj(timedelta_obj):
     

@@ -74,8 +74,8 @@
     $('.show-if-visitor').hide();
     var errorMsg = document.querySelector("#error-not-found");
     var successMsg = document.querySelector("#found");
-    var errordiv = document.querySelector("#errorDiv");
-    var errorspan = document.querySelector("#error-span");
+    {% comment %} var errordiv = document.querySelector("#errorDiv");
+    var errorspan = document.querySelector("#error-span"); {% endcomment %}
 
     var resetSearch = function() {
         successMsg.innerHTML = "",
@@ -178,17 +178,20 @@
 
             success : function(data) {
                 console.log('success');
+                console.log(data)
 
                 if (data.error) {
+                    
                     if (data.message) {
-                        errordiv.classList.remove("hide");
-                        errordiv.classList.add("show");
-                        errorspan.innerHTML = data.message.__all__[0];
+                        errorDiv.classList.remove("hide");
+                        errorDiv.classList.add("show");
+                        errorSpan.innerHTML = data.message.__all__[0];
                     } else {
-                        errordiv.classList.remove("hide");
-                        errordiv.classList.add("show");
-                        errorspan.innerHTML = data;
+                        errorDiv.classList.remove("hide");
+                        errorDiv.classList.add("show");
+                        errorSpan.innerHTML = data.data;
                     }
+                    
                 } else {
                     // modal.modal('hide');
 

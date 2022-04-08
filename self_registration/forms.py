@@ -77,7 +77,7 @@ class VisitorCheckInForm(BootstrapHelperForm, forms.ModelForm):
     
     class Meta:
         model = Visitor
-        fields = ('photo', 'name', 'identification_no', 'contact_no', 'remarks', )
+        fields = ('photo', 'name', 'identification_no', 'contact_no', 'start_date', 'end_date', 'remarks', )
 
         labels = {
             'photo': 'Face Picture. Take your best possible selfie. [ Important ]',

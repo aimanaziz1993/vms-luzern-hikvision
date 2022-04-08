@@ -5,7 +5,7 @@ from accounts.models import User, Tenant
 from datetime import datetime, timezone
 from PIL import Image
 
-from .utils import generate_ref_code
+from .utils import generate_ref_code, id_generator
 
 def image_max_size(width=None, height=None):
 
@@ -63,6 +63,7 @@ class Visitor(models.Model):
     def save(self, *args, **kwargs):
         if self.code == "":
             code = generate_ref_code()
+            # code = id_generator()
             self.code = code
         super().save(*args, **kwargs)
 

@@ -21,7 +21,7 @@ def do_static(parser, token):
 
 @register.simple_tag(takes_context=True)
 def get_template_name(context, *args):
-    print(context)
+    # print(context)
     # print(context['object_list'])
     # print(context['user'])
     # print(context['tenant_visitor'])
