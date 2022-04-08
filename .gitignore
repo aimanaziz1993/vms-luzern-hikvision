@@ -3,3 +3,4 @@ __pycache__/
 media/
 act.bat
 run.bat
+db.sqlite3
