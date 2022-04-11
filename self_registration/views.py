@@ -299,7 +299,10 @@ def details_checkin(request, *args, **kwargs):
                             user_type = 'visitor'
 
                             # Person Add - Step 2: Manipulating date to match time local format --> "endTime":"2023-02-09T17:30:08",
-                            valid_begin = visitor_update.start_date.strftime("%Y-%m-%dT%H:%M:00")
+                            # valid_begin = visitor_update.start_date.strftime("%Y-%m-%dT%H:%M:00")
+
+                            df = datetime.now()
+                            valid_begin = df.strftime("%Y-%m-%dT%H:%M:00")
                             valid_end = visitor_update.end_date.strftime("%Y-%m-%dT%H:%M:00")
                             
                             add_res = person_instance.add(visitor_update, user_type, valid_begin, valid_end, host, auth)
@@ -367,12 +370,14 @@ def details_checkin(request, *args, **kwargs):
                                     })
 
                             # Step 4: Get All past checked in visitor with status True 
-                            get_checked_in_visitor = Visitor.objects.filter(is_checkin = True, tenant=visitor.tenant)
+                            get_checked_in_visitor = Visitor.objects.filter(is_checkin = True)
                             # Get & loop all past visitor code - compare code to FRA & delete
                             for visitor in get_checked_in_visitor:
                                 # delete every code if exist in FRA
-                                del_res = person_instance.delete(visitor.code, host, auth)
-                                print(del_res)
+                                if visitor.end_date <= datetime.now():
+                                    print("deleting all end date visitor")
+                                    del_res = person_instance.delete(visitor.code, host, auth)
+                                    print(del_res)
 
                             visitor_update.is_checkin = True
                             visitor_update.save()

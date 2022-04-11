@@ -127,8 +127,9 @@ class Person(object):
                             #         "planTemplateNo": "1"
                             #     }
                             # ],
+                            # "userVerifyMode": "cardOrFace",
                             "floorNumber": int(data.tenant.device.floor.id),
-                            "checkUser": "true"
+                            # "checkUser": True
                         }
                 }
         response = requests.post(path, data=json.dumps(body), auth=auth)
@@ -192,7 +193,7 @@ class Person(object):
                                 "beginTime": str(valid_begin),
                                 "endTime": str(valid_end),
                                 "timeType":"local"
-                                },
+                            },
                             # "doorRight": doors,
                             # "RightPlan": [
                             #     {
@@ -200,6 +201,7 @@ class Person(object):
                             #         "planTemplateNo": "1"
                             #     }
                             # ],
+                            # "userVerifyMode": "cardOrFace"
                         }
                 }
         response = requests.put(path, data=json.dumps(body), auth=auth)
