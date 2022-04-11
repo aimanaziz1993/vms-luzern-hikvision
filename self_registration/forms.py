@@ -42,6 +42,42 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
             super(VisitorRegistrationForm, self).__init__(*args, **kwargs)
             self.fields['start_date'].input_formats = ('%Y-%m-%dT%H:%M',)
             self.fields['end_date'].input_formats = ('%Y-%m-%dT%H:%M',)
+
+class VisitorUpdateRegistrationForm(BootstrapHelperForm, forms.ModelForm):
+    
+    tenant = forms.ModelChoiceField(
+        label=u'Select Host',
+        empty_label=u'Select Host or Tenant:',
+        queryset=Tenant.objects.all(),
+        widget=forms.Select
+    )
+
+    class Meta:
+        model = Visitor
+        fields = ('photo', 'name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
+
+        labels = {
+            'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
+            'identification_no': 'Identification No',
+            'tenant': 'Select Host',
+            'remarks': 'Remarks [ Optional ]'
+        }
+
+        widgets = {
+            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
+            'name': TextInput(attrs={'class': 'form-control form_input'}),
+            'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
+            'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
+            'contact_no': forms.HiddenInput(),
+            'start_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
+            'end_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
+            'remarks': Textarea( attrs={'class': 'form-control form_input mb-4', 'rows':6, 'cols':15} ),
+        }
+
+        def __init__(self, *args, **kwargs):
+            super(VisitorRegistrationForm, self).__init__(*args, **kwargs)
+            self.fields['start_date'].input_formats = ('%Y-%m-%dT%H:%M',)
+            self.fields['end_date'].input_formats = ('%Y-%m-%dT%H:%M',)
     
 
 class VisitorRegistrationForm(BootstrapHelperForm, forms.ModelForm):

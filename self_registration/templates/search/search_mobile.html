@@ -1,0 +1,176 @@
+{% extends 'base-guest.html' %}
+
+{% block extrastyles %}
+
+<style>
+    #checkin-box {
+        min-width: 50vw;
+    }
+
+    .iti {
+        width: 100%%
+    }
+
+    .iti .error {
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .iti input {
+        padding-left: 100px;
+    }
+
+    #submit {
+
+    }
+
+    #submit:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+{% endblock extrastyles %}
+
+{% block content_guest %}
+
+<div class="row">
+    <div class="col-12 d-flex align-items-center justify-content-center">
+        <div id="checkin-box" class="card checkin-box">
+            <div class="card-header">
+                <h4 class="m-0 font-weight-bold text-primary">Search Registration</h4>
+            </div>
+            <div class="card-body">
+                <form id="search_mobile" method="POST" action="{% url 'search-mobile' %}">
+                    {% csrf_token %}
+                    <div class="form_group">
+                        <label for="search">Search via mobile number: </label></br>
+                        <input class="form-control form_input" type="tel" id="phone" placeholder="12345678" required>
+                        <input type="hidden" name="country" id="country" value="">
+                        <input class="form-control form_input" type="hidden" id="search" name="search" placeholder="Enter mobile number">
+                    </div>
+                    <div>
+                        <span id="valid-msg" class="hide"></span>
+                        <span id="error-msg" class="hide text-danger small py-1"></span>
+                      </div>
+                    {% if notfound %}
+                    <div>
+                        <span id="error-not-found" class="show text-danger small">{{ notfound }}</span>
+                    </div>
+                    {% endif %}
+                    <input id="submit" type="submit" class="btn btn-info btn-sm mt-3" value="Search"></input>
+
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% comment %} {% include 'check_in/modal/checkin_detail.html' %} {% endcomment %}
+{% endblock content_guest %}
+
+{% block javascripts %}
+<script src="/static/js/vendor/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
+
+<script>
+    $.fn.noMask = function(regex) { 
+        this.on("keypress", function(e) {
+            if (regex.test(String.fromCharCode(e.which))) {
+                return false;
+            }
+        });
+    }
+    
+    $("input[type=tel]").noMask( /[a-zA-Z]/ );
+
+    var input = document.querySelector("#phone");
+    var country = document.querySelector("#country");
+    var errorMsg = document.querySelector("#error-msg");
+    var validMsg = document.querySelector("#valid-msg");
+  
+    // phone number validation
+    var errorMap = ["Invalid number", "Invalid country code", "Phone no. is too short", "Phone no. is too long", "Invalid number", "Invalid"];
+  
+    // Initialise phone number
+    window.intlTelInput(input, {
+        preferredCountries: ["sg", "my"],
+        separateDialCode: true,
+        utilsScript: "/static/js/vendor/intl-tel-input-17.0.0/build/js/utils.js"
+    });
+  
+    var iti = window.intlTelInputGlobals.getInstance(input);
+  
+    var resetMobile = function() {
+        input.classList.remove("error");
+        errorMsg.innerHTML = "";
+        validMsg.innerHTML = "";
+        errorMsg.classList.add("hide");
+        validMsg.classList.add("hide");
+    };
+
+    // set it's initial value
+    country.value = iti.getSelectedCountryData().dialCode;
+
+    input.addEventListener("countrychange", function(e) {
+        var code = iti.getSelectedCountryData().dialCode;
+        country.value = code;
+    });
+
+    // on blur: validate
+    input.addEventListener('blur', function() {
+        resetMobile();
+
+        let code_len = country.value.length;
+        let subst = input.value.trim().substring(0,1);
+
+        if (subst == '0') {
+            let update_input = input.value.trim().split(input.value.trim().substring(0,1));
+            input.value = update_input[1];
+            document.getElementById('search').value = '+' + country.value + input.value;
+
+        } else if ( subst == '+') {
+
+            if (code_len == 2) {
+                let update_input = input.value.trim().split(input.value.trim().substring(0,3));
+                input.value = update_input[1];
+                document.getElementById('search').value = '+' + country.value + input.value;
+
+            } else if ( code_len == 3) {
+                let update_input = input.value.trim().split(input.value.trim().substring(0,4));
+                input.value = update_input[1];
+                document.getElementById('search').value = '+' + country.value + input.value;
+
+            }else {
+                document.getElementById('search').value = '+' + country.value + input.value;
+            }
+        } else {
+            $('input[name=search]').val('+' + country.value + input.value.trim());
+        }
+
+        if (input.value.trim()) {
+            if (iti.isValidNumber()) {
+                validMsg.classList.remove("hide");
+                $('#submit').show('slow');
+            } else {
+                input.classList.add("error");
+                var errorCode = iti.getValidationError();
+
+                if (errorCode == -99) {
+                    errorMsg.innerHTML = errorMap[5];
+                    errorMsg.classList.remove("hide");
+                    // $('#submit').hide('slow');
+                } else {
+                    errorMsg.innerHTML = errorMap[errorCode];
+                    errorMsg.classList.remove("hide");
+                    // $('#submit').hide('slow');
+                }
+            }
+        }
+    });
+
+    // on keyup / change flag: reset
+    input.addEventListener('change', resetMobile);
+    input.addEventListener('keyup', resetMobile);
+    
+</script>
+
+{% endblock javascripts %}

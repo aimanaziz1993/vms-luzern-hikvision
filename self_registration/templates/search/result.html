@@ -1,63 +1,95 @@
-{% load static %}
-{% load cms %}
+{% extends 'base-guest.html' %}
 
-<div class="container py-3">
-    <form id="check_in" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row px-4 mt-4">
-            <div id="errorDiv" class="col-md alert alert-warning alert-dismissible fade hide mb-4" id="update_alert" role="alert">
-                <span id="error-span" class="error-all hide"></span>
+{% block extrastyles %}
+
+<style>
+    #checkin-box {
+        min-width: 50vw;
+    }
+
+    .iti .iti--allow-dropdown .iti--separate-dial-code {
+        width: 100%%
+    }
+
+    .iti .error {
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .iti input {
+        padding-left: 100px;
+    }
+
+    #submit {
+
+    }
+
+    #submit:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+{% endblock extrastyles %}
+
+{% block content_guest %}
+
+<div class="row">
+    <div class="col-12 d-flex align-items-center justify-content-center">
+        <div id="checkin-box" class="card checkin-box">
+            <div class="card-header">
+                <h4 class="m-0 font-weight-bold text-primary">Result - Update Registration</h4>
             </div>
-            {% if form.errors %}
-                {% for field in form.non_field_errors %}
-                    <div class="col-md alert alert-warning alert-dismissible fade show mb-4" id="update_alert" role="alert">
-                        <strong>{{ field | escape }}</strong>
+            <div class="card-body">
+                <form id="selfregister-visitor" method="POST" enctype="multipart/form-data" action="{% url 'search-result' visitor.contact_no %}">
+                    {% csrf_token %}
+                    {% for nfe in form.non_field_errors %}
+                        <p class="help-block text-danger">{{ nfe }}</p>
+                    {% endfor %}
+                    <div class="img-responsive row d-flex justify-content-center">
+                      <img id='visitor-photo' src="{{request.scheme}}://{{request.META.HTTP_HOST}}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
+                      <br/>
                     </div>
-                {% endfor %}
-            {% endif %}
-          </div>
-          <div class="img-responsive row d-flex justify-content-center">
-            {% comment %} <img id='visitor-photo2' src="http://{{ request.get_host }}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar"> {% endcomment %}
-            <img id='visitor-photo2' src="{{request.scheme}}://{{request.META.HTTP_HOST}}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
-            <br/>
-          </div>
-          <input type="hidden" name="visitor_id" value="{{ visitor.id }}" />
-          {% for field in form %}
-            <div class="form-group{% if field.errors %} has-error{% endif %}">
-              {% if field.id_for_label == 'id_contact_no' %}
-                <label for="phone">Contact No.: </label></br>
-                <input class="form-control form_input" type="tel" id="phone2" placeholder="123456789" required>
-                <input type="hidden" name="country2" id="country2" value="">
-                {{ form.contact_no }}
-                <div>
-                  <span id="detail-valid-msg" class="hide"></span>
-                  <span id="detail-error-msg" class="hide text-danger small py-1"></span>
-                </div>
-              {% elif field.id_for_label == 'id_identification_no' %}
-                <label for="id_identification_no">Identification No.: </label></br>
-                {{ form.identification_no }}
-                <div>
-                  <p><span id="detail-valid-nric" class="hide small text-success py-1"></span></p>
-                  <p><span id="detail-error-nric" class="hide small text-danger py-1"></span></p>
-                </div> 
-              {% else %}
-              <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
-              {{field}}
-              {% endif %}
-              
-              {% for error in field.errors %}
-                <p class="help-block text-danger">{{ error }}</p>
-              {% endfor %}
-              {% for nfe in field.non_field_errors %}
-                <p class="help-block text-danger">{{ nfe }}</p>
-              {% endfor %}
+                    {% for field in form %}
+                      <div class="form-group{% if field.errors %} has-error{% endif %}">
+                        {% if field.id_for_label == 'id_contact_no' %}
+                          <label for="phone">Contact No.: </label></br>
+                          <input class="form-control form_input" type="tel" id="phone2" placeholder="12345678" required>
+                          <input type="hidden" name="country2" id="country2" value="">
+                          {{ form.contact_no }}
+                          <div>
+                            <span id="detail-valid-msg" class="hide"></span>
+                            <span id="detail-error-msg" class="hide text-danger small py-1"></span>
+                          </div>
+                        {% elif field.id_for_label == 'id_identification_no' %}
+                          <label for="id_identification_no">Identification No.: </label></br>
+                          {{ form.identification_no }}
+                          <div>
+                            <p><span id="valid-nric" class="hide small text-success py-1"></span></p>
+                            <p><span id="error-nric" class="hide small text-danger py-1"></span></p>
+                          </div> 
+                        {% else %}
+                        <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+                        {{field}}
+                        {% endif %}
+                        {% for error in field.errors %}
+                          <p class="help-block text-danger">{{ error }}</p>
+                        {% endfor %}
+                      </div>
+                    {% endfor %}
+                    <a id="back" href="{% url 'search-mobile' %}" class="btn btn-secondary btn-sm" value="Back">Back</a>
+                    <input id="submit" type="submit" class="btn btn-info btn-sm" value="Save Registration"></input>
+                </form>
             </div>
-          {% endfor %}
-        <input id="submit2" type="submit" class="btn btn-info btn-sm mt-3" value="Confirm Check In"></input>
-    </form>
+        </div>
+        
+    </div>
 </div>
+{% comment %} {% include 'check_in/modal/checkin_detail.html' %} {% endcomment %}
+{% endblock content_guest %}
 
 {% block javascripts %}
+<script src="/static/js/vendor/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
+
 <script>
     $.fn.noMask = function(regex) { 
         this.on("keypress", function(e) {
@@ -143,7 +175,7 @@
         if (input.value.trim()) {
             if (iti.isValidNumber()) {
                 validMsg.classList.remove("hide");
-                $('#submit2').show('slow');
+                $('#submit').show('slow');
             } else {
                 input.classList.add("error");
                 var errorCode = iti.getValidationError();
@@ -151,11 +183,11 @@
                 if (errorCode == -99) {
                     errorMsg.innerHTML = errorMap[5];
                     errorMsg.classList.remove("hide");
-                    $('#submit2').hide('slow');
+                    $('#submit').hide('slow');
                 } else {
                     errorMsg.innerHTML = errorMap[errorCode];
                     errorMsg.classList.remove("hide");
-                    $('#submit2').hide('slow');
+                    $('#submit').hide('slow');
                 }
             }
         }
@@ -165,33 +197,9 @@
     input.addEventListener('change', reset);
     input.addEventListener('keyup', reset);
 
-    $('input[type=file]').change(function(e){
-        console.log('photo updated');
-        preview_image(this);
-    })
-
-    // $('input[type=tel]').change(function () {
-    //     // mobile.value = '+' + country.value + this.value;
-    //     $('input[name=contact_no]').val('+' + country.value + this.value);
-    // });
-
-    function preview_image(input) 
-    {
-
-        if (input.files && input.files[0]) {
-
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#visitor-photo2').attr('src', e.target.result);
-            }
-            
-            var photoData = reader.readAsDataURL(input.files[0]); // convert to base64 string
-        }
-    }
-
     var nric = document.querySelector("#id_identification_no");
-    var errorNRIC = document.querySelector("#detail-error-nric");
-    var validNRIC = document.querySelector("#detail-valid-nric");
+    var errorNRIC = document.querySelector("#error-nric");
+    var validNRIC = document.querySelector("#valid-nric");
 
     var resetNric = function() {
         errorNRIC.innerHTML = "";
@@ -218,10 +226,10 @@
 
                         if (data.valid) {
                             validNRIC.innerHTML = data.message;
-                            $('#submit2').show('slow');
+                            $('#submit').show('slow');
                         } else {
                             errorNRIC.innerHTML = data.message;
-                            $('#submit2').hide('slow');
+                            $('#submit').hide('slow');
 
                         }
                     },
@@ -236,7 +244,30 @@
         // nric.addEventListener('change', resetNric);
         nric.addEventListener('keyup', resetNric);
     });
-  
+
+    $('input[type=file]').change(function(e){
+        console.log('photo updated');
+        preview_image(this);
+    })
+
+    // $('input[type=tel]').change(function () {
+    //     // mobile.value = '+' + country.value + this.value;
+    //     $('input[name=contact_no]').val('+' + country.value + this.value);
+    // });
+
+    function preview_image(input) 
+    {
+
+        if (input.files && input.files[0]) {
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#visitor-photo').attr('src', e.target.result);
+            }
+            
+            var photoData = reader.readAsDataURL(input.files[0]); // convert to base64 string
+        }
+    }
 </script>
 
 {% endblock javascripts %}

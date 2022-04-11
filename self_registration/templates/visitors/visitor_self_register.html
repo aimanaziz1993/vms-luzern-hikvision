@@ -1,4 +1,4 @@
-{% extends 'base2.html' %}
+{% extends 'base-guest.html' %}
 
 {% block extrastyles %}
 
@@ -11,15 +11,27 @@
         font-size: small;
         width: 100%;
     }
+
+    #search-mobile {
+        font-size: small;
+    }
+
+    #search-mobile:hover {
+        text-decoration: underline;
+        transform: scale(1.1);
+    }
 </style>
 
 {% endblock extrastyles %}
 
 {% block content_guest %}
-
 <div class="row">
     <div class="col-12 d-flex align-items-center justify-content-center">
         <div class="card">
+            {% comment %} <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-dark">Have you registered before?</h6>
+                <a id="search-mobile" href="{% url 'search-mobile' %}" class="text-primary">Search your registration details via mobile number</a>
+            </div> {% endcomment %}
             <div class="card-header">
                 <h4 class="m-0 font-weight-bold text-primary">Visitor Self Registration</h4>
             </div>

@@ -91,11 +91,11 @@ class Person(object):
                             "searchID": "4",
                             "searchResultPosition": 0,
                             "maxResults": 32,
-                            "EmployeeNoList":[
-                                {
-                                    "employeeNo": str(id)
-                                }
-                            ]
+                            # "EmployeeNoList":[
+                            #     {
+                            #         "employeeNo": str(id)
+                            #     }
+                            # ]
                         }
                     }
             response = requests.post(path, data=json.dumps(body), auth=auth)
@@ -128,6 +128,7 @@ class Person(object):
                             #     }
                             # ],
                             "floorNumber": int(data.tenant.device.floor.id),
+                            "checkUser": "true"
                         }
                 }
         response = requests.post(path, data=json.dumps(body), auth=auth)
@@ -149,8 +150,8 @@ class Person(object):
                     }
                 }
         response = requests.put(path, data=json.dumps(body), auth=auth)
-        
-        result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        result = json.loads( json.dumps( response.json() ) )
         return result
 
     def update(self, data, user_type, valid_begin, valid_end, host, auth):
@@ -339,9 +340,37 @@ class FaceData(object):
             "maxResults": 32,
             "faceLibType": f'{faceLibType}',
             "FDID": f'{FDID}',
-            "FPID": f'{FPID}'
+            # "FPID": f'{FPID}'
         }
         response = requests.post(path, data=json.dumps(body), auth=auth)
         # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
         result = json.loads(json.dumps(response.json()))
         return result
+
+
+class Card(object):
+    def __init__(self):
+        pass
+
+    def search(self, id, host, auth):
+        try:
+            
+            path = host+'/ISAPI/AccessControl/CardInfo/Search?format=json'
+            body =  {
+                        "CardInfoSearchCond": {
+                            "searchID": "4",
+                            "searchResultPosition": 0,
+                            "maxResults": 32,
+                            "EmployeeNoList":[
+                                {
+                                    "employeeNo": str(id)
+                                }
+                            ]
+                        }
+                    }
+            response = requests.post(path, data=json.dumps(body), auth=auth)
+            # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+            result = json.loads( json.dumps( response.json() ) )
+            return result
+        except:
+            return HttpResponseBadRequest()

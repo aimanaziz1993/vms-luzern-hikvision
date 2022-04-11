@@ -2,13 +2,13 @@
 <form id="selfregister-visitor" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row px-4 mt-4">
-      {% if form.errors %}
-          {% for field in form.non_field_errors %}
-              <div class="col-md alert alert-warning alert-dismissible fade show mb-4" id="update_alert" role="alert">
-                  <strong>{{ field | escape }}</strong>
-              </div>
-          {% endfor %}
-      {% endif %}
+        {% if form.errors %}
+            {% for field in form.non_field_errors %}
+                <div class="col-md alert alert-warning alert-dismissible fade show mb-4" id="update_alert" role="alert">
+                    <strong>{{ field | escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
     <div class="img-responsive row d-flex justify-content-center">
       <img id='visitor-photo' src="/static/icon/avatar.png" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
@@ -36,12 +36,11 @@
         <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
         {{field}}
         {% endif %}
-        
-        {% for error in field.errors %}
-          <p class="help-block text-danger">{{ error }}</p>
-        {% endfor %}
         {% for nfe in field.non_field_errors %}
           <p class="help-block text-danger">{{ nfe }}</p>
+        {% endfor %}
+        {% for error in field.errors %}
+          <p class="help-block text-danger">{{ error }}</p>
         {% endfor %}
       </div>
     {% endfor %}

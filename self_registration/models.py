@@ -31,7 +31,7 @@ class Visitor(models.Model):
 
     name = models.CharField(max_length=120)
     identification_no = models.CharField(max_length=100)
-    contact_no = models.CharField(max_length=20, null=True)
+    contact_no = models.CharField(max_length=20, unique=True, null=True)
     # photo  = models.ImageField(default="", blank=True, null=True, validators=[image_max_size(300,300)])
     photo  = models.ImageField(default="", upload_to='visitors', blank=True, null=True)
     remarks = models.CharField(max_length=255, blank=True, null=True)
@@ -55,10 +55,10 @@ class Visitor(models.Model):
 
     def clean(self):
         if self.end_date <= self.start_date:
-            raise ValidationError("Ending Time must end after it starts")
+            raise ValidationError("Ending Time must end after it starts.")
 
         if self.start_date <= datetime.now():
-            raise ValidationError("Appointment Time must starts in future. Not in the past")
+            raise ValidationError("Appointment Time must starts in future. Not in the past.")
 
     def save(self, *args, **kwargs):
         if self.code == "":

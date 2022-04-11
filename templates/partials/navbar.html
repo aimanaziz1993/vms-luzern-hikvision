@@ -183,25 +183,24 @@
 
 </nav>
 {% else %}
-
 <!-- Guest View -->
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
-    {% comment %} <a class="navbar-brand text-gray-900 mx-4" href="{% url 'home' %}">VMS-Luzern</a> {% endcomment %}
+    <a class="navbar-brand text-gray-900 mx-4" href="{% url 'home' %}">VMS-Luzern</a>
     {% comment %} <a class="navbar-brand text-gray-900 mx-4" href="{% url 'check-in' %}">Check In</a> {% endcomment %}
-    <a href="{% url 'check-in' %}" class="btn btn-success btn-icon-split mr-3">
+    {% comment %} <a href="{% url 'check-in' %}" class="btn btn-success btn-icon-split mr-3">
         <span class="icon text-white-300">
           <i class="fas fa-sign-in-alt"></i>
         </span>
         <span class="text">Check In</span>
-    </a>
+    </a> {% endcomment %}
 
-    <a href="/self-register/visitor/" class="btn btn-primary btn-icon-split mr-3">
+    {% comment %} <a href="/self-register/visitor/" class="btn btn-primary btn-icon-split mr-3">
         <span class="icon text-white-300">
           <i class="fas fa-registered"></i>
         </span>
         <span class="text">Self Register as Visitor</span>
-    </a>
+    </a> {% endcomment %}
 
     {% comment %} <a href="/self-register/staff/" class="btn btn-primary btn-icon-split">
         <span class="icon text-white-300">
@@ -224,5 +223,6 @@
         </div> {% endcomment %}
     {% comment %} </ul> {% endcomment %}
 </nav>
+
 {% endif %}
 

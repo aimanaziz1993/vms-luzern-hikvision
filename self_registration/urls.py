@@ -5,6 +5,10 @@ from . import views
 
 urlpatterns = [
 
+    # Search Registration
+    path('search-mobile/', views.search_registration, name='search-mobile'),
+    path('result/<str:mobile>/', views.search_result, name='search-result'),
+
     # CHECK IN
     path('check-in/', views.check_in, name='check-in'),
     path('check-in/details/', views.details_checkin, name="details-checkin"),
