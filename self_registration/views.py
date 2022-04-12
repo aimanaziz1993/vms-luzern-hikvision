@@ -18,7 +18,7 @@ from self_registration.utils import generate_ref_code
 from .models import Visitor
 from .forms import VisitorCheckInForm, VisitorKioskRegistrationForm, VisitorRegistrationForm, StaffRegistrationForm, VisitorUpdateRegistrationForm
 
-from hikvision_api.api import Card, CheckStatusCodeResponse, FaceData, get_text_status_response, initiate, Person
+from hikvision_api.api import initiate, Card, FaceData, Person
 
 from sorl.thumbnail import get_thumbnail
 
@@ -259,13 +259,17 @@ def details_checkin(request, *args, **kwargs):
     form = VisitorCheckInForm(request.POST or None, request.FILES or None, instance=visitor)
 
     if request.is_ajax() and request.method == 'POST':
-        # form_update = VisitorRegistrationForm(data=request.POST, files=request.FILES, instance=visitor)
+        # form_update = VisitorReg  istrationForm(data=request.POST, files=request.FILES, instance=visitor)
+
+        # print(request.POST.get('start_date'))
         
         if visitor.is_approved == 2:
             if form.is_valid():
                 # Step 1: Check date time with datetime now / also done using form.clean(), save data for temp process to allow FRA data push first
-                form.clean()
-                visitor_update = form.save(commit=True)
+                # form.clean()
+                visitor_update = form.save(commit=False)
+                visitor_update.start_date = datetime.now()
+                visitor_update.save()
 
                 # Try Except push to FRA Logic with the updated info
                 device = Device.objects.get(pk=visitor_update.tenant.device.pk)
@@ -286,14 +290,6 @@ def details_checkin(request, *args, **kwargs):
                         
                         # Try push Step 1 add person first, if failed reject check-in
                         try:
-                            # Tak boleh guna
-                            # face_data_instance = FaceData()
-                            # face_add_response = face_data_instance.face_data_search('blackFD', 1, '', host, auth)
-                            # print(face_add_response)
-
-                            person_instance = Person()
-                            user_type = 'visitor'
-                            
                             # Person Add - Step 1: Initiate instance,
                             person_instance = Person()
                             user_type = 'visitor'
@@ -353,16 +349,16 @@ def details_checkin(request, *args, **kwargs):
                             if f_status != 1:
                                 # if add face failed, edit person face from FRA using FPID
                                 if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
-                                    if face_add_response['subStatusCode'] == 'deviceUserAlreadyExistFace':
-                                        edit_face = face_data_instance.face_data_update(1, visitor_update.code, visitor_update.name, faceURL, host, auth)
-                                        print(edit_face)
-                                        fe_status = edit_face['statusCode'] or None
+                                    # if face_add_response['subStatusCode'] == 'deviceUserAlreadyExistFace':
+                                    edit_face = face_data_instance.face_data_update(1, visitor_update.code, visitor_update.name, faceURL, host, auth)
+                                    print(edit_face)
+                                    fe_status = edit_face['statusCode'] or None
 
-                                        if fe_status != 1:
-                                            return JsonResponse({
-                                                'error': True,
-                                                'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
-                                            })
+                                    if fe_status != 1:
+                                        return JsonResponse({
+                                            'error': True,
+                                            'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
+                                        })
                                 else:
                                     return JsonResponse({
                                         'error': True,
@@ -371,7 +367,7 @@ def details_checkin(request, *args, **kwargs):
 
                             # Step 4: Get All past checked in visitor with status True 
                             get_checked_in_visitor = Visitor.objects.filter(is_checkin = True)
-                            # Get & loop all past visitor code - compare code to FRA & delete
+                            # Get & loop all past visitor code - compare code to FRA & delete all visitor from FRA
                             for visitor in get_checked_in_visitor:
                                 # delete every code if exist in FRA
                                 if visitor.end_date <= datetime.now():
@@ -381,7 +377,6 @@ def details_checkin(request, *args, **kwargs):
 
                             visitor_update.is_checkin = True
                             visitor_update.save()
-
 
                             return JsonResponse({
                                 'error': False
@@ -424,21 +419,14 @@ def details_checkin(request, *args, **kwargs):
     })
 
 def validate_nric(request):
-    
     if request.method == 'POST':
-
         regval = False
-
         match = re.match("^\d{3}[A-Z]$", request.POST.get('nric'))
-
         if match:
             regval = True
-
         all_visitor = Visitor.objects.all()
-
         if all_visitor:
             for visitor in all_visitor:
-
                 # if visitor.identification_no == request.POST.get('nric'):
                 #     return JsonResponse({'valid': False, 'message': 'Identification No. has already been registered'})
                 if regval == False:
@@ -446,11 +434,9 @@ def validate_nric(request):
 
                 else:
                     return JsonResponse({'valid': True,'message': 'Ok'})
-
         else:
             if regval == False:
                 return JsonResponse({'valid': False, 'message': 'Identification No. must be only 3 digits and an Alphabet [Case Sensitive]'})
             else:
                 return JsonResponse({'valid': True,'message': 'Ok'})
-
     return HttpResponse("nric validation")

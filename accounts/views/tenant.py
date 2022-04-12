@@ -7,7 +7,12 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
+from hikvision_api.api import initiate, Card, FaceData, Person
+
+from sorl.thumbnail import get_thumbnail
 
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
@@ -19,7 +24,7 @@ from cms.views import CoreListView
 from self_registration.utils import generate_ref_code, timedeltaObj
 
 from ..forms import TenantCreationForm, TenantProfileUpdateForm
-from ..models import Tenant, User
+from ..models import Device, Tenant, User
 from self_registration.models import Staff, Visitor
 from ..decorators import administrator_required, tenant_required
 
@@ -137,34 +142,167 @@ class TenantStaffDetail(AjaxDetailView):
 @login_required
 @tenant_required
 def generate_code(request):
-
     user_id = request.POST.get('user_id')
     tenant = Tenant.objects.get(user_id = user_id)
-
     if request.POST:
         tenant.code = generate_ref_code()
         tenant.save()
-
     return HttpResponse("done")
+
 
 @login_required
 @tenant_required
 def staff_approval(request, pk):
     staff = Staff.objects.get(pk=pk)
     if request.POST:
+        # Cleanup string ID
+        employeeNo = str(request.POST.get('employeeNo'))
+        for ch in ['\\','`','*','_','{','}','[',']','(',')','>', '@', '#','+', ' ','-','.','!','$','\'']:
+            if ch in employeeNo:
+                employeeNo = employeeNo.replace(ch, "")
+
         if request.POST.get('pk') == '3':
             staff.is_active = False
             email_template = 'email/staff_rejected.html'
         else:
             email_template = 'email/staff_approve.html'
-        staff.is_approved = request.POST.get('pk')
+            staff.is_approved = request.POST.get('pk')
+            staff.code = employeeNo.upper()
         staff.save()
 
-        email_context = {
-            'code': staff.code
-        }
+        if staff.is_active and staff.is_approved:
+            print('active - so update fra')
+            # proceed push staff data to FRA as user here
+            # Try Except push to FRA Logic with the updated info
+            device = Device.objects.get(pk=staff.tenant.device.pk)
+            host = str( str(request.scheme) + '://' + str(device.ip_addr) )
+            absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+            
+            initialize = initiate(device.device_username, device.device_password)
+            auth = initialize['auth']
 
+            if initialize['client'] and auth:
+                if staff.photo:
+                    img = get_thumbnail(staff.photo, '200x200', crop='center', quality=99)
+                    faceURL = str( str(absolute_uri) + '/static' + str(img.url) )
+                    print('push face url', faceURL)
+                # if staff.code:
+                #     pass
+                
+                # Try push Step 1 add person first, if failed reject check-in
+                try:
+                    print('here')
+                    # Person Add - Step 1: Initiate instance,
+                    person_instance = Person()
+                    print(person_instance)
+                    user_type = 'normal'
+                    print(user_type)
+                    # Person Add - Step 2: Manipulating date to match time local format --> "endTime":"2023-02-09T17:30:08",
+                    # valid_end = visitor_update.end_date.strftime("%Y-%m-%dT%H:%M:00")
+                    df = datetime.now()
+                    valid_begin = df.strftime("%Y-%m-%dT%H:%M:00")
+                    print('begin', valid_begin)
+                    # valid_end = visitor_update.end_date.strftime("%Y-%m-%dT%H:%M:00")
+                    
+                    df_end = datetime.now()
+                    df_end = df_end + relativedelta(years=1)
+                    print('+1 year', df_end)
+                    valid_end = df_end.strftime("%Y-%m-%dT%H:%M:00")
+                    print('end', valid_end)
+                    
+                    add_res = person_instance.add(staff, user_type, valid_begin, valid_end, host, auth)
+                    print(add_res)
+                    a_status = add_res['statusCode'] or None
+
+                    # Finger print upload
+
+                    if a_status != 1:
+                        
+                        if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
+                            edit_res = person_instance.update(staff, user_type, valid_begin, valid_end, host, auth)
+                            print(edit_res)
+                            e_status = edit_res['statusCode'] or None
+
+                            if e_status != 1:
+                                return JsonResponse({
+                                    'error': True,
+                                    'data': "Check in failed during editing person into FRA. Please try again. Thank you.",
+                                })
+                        else:
+                            return JsonResponse({
+                                'error': True,
+                                'data': "Check in failed during adding person into FRA. Please try again. Thank you.",
+                            })
+
+                    # Step 2: Add card for employee,visitor of the building, Tenant & Building owner only (Not applicable to visitor check in)
+                    # test card
+                    card_instance = Card()
+                    search_card_res = card_instance.search(staff.code, host, auth)
+                    print(search_card_res)
+                    c_status = search_card_res['CardInfoSearch']['totalMatches']
+                    print( search_card_res['CardInfoSearch']['totalMatches'] )
+
+                    if c_status == 0:
+                        print("Card not found")
+                        # return JsonResponse({
+                        #     'error': True,
+                        #     'data': "Card detail not found. Please try again. Thank you.",
+                        # })
+
+                    # Push Step 3: Add Picture Data, Check FPID returned
+                    face_data_instance = FaceData()
+                    face_add_response = face_data_instance.face_data_add(1, staff.code, staff.name, faceURL, host, auth)
+                    print(face_add_response)
+
+                    f_status = face_add_response['statusCode']
+                    error_msg = face_add_response['subStatusCode']
+                    
+                    if f_status != 1:
+                        # if add face failed, edit person face from FRA using FPID
+                        if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
+                            # if face_add_response['subStatusCode'] == 'deviceUserAlreadyExistFace':
+                            edit_face = face_data_instance.face_data_update(1, staff.code, staff.name, faceURL, host, auth)
+                            print(edit_face)
+                            fe_status = edit_face['statusCode'] or None
+
+                            if fe_status != 1:
+                                return JsonResponse({
+                                    'error': True,
+                                    'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
+                                })
+                        else:
+                            return JsonResponse({
+                                'error': True,
+                                'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
+                            })
+
+                    # Step 4: Get All past checked in visitor with status True 
+                    # get_checked_in_visitor = Visitor.objects.filter(is_checkin = True)
+                    # # Get & loop all past visitor code - compare code to FRA & delete all visitor from FRA
+                    # for visitor in get_checked_in_visitor:
+                    #     # delete every code if exist in FRA
+                    #     if visitor.end_date <= datetime.now():
+                    #         print("deleting all end date visitor")
+                    #         del_res = person_instance.delete(visitor.code, host, auth)
+                    #         print(del_res)
+
+                    # visitor_update.is_checkin = True
+                    # visitor_update.save()
+
+                    # return JsonResponse({
+                    #     'error': False
+                    # })
+
+                except:
+                    # raise e
+                    return JsonResponse({
+                        'error': True,
+                        'data': "Something went wrong during the check in process. Please try again. Thank you.",
+                    })
+
+        # Sent Email - Approval Status
         try:
+            email_context = { 'code': staff.code }
             html_email = render_to_string(email_template, email_context)
             email = send_mail(
                 'VMS-Luzern: Staff Registration',
@@ -224,8 +362,32 @@ def visitor_approval(request, pk):
 def home(request):
     context = {'segment': 'Tenant Home'}
 
+    tenant = Tenant.objects.get(user=request.user)
+    visitors = tenant.refs_tenant_visitor.all()
+    staffs = tenant.refs_tenant_staff.all()
+
+    # Total Staffs
+    tot_staffs = staffs.count()
+    # tot_staffs = Staff.objects.filter(tenant=tenant, is_active=True).count()
+    context['tot_staffs'] = tot_staffs
+
+    # Total Visits
+    tot_visits = visitors.count()
+    context['tot_visits'] = tot_visits
+
+    # Today Visitor
+    date__today = datetime.today()
+    today_visits = Visitor.objects.values('name').filter(tenant=tenant, start_date=date__today).annotate(total=Count('id'))
+    context['today_visits'] = today_visits.count()
+
+    # Pending Approval
+    pending_staff = Staff.objects.filter(tenant=tenant, is_approved=1).count()
+    pending_visitor = Visitor.objects.filter(tenant=tenant, is_approved=1).count()
+    tot_pending = pending_staff + pending_visitor
+    context['tot_pending'] = tot_pending
+
     # Visitors Monthly Chart
-    visitor = Visitor.objects.filter(tenant=request.user.id)
+    visitor = Visitor.objects.filter(tenant=request.user.tenant)
     visitor = visitor.annotate(month=TruncMonth('start_date')).values('month').annotate(total=Count('id'))
     labels = []
     data = []

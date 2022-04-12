@@ -69,24 +69,114 @@
     </td>
   </tr>
   {% endfor %}
-{% elif visitor_list %}
-  <tr>
-    <td colspan="9" style="text-align: center;">No available list</td>
-  </tr>
 {% else %}
-  <tr>
-    <td colspan="6" style="text-align: center;">No available list</td>
-  </tr>
+  {% if visitor_list %}
+    <tr>
+      <td colspan="9" style="text-align: center;">No available list</td>
+    </tr>
+  {% else %}
+    <tr>
+      <td colspan="6" style="text-align: center;">No available list</td>
+    </tr>
+  {% endif %}
 
 {% endif %}
 
 <script>
-
-  function handleApproval(e, id, obj) {
+  {% if staff_list %}
+  async function handleApproval(e, id, obj) {
     e.preventDefault();
 
+    const { value: employeeNo } = await Swal.fire({
+      title: 'Selection: '+ obj +'?',
+      input: 'text',
+      inputLabel: 'Employee No. (must be unique)',
+      // inputPlaceholder: 'Enter the Employee No.',
+      inputValidator: (value) => {
+        if (!value || value == '') {
+          return 'You need to key-in something!'
+        }
+
+        var invalid = ['%', '&', '<', '>', '[', ']', '{', '}', '!', '@', '#', '$', '^', '*', '(', ')', '?'],
+        validate = value;
+        if (/[%&<>\[\]{}!@#$^*()?]/.test(validate)) {
+            console.log("Yeah, these characters ('" + invalid.join(', ') + "') aren't allowed. So stop it.");
+            return "Illegal character input. You may only use digits & alphabet only."
+        }
+      }
+    })
+    
+    if (employeeNo) {
+      Swal.fire({  
+        title: `Employee No.: ${employeeNo} - Name: ${obj}`, 
+        text: `Confirmed staff approval?`, 
+        showDenyButton: true,  
+        showCancelButton: true,  
+        confirmButtonText: `Approve`,  
+        denyButtonText: `Not Approved`,
+      }).then((result) => {  
+        /* Read more about isConfirmed, isDenied below */  
+          if (result.isConfirmed) {
+            url = $('.approval').attr("href");
+            var csrf_token = getCookie('csrftoken')
+            $.ajax({
+              headers: { "X-CSRFToken": csrf_token },
+              url : url,
+              type: 'POST',
+              data: {pk: 2, employeeNo: employeeNo}, // Approve
+              beforeSend: function() {
+                swal.fire({
+                    title: 'Please Wait..!',
+                    text: 'Email on progress..',
+                    onOpen: function() {
+                        swal.showLoading()
+                    }
+                })
+              },
+              success : function(data) { 
+                  console.log(data)
+                  // location.reload();
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                  swal.fire("!Opps ", "Something went wrong, try again later", "error");
+              }
+            })
+          } else if (result.isDenied) {  
+            url = $('.approval').attr("href");
+            var csrf_token = getCookie('csrftoken')
+            $.ajax({
+              headers: { "X-CSRFToken": csrf_token },
+              url : url,
+              type: 'POST',
+              data: {pk: 3}, // Rejected
+              beforeSend: function() {
+                swal.fire({
+                    title: 'Please Wait..!',
+                    text: 'Email on progress..',
+                    onOpen: function() {
+                      swal.showLoading();
+                    }
+                })
+              },
+              success : function(data) { 
+                  console.log(data)
+                  // location.reload();
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                  swal.fire("!Opps ", "Something went wrong, try again later", "error");
+              }
+            })
+          }
+      });
+    }
+  }
+  {% elif visitor_list %}
+  function handleApproval(e, id, obj) {
+    e.preventDefault();
+    
     Swal.fire({  
-      title: 'Selection: '+ obj +'?',  
+      title: 'Selection: '+ obj +'?', 
+      text: `Confirmed visitor approval?`, 
       showDenyButton: true,  
       showCancelButton: true,  
       confirmButtonText: `Approve`,  
@@ -144,9 +234,6 @@
           })
         }
     });
-
   }
-
-  
-
+  {% endif %}
 </script>

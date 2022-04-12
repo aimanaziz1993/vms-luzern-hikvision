@@ -91,11 +91,11 @@ class Person(object):
                             "searchID": "4",
                             "searchResultPosition": 0,
                             "maxResults": 32,
-                            # "EmployeeNoList":[
-                            #     {
-                            #         "employeeNo": str(id)
-                            #     }
-                            # ]
+                            "EmployeeNoList":[
+                                {
+                                    "employeeNo": str(id)
+                                }
+                            ]
                         }
                     }
             response = requests.post(path, data=json.dumps(body), auth=auth)
@@ -108,30 +108,30 @@ class Person(object):
     def add(self, data, user_type, valid_begin, valid_end, host, auth):
         
         path = host+'/ISAPI/AccessControl/UserInfo/Record?format=json'
-        body = {
-                    "UserInfo":
-                        {
-                            "employeeNo": str(data.code),
-                            "name": data.name,
-                            "userType": user_type,
-                            "Valid":{
-                                "enable": True,
-                                "beginTime": str(valid_begin),
-                                "endTime": str(valid_end),
-                                "timeType":"local"
-                                },
-                            # "doorRight": doors,
-                            # "RightPlan": [
-                            #     {
-                            #         "doorNo": 1,
-                            #         "planTemplateNo": "1"
-                            #     }
-                            # ],
-                            # "userVerifyMode": "cardOrFace",
-                            "floorNumber": int(data.tenant.device.floor.id),
-                            # "checkUser": True
-                        }
-                }
+        body =  {
+            "UserInfo": {
+                "employeeNo": str(data.code),
+                "name": data.name,
+                "userType": user_type,
+                "Valid":{
+                    "enable": True,
+                    "beginTime": str(valid_begin),
+                    "endTime": str(valid_end),
+                    "timeType":"local"
+                },
+                "userVerifyMode": "cardOrFace",
+                "floorNumber": int(data.tenant.device.floor.id),
+                "password": "",
+                "doorRight": "1",
+                "RightPlan": [
+                    {
+                        "doorNo": 1,
+                        "planTemplateNo": "1"
+                    }
+                ],
+                "checkUser": True
+            }
+        }
         response = requests.post(path, data=json.dumps(body), auth=auth)
         
         # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
@@ -158,52 +158,30 @@ class Person(object):
     def update(self, data, user_type, valid_begin, valid_end, host, auth):
         
         path = host+'/ISAPI/AccessControl/UserInfo/Modify?format=json'
-        # body = {
-        #             "UserInfo":
-        #                 {
-        #                     "employeeNo":str(id),
-        #                     "name": name,
-        #                     "userType": user_type,
-        #                     "Valid":{
-        #                         "enable": False,
-        #                         "beginTime":"2017-08-01T17:30:08",
-        #                         "endTime":"2022-08-01T17:30:08",
-        #                         "timeType":"local"
-        #                         },
-        #                     "doorRight": doors,
-        #                     "RightPlan": [
-        #                         {
-        #                             "doorNo": 1,
-        #                             "planTemplateNo": "1"
-        #                         }
-        #                     ],
-                            
-        #                     "password":password,
-        #                     "gender":gender
-        #                 }
-        #         }
-        body = {
-                    "UserInfo":
-                        {
-                            "employeeNo": str(data.code),
-                            "name": data.name,
-                            "userType": user_type,
-                            "Valid":{
-                                "enable": True,
-                                "beginTime": str(valid_begin),
-                                "endTime": str(valid_end),
-                                "timeType":"local"
-                            },
-                            # "doorRight": doors,
-                            # "RightPlan": [
-                            #     {
-                            #         "doorNo": 1,
-                            #         "planTemplateNo": "1"
-                            #     }
-                            # ],
-                            # "userVerifyMode": "cardOrFace"
-                        }
-                }
+        body =  {
+            "UserInfo": {
+                "employeeNo": str(data.code),
+                "name": data.name,
+                "userType": user_type,
+                "Valid":{
+                    "enable": True,
+                    "beginTime": str(valid_begin),
+                    "endTime": str(valid_end),
+                    "timeType":"local"
+                },
+                "userVerifyMode": "cardOrFace",
+                "floorNumber": int(data.tenant.device.floor.id),
+                "password": "",
+                "doorRight": "1",
+                "RightPlan": [
+                    {
+                        "doorNo": 1,
+                        "planTemplateNo": "1"
+                    }
+                ],
+                "checkUser": True
+            }
+        }
         response = requests.put(path, data=json.dumps(body), auth=auth)
         
         # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))

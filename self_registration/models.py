@@ -54,11 +54,12 @@ class Visitor(models.Model):
         pass
 
     def clean(self):
-        if self.end_date <= self.start_date:
-            raise ValidationError("Ending Time must end after it starts.")
+        if self.start_date is not None and self.end_date is not None:
+            if self.end_date <= self.start_date:
+                raise ValidationError("Ending Time must end after it starts.")
 
-        if self.start_date <= datetime.now():
-            raise ValidationError("Appointment Time must starts in future. Not in the past.")
+            if self.start_date <= datetime.now():
+                raise ValidationError("Appointment Time must starts in future. Not in the past.")
 
     def save(self, *args, **kwargs):
         if self.code == "":

@@ -4,7 +4,7 @@
 
 {% block extrastyles %}
 <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/static/assets/vendor/intl-tel-input-17.0.0/build/css/intlTelInput.css">
+<link rel="stylesheet" href="/static/js/vendor/intl-tel-input-17.0.0/build/css/intlTelInput.css">
 <style>
 
 </style>
@@ -70,11 +70,85 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow-sm h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Staffs (Active)</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ tot_staffs }}</div>
+                            </div>
+                            <div class="col-auto">
+
+                                <i class="fas fa-users fa-2x text-gray-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Total Visits by Visitor</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ tot_visits }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-street-view fa-2x text-gray-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Today Visitors
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ today_visits }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list fa-2x text-gray-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Requests Card Example -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Pending Approval (Total)
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ tot_pending }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-building fa-2x text-gray-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="row">
-
             <div class="col-xl-12 col-lg-10">
-
                 <!-- Area Chart -->
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -101,7 +175,7 @@
                     </div>
                 </div>
             </div>
-
+        </div>
     {% elif user.is_administrator %}
 
         {% include 'partials/admin_tab.html' %}

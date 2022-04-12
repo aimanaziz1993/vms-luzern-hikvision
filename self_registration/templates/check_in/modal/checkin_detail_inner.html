@@ -24,33 +24,37 @@
           <input type="hidden" name="visitor_id" value="{{ visitor.id }}" />
           {% for field in form %}
             <div class="form-group{% if field.errors %} has-error{% endif %}">
-              {% if field.id_for_label == 'id_contact_no' %}
-                <label for="phone">Contact No.: </label></br>
-                <input class="form-control form_input" type="tel" id="phone2" placeholder="123456789" required>
-                <input type="hidden" name="country2" id="country2" value="">
-                {{ form.contact_no }}
-                <div>
-                  <span id="detail-valid-msg" class="hide"></span>
-                  <span id="detail-error-msg" class="hide text-danger small py-1"></span>
-                </div>
-              {% elif field.id_for_label == 'id_identification_no' %}
-                <label for="id_identification_no">Identification No.: </label></br>
-                {{ form.identification_no }}
-                <div>
-                  <p><span id="detail-valid-nric" class="hide small text-success py-1"></span></p>
-                  <p><span id="detail-error-nric" class="hide small text-danger py-1"></span></p>
-                </div> 
-              {% else %}
-              <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
-              {{field}}
-              {% endif %}
-              
-              {% for error in field.errors %}
-                <p class="help-block text-danger">{{ error }}</p>
-              {% endfor %}
-              {% for nfe in field.non_field_errors %}
-                <p class="help-block text-danger">{{ nfe }}</p>
-              {% endfor %}
+                {% if field.id_for_label == 'id_contact_no' %}
+                    <label for="phone">Contact No.: </label></br>
+                    <input class="form-control form_input" type="tel" id="phone2" placeholder="123456789" required>
+                    <input type="hidden" name="country2" id="country2" value="">
+                    {{ form.contact_no }}
+                    <div>
+                    <span id="detail-valid-msg" class="hide"></span>
+                    <span id="detail-error-msg" class="hide text-danger small py-1"></span>
+                    </div>
+                {% elif field.id_for_label == 'id_identification_no' %}
+                    <label for="id_identification_no">Identification No.: </label></br>
+                    {{ form.identification_no }}
+                    <div>
+                    <p><span id="detail-valid-nric" class="hide small text-success py-1"></span></p>
+                    <p><span id="detail-error-nric" class="hide small text-danger py-1"></span></p>
+                    </div>
+                {% elif field.id_for_label == 'id_start_date' %}
+                    <label for="id_start_date1">Start Date: </label></br>
+                    <input type="datetime-local" class="form-control form_input" id="id_start_date1" name="start_date1">
+                    <p><span id="msg-info" class="small text-success py-1">Valid start date will be auto updated to current time you're checking in.</span></p>
+                {% else %}
+                <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+                {{field}}
+                {% endif %}
+                
+                {% for error in field.errors %}
+                    <p class="help-block text-danger">{{ error }}</p>
+                {% endfor %}
+                {% for nfe in field.non_field_errors %}
+                    <p class="help-block text-danger">{{ nfe }}</p>
+                {% endfor %}
             </div>
           {% endfor %}
         <input id="submit2" type="submit" class="btn btn-info btn-sm mt-3" value="Confirm Check In"></input>
@@ -68,6 +72,30 @@
     }
     
     $("input[type=tel]").noMask( /[a-zA-Z]/ );
+
+    // Replace date & time value to start_date input
+    // var currentdate = new Date(); 
+    // var dt = new Date(Date.parse(new Date()));
+    // var localDate = dt;
+    
+    // var gmt = localDate;
+    // var min = gmt.getTime() / 1000 / 60; // convert gmt date to minutes
+    // var localNow = new Date().getTimezoneOffset(); // get the timezone
+    // // offset in minutes
+    // var localTime = min - localNow; // get the local time
+    // var dateStr = new Date(localTime * 1000 * 60)
+    // dateStr = dateStr.toString("yyyy-MM-dd'T''HH:mm'")
+    // console.log(dateStr);
+
+    var now = new Date();
+    console.log(now.getMinutes());
+    console.log(now.getSeconds());
+    console.log(now.getTimezoneOffset());
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    now.setSeconds(now.getSeconds() + 20)
+    // 2022-04-12T17:09
+    document.getElementById('id_start_date1').setAttribute("readonly", "readonly");
+    document.getElementById('id_start_date1').value = now.toISOString().slice(0,16);
 
     var input = document.querySelector("#phone2");
     var country = document.querySelector("#country2");
