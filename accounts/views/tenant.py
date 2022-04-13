@@ -376,9 +376,11 @@ def home(request):
     context['tot_visits'] = tot_visits
 
     # Today Visitor
-    date__today = datetime.today()
-    today_visits = Visitor.objects.values('name').filter(tenant=tenant, start_date=date__today).annotate(total=Count('id'))
-    context['today_visits'] = today_visits.count()
+    # date__today = datetime.today()
+    from datetime import date
+    today_visits = Visitor.objects.filter(tenant=tenant, start_date__date=date.today()).count()
+    context['today_visits'] = today_visits
+    print( context['today_visits'] )
 
     # Pending Approval
     pending_staff = Staff.objects.filter(tenant=tenant, is_approved=1).count()

@@ -10370,7 +10370,8 @@
 
   .sidebar .nav-item.active .nav-link span {
     font-weight: 900;
-    color: var(--light);
+    /* color: var(--light); */
+    color: black;
   }
   
   .sidebar .nav-item .collapse {
