@@ -196,8 +196,26 @@
                 })
               },
               success : function(data) { 
-                  console.log(data)
-                  // location.reload();
+                  const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                      toast.addEventListener('mouseenter', Swal.stopTimer)
+                      toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                  })
+                  
+                  Toast.fire({
+                    icon: 'success',
+                    title: 'Approval Change'
+                  })
+                  
+                  setTimeout(() => {
+                    location.reload();
+                  }, 2300)
               },
               error: function(jqXHR, textStatus, errorThrown) {
                   swal.fire("!Opps ", "Something went wrong, try again later", "error");

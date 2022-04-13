@@ -16,7 +16,7 @@ from sorl.thumbnail import get_thumbnail
 
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string, get_template
 
 from cms.ajax_views import AjaxDetailView, AjaxUpdateView
@@ -163,9 +163,9 @@ def staff_approval(request, pk):
 
         if request.POST.get('pk') == '3':
             staff.is_active = False
-            email_template = 'email/staff_rejected.html'
+            email_template = 'emailnew/staff_rejected.html'
         else:
-            email_template = 'email/staff_approve.html'
+            email_template = 'emailnew/staff_approve.html'
             staff.is_approved = request.POST.get('pk')
             staff.code = employeeNo.upper()
         staff.save()
@@ -276,22 +276,20 @@ def staff_approval(request, pk):
                                 'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
                             })
 
-                    # Step 4: Get All past checked in visitor with status True 
-                    # get_checked_in_visitor = Visitor.objects.filter(is_checkin = True)
-                    # # Get & loop all past visitor code - compare code to FRA & delete all visitor from FRA
-                    # for visitor in get_checked_in_visitor:
-                    #     # delete every code if exist in FRA
-                    #     if visitor.end_date <= datetime.now():
-                    #         print("deleting all end date visitor")
-                    #         del_res = person_instance.delete(visitor.code, host, auth)
-                    #         print(del_res)
-
-                    # visitor_update.is_checkin = True
-                    # visitor_update.save()
-
-                    # return JsonResponse({
-                    #     'error': False
-                    # })
+                    try:
+                        # Sent Email - Approval Status
+                        email_context = { 'code': staff.code }
+                        html_email = render_to_string(email_template, email_context)
+                        email = EmailMultiAlternatives(
+                            subject='VMS-Luzern: Staff Registration',
+                            body='mail testing',
+                            from_email='webmaster@localhost',
+                            to = [ staff.email ]
+                        )
+                        email.attach_alternative(html_email, "text/html")
+                        email.send(fail_silently=False)
+                    except Exception as e:
+                        raise e
 
                 except:
                     # raise e
@@ -299,20 +297,6 @@ def staff_approval(request, pk):
                         'error': True,
                         'data': "Something went wrong during the check in process. Please try again. Thank you.",
                     })
-
-        # Sent Email - Approval Status
-        try:
-            email_context = { 'code': staff.code }
-            html_email = render_to_string(email_template, email_context)
-            email = send_mail(
-                'VMS-Luzern: Staff Registration',
-                html_email,
-                'webmaster@localhost',
-                [ staff.email ],
-                fail_silently=False
-            )
-        except Exception as e:
-            raise e
 
         data = dict()
         data['updated'] = True
@@ -331,9 +315,9 @@ def visitor_approval(request, pk):
     if request.POST:
         if request.POST.get('pk') == '3':
             visitor.is_active = False
-            email_template = 'email/staff_rejected.html'
+            email_template = 'emailnew/staff_rejected.html'
         else:
-            email_template = 'email/staff_approve.html'
+            email_template = 'emailnew/staff_approve.html'
         visitor.is_approved = request.POST.get('pk')
         visitor.save()
 

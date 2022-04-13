@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.core.serializers import serialize
 from django.template.loader import render_to_string, get_template
 from django.db import transaction
@@ -52,19 +52,27 @@ def visitor_reg(request, *args, **kwargs):
                 if visitor.photo:
                     im = get_thumbnail(visitor.photo, '300x300', crop='center', quality=99)
 
-                email_template = 'email/visitor_registration.html'
+                email_template = 'emailnew/visitor_registration.html'
 
                 email_context = { 'visitor': visitor }
 
                 try:
                     html_email = render_to_string(email_template, email_context)
-                    email = send_mail(
-                        'VMS-Luzern: Visitor Appointment Registration',
-                        html_email,
-                        'webmaster@localhost',
-                        [ tenant.user.email ],
-                        fail_silently=False
+                    email = EmailMultiAlternatives(
+                        subject='VMS-Luzern: Visitor Appointment Registration',
+                        body='mail testing',
+                        from_email='webmaster@localhost',
+                        to = [tenant.user.email]
                     )
+                    email.attach_alternative(html_email, "text/html")
+                    email.send(fail_silently=False)
+                    # email = send_mail(
+                    #     'VMS-Luzern: Visitor Appointment Registration',
+                    #     html_email,
+                    #     'webmaster@localhost',
+                    #     [ tenant.user.email ],
+                    #     fail_silently=False
+                    # )
                 except Exception as e:
                     raise e
 
@@ -110,18 +118,26 @@ def visitor_reg(request, *args, **kwargs):
                     im = get_thumbnail(visitor.photo, '300x300', crop='center', quality=99)
 
                 # Emailing when enable
-                email_template = 'email/visitor_registration.html'
+                email_template = 'emailnew/visitor_registration.html'
                 email_context = { 'visitor': visitor }
 
                 try:
                     html_email = render_to_string(email_template, email_context)
-                    email = send_mail(
-                        'VMS-Luzern: Visitor Appointment Registration',
-                        html_email,
-                        'webmaster@localhost',
-                        [ tenant.user.email ],
-                        fail_silently=False
+                    # email = send_mail(
+                    #     'VMS-Luzern: Visitor Appointment Registration',
+                    #     html_email,
+                    #     'webmaster@localhost',
+                    #     [ tenant.user.email ],
+                    #     fail_silently=False
+                    # )
+                    email = EmailMultiAlternatives(
+                        subject='VMS-Luzern: Visitor Appointment Registration',
+                        body='mail testing',
+                        from_email='webmaster@localhost',
+                        to = [ tenant.user.email ]
                     )
+                    email.attach_alternative(html_email, "text/html")
+                    email.send(fail_silently=False)
                 except Exception as e:
                     raise e
 
@@ -147,18 +163,26 @@ def staff_reg(request, *args, **kwargs):
                 staff.is_approved = 1
                 staff.save()
 
-                email_template = 'email/staff_pending.html'
-                email_context = { 'code': staff.code }
+                email_template = 'emailnew/staff_pending.html'
+                email_context = { 'code': staff.code, 'approval_status': staff.is_approved }
 
                 try:
                     html_email = render_to_string(email_template, email_context)
-                    email = send_mail(
-                        'VMS-Luzern: Staff Registration',
-                        html_email,
-                        'webmaster@localhost',
-                        [ staff.email ],
-                        fail_silently=False
+                    # email = send_mail(
+                    #     'VMS-Luzern: Staff Registration',
+                    #     html_email,
+                    #     'webmaster@localhost',
+                    #     [ staff.email ],
+                    #     fail_silently=False
+                    # )
+                    email = EmailMultiAlternatives(
+                        subject='VMS-Luzern: Staff Registration',
+                        body='mail testing',
+                        from_email='webmaster@localhost',
+                        to = [ staff.email ]
                     )
+                    email.attach_alternative(html_email, "text/html")
+                    email.send(fail_silently=False)
                 except Exception as e:
                     raise e
 

@@ -160,6 +160,17 @@
     <script src="{% static 'js/ajax_modal.js' %}"></script>
     <script src="{% static 'js/django_ajax.js' %}"></script>
     <script src="{% static 'js/datatable_options.js' %}"></script>
+    {% comment %} <script>
+        var Notifications = function(url) {
+            socket = new Websocket(url + '?user_id=' + {{ request.user.id }} );
+
+            socket.onopen = function() {
+                console.log('Successful Connection To Websocket Server');
+            };
+        };
+        var host = 'ws://localhost:3000/client';
+        var socket = Notifications(host);
+    </script> {% endcomment %}
 
     <!-- Page level plugins -->
     <!-- <script src="vendor/chart.js/Chart.min.js"></script> -->

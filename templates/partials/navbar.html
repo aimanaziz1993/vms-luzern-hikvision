@@ -155,12 +155,12 @@
                 aria-labelledby="userDropdown">
                 {% if user.is_tenant %}
                 <a class="dropdown-item" href="{% url 'tenants:tenant-update' user.pk %}">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-500"></i>
                     Profile
                 </a>
                 {% endif %}
                 <a class="dropdown-item" href="{% url 'password_change' %}">
-                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-500"></i>
                     Change Password
                 </a>
                 {% comment %} <a class="dropdown-item" href="#">
@@ -173,7 +173,7 @@
                 </a> {% endcomment %}
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{% url 'logout' %}" data-toggle="modal" data-target="#logoutModal">
-                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-500"></i>
                     Logout
                 </a>
             </div>
