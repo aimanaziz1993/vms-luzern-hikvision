@@ -31,7 +31,7 @@ class Visitor(models.Model):
 
     name = models.CharField(max_length=120)
     identification_no = models.CharField(max_length=100)
-    contact_no = models.CharField(max_length=20, unique=True, null=True)
+    contact_no = models.CharField(max_length=20, null=True, blank=True)
     # photo  = models.ImageField(default="", blank=True, null=True, validators=[image_max_size(300,300)])
     photo  = models.ImageField(default="", upload_to='visitors', blank=True, null=True)
     remarks = models.CharField(max_length=255, blank=True, null=True)
@@ -43,6 +43,7 @@ class Visitor(models.Model):
     # appointment = models.ManyToManyField(Tenant, related_name='refs_tenant_visitor', through='VisitLog')
     tenant = models.ForeignKey(Tenant, on_delete=models.SET_NULL, blank=True, null=True, related_name='refs_tenant_visitor')
     is_active = models.BooleanField(default=True)
+    qr_image = models.ImageField(upload_to='visitors/qr', blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -78,18 +79,19 @@ class Staff(models.Model):
         (APPROVED, 'Approved'),
         (NOT_APPROVED, 'Not Approved'),
     }
-
+    
     name = models.CharField(max_length=120)
     identification_no = models.CharField(max_length=100)
     contact_no = models.CharField(max_length=20, null=True)
     photo  = models.ImageField(default="", upload_to='staffs', blank=True, null=True)
     email = models.EmailField(max_length=50, unique=True, null=True)
     remarks = models.CharField(max_length=255, blank=True, null=True)
-    code = models.CharField(max_length=12, blank=True)
+    code = models.CharField(max_length=12, blank=True, unique=True)
     is_approved = models.PositiveSmallIntegerField(choices=APPROVE_CHOICE, default=PENDING_APPROVAL, null=True)
     is_active = models.BooleanField(default=True)
     tenant = models.ForeignKey(Tenant, on_delete=models.SET_NULL, blank=True, null=True, related_name='refs_tenant_staff')
     # appointment = models.ManyToManyField(Tenant, related_name='refs_tenant_staff')
+    qr_image = models.ImageField(upload_to='staffs/qr', null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

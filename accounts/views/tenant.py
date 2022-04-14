@@ -4,9 +4,15 @@ from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.decorators import method_decorator
+from django.core.files import File
+from django.core.files.base import ContentFile
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView
 
 import json
+import qrcode
+import qrcode.image.svg
+from io import BytesIO
+from PIL import Image, ImageDraw
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -20,7 +26,6 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string, get_template
 
 from cms.ajax_views import AjaxDetailView, AjaxUpdateView
-from cms.views import CoreListView
 from self_registration.utils import generate_ref_code, timedeltaObj
 
 from ..forms import TenantCreationForm, TenantProfileUpdateForm
@@ -168,6 +173,19 @@ def staff_approval(request, pk):
             email_template = 'emailnew/staff_approve.html'
             staff.is_approved = request.POST.get('pk')
             staff.code = employeeNo.upper()
+            # generate QR code image for unique card ID
+            qr_image = qrcode.make(staff.code)
+            qr_offset = Image.new('RGB', (310,310), 'white')
+            draw_img = ImageDraw.Draw(qr_offset)
+            qr_offset.paste(qr_image)
+            lower_code = staff.code.lower()
+            filename = f'{lower_code}_{staff.identification_no}'
+            print('filename qr', filename)
+            thumb_io  = BytesIO()
+            qr_offset.save(thumb_io , 'PNG')
+            staff.qr_image.save(filename+'.png', ContentFile(thumb_io.getvalue()), save=False)
+            qr_offset.close()
+
         staff.save()
 
         if staff.is_active and staff.is_approved:
@@ -186,38 +204,25 @@ def staff_approval(request, pk):
                     img = get_thumbnail(staff.photo, '200x200', crop='center', quality=99)
                     faceURL = str( str(absolute_uri) + '/static' + str(img.url) )
                     print('push face url', faceURL)
-                # if staff.code:
-                #     pass
                 
                 # Try push Step 1 add person first, if failed reject check-in
                 try:
-                    print('here')
                     # Person Add - Step 1: Initiate instance,
                     person_instance = Person()
-                    print(person_instance)
                     user_type = 'normal'
-                    print(user_type)
+
                     # Person Add - Step 2: Manipulating date to match time local format --> "endTime":"2023-02-09T17:30:08",
-                    # valid_end = visitor_update.end_date.strftime("%Y-%m-%dT%H:%M:00")
                     df = datetime.now()
                     valid_begin = df.strftime("%Y-%m-%dT%H:%M:00")
-                    print('begin', valid_begin)
-                    # valid_end = visitor_update.end_date.strftime("%Y-%m-%dT%H:%M:00")
-                    
                     df_end = datetime.now()
                     df_end = df_end + relativedelta(years=1)
-                    print('+1 year', df_end)
                     valid_end = df_end.strftime("%Y-%m-%dT%H:%M:00")
-                    print('end', valid_end)
-                    
+
                     add_res = person_instance.add(staff, user_type, valid_begin, valid_end, host, auth)
                     print(add_res)
                     a_status = add_res['statusCode'] or None
 
-                    # Finger print upload
-
                     if a_status != 1:
-                        
                         if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
                             edit_res = person_instance.update(staff, user_type, valid_begin, valid_end, host, auth)
                             print(edit_res)
@@ -235,19 +240,26 @@ def staff_approval(request, pk):
                             })
 
                     # Step 2: Add card for employee,visitor of the building, Tenant & Building owner only (Not applicable to visitor check in)
-                    # test card
+                    # Manage Card
                     card_instance = Card()
                     search_card_res = card_instance.search(staff.code, host, auth)
                     print(search_card_res)
                     c_status = search_card_res['CardInfoSearch']['totalMatches']
-                    print( search_card_res['CardInfoSearch']['totalMatches'] )
 
                     if c_status == 0:
                         print("Card not found")
-                        # return JsonResponse({
-                        #     'error': True,
-                        #     'data': "Card detail not found. Please try again. Thank you.",
-                        # })
+                        # if card not found, add new card information to the person - use SetUp API
+                        add_card = card_instance.add(staff.code, host, auth)
+                        print(add_card)
+                        ac_status = add_card['statusCode']
+
+                        if ac_status != 1:
+                            return JsonResponse({
+                                'error': True,
+                                'data': "Check in failed during adding person Card information. Please try again. Thank you.",
+                            })
+
+                    print("Card information added")
 
                     # Push Step 3: Add Picture Data, Check FPID returned
                     face_data_instance = FaceData()
@@ -357,18 +369,17 @@ def home(request):
     # Today Visitor
     # date__today = datetime.today()
     from datetime import date
-    today_visits = Visitor.objects.filter(tenant=tenant, start_date__date=date.today()).count()
+    today_visits = visitors.filter(tenant=tenant, start_date__date=date.today()).count()
     context['today_visits'] = today_visits
-    print( context['today_visits'] )
 
     # Pending Approval
-    pending_staff = Staff.objects.filter(tenant=tenant, is_approved=1).count()
-    pending_visitor = Visitor.objects.filter(tenant=tenant, is_approved=1).count()
+    pending_staff = staffs.filter(tenant=tenant, is_approved=1).count()
+    pending_visitor = visitors.filter(tenant=tenant, is_approved=1).count()
     tot_pending = pending_staff + pending_visitor
     context['tot_pending'] = tot_pending
 
     # Visitors Monthly Chart
-    visitor = Visitor.objects.filter(tenant=request.user.tenant)
+    visitor = Visitor.objects.filter(tenant=tenant)
     visitor = visitor.annotate(month=TruncMonth('start_date')).values('month').annotate(total=Count('id'))
     labels = []
     data = []

@@ -90,7 +90,6 @@
         resetSearch();
         $('#updateDetails').hide();
         $('#submit').show();
-
     })
 
     $('#search_check_in').on('submit', function(event){
@@ -163,9 +162,7 @@
 
     function checkedin_update(url, modal) {
         console.log('post started...')
-
         var form = modal.find('.modal-body form');
-
         formData = new FormData(form[0]);
 
         $.ajax({
@@ -178,7 +175,6 @@
 
             success : function(data) {
                 console.log('success');
-                console.log(data)
 
                 if (data.error) {
                     
@@ -191,10 +187,7 @@
                         errorDiv.classList.add("show");
                         errorSpan.innerHTML = data.data;
                     }
-                    
                 } else {
-                    // modal.modal('hide');
-
                     swal.fire({
                         'title': "Status: DONE",
                         'text': "Checked In Successful. You can proceed to scan face now. Thank you.",

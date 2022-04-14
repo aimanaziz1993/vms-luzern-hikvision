@@ -13,7 +13,15 @@
                     Success Submit Appointment Registration! We have emailed your Host for an appointment request.
                 </p>
                 <p>
-                    You can proceed for check-in at the specified data/time using your registration code: <strong>{{ code }}</strong>. Thank you.
+                    You can proceed for check-in at the specified data/time using your registration code: <strong>{{ code }}</strong>. Or
+                </p>
+                <p>
+                    You can also check in using QR generated for you below: 
+                    <img src="/static{{ visitor.qr_image.url }}" alt="visitor QR">
+                    Download & scan the QR code when entering premises/floor here:
+                    <a href="/static{{ visitor.qr_image.url }}" title="download image" download>
+                        <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>
+                    </a>
                 </p>
                 <p>
                     Reminder: Do not lose your registration code. Note that this is only a one way entry. If you loss your check in privilege, kindly do another self registration at the kiosk.

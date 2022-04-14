@@ -9601,6 +9601,10 @@
   .text-primary {
     color: #4e73df !important;
   }
+
+  a.text-primary-100 {
+    color: #cbd6f5 !important;
+  }
   
   a.text-primary:hover, a.text-primary:focus {
     color: #224abe !important;

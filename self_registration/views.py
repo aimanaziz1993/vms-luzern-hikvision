@@ -12,6 +12,12 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.core.serializers import serialize
 from django.template.loader import render_to_string, get_template
 from django.db import transaction
+from django.core.files.base import ContentFile
+
+import qrcode
+import qrcode.image.svg
+from io import BytesIO
+from PIL import Image, ImageDraw
 
 from accounts.models import Device, SecurityOption, Tenant
 from self_registration.utils import generate_ref_code
@@ -283,16 +289,23 @@ def details_checkin(request, *args, **kwargs):
     form = VisitorCheckInForm(request.POST or None, request.FILES or None, instance=visitor)
 
     if request.is_ajax() and request.method == 'POST':
-        # form_update = VisitorReg  istrationForm(data=request.POST, files=request.FILES, instance=visitor)
-
-        # print(request.POST.get('start_date'))
-        
         if visitor.is_approved == 2:
             if form.is_valid():
                 # Step 1: Check date time with datetime now / also done using form.clean(), save data for temp process to allow FRA data push first
                 # form.clean()
                 visitor_update = form.save(commit=False)
                 visitor_update.start_date = datetime.now()
+                # generate QR code image for unique card ID
+                qr_image = qrcode.make(visitor_update.code)
+                qr_offset = Image.new('RGB', (310,310), 'white')
+                draw_img = ImageDraw.Draw(qr_offset)
+                qr_offset.paste(qr_image)
+                filename = f'{visitor_update.code}_{visitor_update.identification_no}'
+                print('filename qr', filename)
+                thumb_io  = BytesIO()
+                qr_offset.save(thumb_io , 'PNG')
+                visitor_update.qr_image.save(filename+'.png', ContentFile(thumb_io.getvalue()), save=False)
+                qr_offset.close()
                 visitor_update.save()
 
                 # Try Except push to FRA Logic with the updated info
@@ -357,10 +370,17 @@ def details_checkin(request, *args, **kwargs):
 
                             if c_status == 0:
                                 print("Card not found")
-                                # return JsonResponse({
-                                #     'error': True,
-                                #     'data': "Card detail not found. Please try again. Thank you.",
-                                # })
+                                add_card = card_instance.add(visitor_update.code, host, auth)
+                                print(add_card)
+                                ac_status = add_card['statusCode']
+
+                                if ac_status != 1:
+                                    return JsonResponse({
+                                        'error': True,
+                                        'data': "Check in failed during adding person Card information. Please try again. Thank you.",
+                                    })
+
+                            print("Card information added")
 
                             # Push Step 3: Add Picture Data, Check FPID returned
                             face_data_instance = FaceData()
@@ -413,10 +433,6 @@ def details_checkin(request, *args, **kwargs):
                             })
                 except:
                     pass
-
-                # exit()
-
-                
 
                 return render(request, 'check_in/checkin_success.html', { 'visitor': visitor_update })
             else:

@@ -354,3 +354,24 @@ class Card(object):
             return result
         except:
             return HttpResponseBadRequest()
+
+    def add(self, employeeNo, host, auth):
+        try:
+            path = host+'/ISAPI/AccessControl/CardInfo/Record?format=json'
+            body = {
+                "CardInfo": {
+                    "employeeNo": str(employeeNo),
+                    "cardNo": str(employeeNo),
+                    "deleteCard": "false",
+                    "cardType": "normalCard",
+                    # "leaderCard": ,
+                    "checkCardNo": True,
+                    "addCard": True,
+                }
+            }
+            response = requests.post(path, data=json.dumps(body), auth=auth)
+            # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+            result = json.loads( json.dumps( response.json() ) )
+            return result
+        except:
+            return HttpResponseBadRequest()

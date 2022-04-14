@@ -1,8 +1,59 @@
 {% load static %}
 {% load cms %}
 
-<div class="container py-3">
+<style>
+    p {
+        margin-bottom: 1px;
+    }
+    hr {
+        margin-top: 0;
+    }
+
+    #id_photo {
+        display: none;
+    }
+
+    #icon{
+        width: 20px;
+        cursor: pointer;
+      }
+</style>
+
+<div class="container-fluid">
+    <p><strong>Registered At:</strong> {{ visitor.created_at|default_if_none:"-" }}</p>
+    <p><strong>Start Date/Time:</strong> {{ visitor.start_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
+    <p><strong>End Date/Time:</strong> {{ visitor.end_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
+    <p><span id="msg-info" class="small text-success">Valid start date will be auto updated to current time you're checking in.</span></p>
+    <hr>
     <form id="check_in" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row mb-3 d-flex align-items-center justify-content-center">
+            <div class="col-md-4" style="display: flex;align-items: center;justify-content: center;">
+                {% if visitor.photo %}
+                <img id="visitor-photo2" src="/static{{ visitor.photo.url }}" width="150px">
+                {% else %}
+                <img src="/static/img/profile.png" width="150px">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <label for="id_photo">Change photo: &nbsp;
+                    {% comment %} <input type="hidden" name="photo" id="id_photo" accept="image/*" capture="camera" /> {% endcomment %}
+                    <i id="icon" class="fas fa-upload fa-sm text-gray-500" aria-hidden="true"></i>
+                </label>
+                {{ form.photo }}
+                <p><strong>Name : </strong> {{ visitor.name|default_if_none:"-" }}</p>
+                <p><strong>Identification No. : </strong> *****{{ visitor.identification_no|default_if_none:"-" }}</p>
+                <p><strong>Contact No.: </strong> {{ visitor.contact_no|default_if_none:"-" }}</p>
+            </div>
+        </div>
+        <input type="hidden" name="visitor_id" value="{{ visitor.id }}" />
+        <div class="row d-flex align-items-center justify-content-center">
+            <input id="submit2" type="submit" class="btn btn-info btn-sm mt-3" value="Check In"></input>
+        </div>
+    </form>
+</div>
+
+    {% comment %} <form id="check_in" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row px-4 mt-4">
             <div id="errorDiv" class="col-md alert alert-warning alert-dismissible fade hide mb-4" id="update_alert" role="alert">
@@ -17,7 +68,6 @@
             {% endif %}
           </div>
           <div class="img-responsive row d-flex justify-content-center">
-            {% comment %} <img id='visitor-photo2' src="http://{{ request.get_host }}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar"> {% endcomment %}
             <img id='visitor-photo2' src="{{request.scheme}}://{{request.META.HTTP_HOST}}/static{{visitor.photo.url}}" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
             <br/>
           </div>
@@ -57,9 +107,8 @@
                 {% endfor %}
             </div>
           {% endfor %}
-        <input id="submit2" type="submit" class="btn btn-info btn-sm mt-3" value="Confirm Check In"></input>
-    </form>
-</div>
+        <input id="submit2" type="submit" class="btn btn-info btn-sm mt-3" value="Check In"></input>
+    </form> {% endcomment %}
 
 {% block javascripts %}
 <script>
@@ -73,125 +122,108 @@
     
     $("input[type=tel]").noMask( /[a-zA-Z]/ );
 
-    // Replace date & time value to start_date input
-    // var currentdate = new Date(); 
-    // var dt = new Date(Date.parse(new Date()));
-    // var localDate = dt;
-    
-    // var gmt = localDate;
-    // var min = gmt.getTime() / 1000 / 60; // convert gmt date to minutes
-    // var localNow = new Date().getTimezoneOffset(); // get the timezone
-    // // offset in minutes
-    // var localTime = min - localNow; // get the local time
-    // var dateStr = new Date(localTime * 1000 * 60)
-    // dateStr = dateStr.toString("yyyy-MM-dd'T''HH:mm'")
-    // console.log(dateStr);
+    // var now = new Date();
+    // now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    // now.setSeconds(now.getSeconds() + 20)
+    // // 2022-04-12T17:09
+    // document.getElementById('id_start_date1').setAttribute("readonly", "readonly");
+    // document.getElementById('id_start_date1').value = now.toISOString().slice(0,16);
 
-    var now = new Date();
-    console.log(now.getMinutes());
-    console.log(now.getSeconds());
-    console.log(now.getTimezoneOffset());
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    now.setSeconds(now.getSeconds() + 20)
-    // 2022-04-12T17:09
-    document.getElementById('id_start_date1').setAttribute("readonly", "readonly");
-    document.getElementById('id_start_date1').value = now.toISOString().slice(0,16);
+    // var input = document.querySelector("#phone2");
+    // var country = document.querySelector("#country2");
+    // var errorMsg = document.querySelector("#detail-error-msg");
+    // var validMsg = document.querySelector("#detail-valid-msg");
 
-    var input = document.querySelector("#phone2");
-    var country = document.querySelector("#country2");
-    var errorMsg = document.querySelector("#detail-error-msg");
-    var validMsg = document.querySelector("#detail-valid-msg");
+    // var errorDiv = document.getElementById('errorDiv');
+    // var errorSpan = document.getElementById('error-span');
 
-    var errorDiv = document.getElementById('errorDiv');
-    var errorSpan = document.getElementById('error-span');
-
-    var mobile = document.getElementById('id_contact_no');
-    input.value = mobile.value;
+    // var mobile = document.getElementById('id_contact_no');
+    // input.value = mobile.value;
   
     // phone number validation
-    var errorMap = ["Invalid number", "Invalid country code", "Phone no. is too short", "Phone no. is too long", "Invalid number", "Invalid"];
+    // var errorMap = ["Invalid number", "Invalid country code", "Phone no. is too short", "Phone no. is too long", "Invalid number", "Invalid"];
   
     // Initialise phone number
-    window.intlTelInput(input, {
-        preferredCountries: ["sg", "my"],
-        separateDialCode: true,
-        formatOnDisplay: false,
-        utilsScript: "/static/js/vendor/intl-tel-input-17.0.0/build/js/utils.js"
-    });
+    // window.intlTelInput(input, {
+    //     preferredCountries: ["sg", "my"],
+    //     separateDialCode: true,
+    //     formatOnDisplay: false,
+    //     utilsScript: "/static/js/vendor/intl-tel-input-17.0.0/build/js/utils.js"
+    // });
   
-    var iti = window.intlTelInputGlobals.getInstance(input);
+    // var iti = window.intlTelInputGlobals.getInstance(input);
   
-    var reset = function() {
-        input.classList.remove("error");
-        errorMsg.innerHTML = "";
-        validMsg.innerHTML = "";
-        errorMsg.classList.add("hide");
-        validMsg.classList.add("hide");
-    };
+    // var reset = function() {
+    //     input.classList.remove("error");
+    //     errorMsg.innerHTML = "";
+    //     validMsg.innerHTML = "";
+    //     errorMsg.classList.add("hide");
+    //     validMsg.classList.add("hide");
+    // };
 
     // set it's initial value
-    country.value = iti.getSelectedCountryData().dialCode;
+    // country.value = iti.getSelectedCountryData().dialCode;
 
-    input.addEventListener("countrychange", function(e) {
-        var code = iti.getSelectedCountryData().dialCode;
-        country.value = code;
-    });
+    // input.addEventListener("countrychange", function(e) {
+    //     var code = iti.getSelectedCountryData().dialCode;
+    //     country.value = code;
+    // });
 
     // on blur: validate
-    input.addEventListener('blur', function() {
-        reset();
+    // input.addEventListener('blur', function() {
+    //     reset();
 
-        let code_len = country.value.length;
-        let subst = input.value.trim().substring(0,1);
+    //     let code_len = country.value.length;
+    //     let subst = input.value.trim().substring(0,1);
 
-        if (subst == '0') {
-            let update_input = input.value.trim().split(input.value.trim().substring(0,1));
-            input.value = update_input[1];
-            $('input[name=contact_no]').val('+' + country.value + input.value);
+    //     if (subst == '0') {
+    //         let update_input = input.value.trim().split(input.value.trim().substring(0,1));
+    //         input.value = update_input[1];
+    //         $('input[name=contact_no]').val('+' + country.value + input.value);
 
-        } else if ( subst == '+') {
+    //     } else if ( subst == '+') {
 
-            if (code_len == 2) {
-                let update_input = input.value.trim().split(input.value.trim().substring(0,3));
-                input.value = update_input[1];
-                $('input[name=contact_no]').val('+' + country.value + this.value);
+    //         if (code_len == 2) {
+    //             let update_input = input.value.trim().split(input.value.trim().substring(0,3));
+    //             input.value = update_input[1];
+    //             $('input[name=contact_no]').val('+' + country.value + this.value);
 
-            } else if ( code_len == 3) {
-                let update_input = input.value.trim().split(input.value.trim().substring(0,4));
-                input.value = update_input[1];
-                $('input[name=contact_no]').val('+' + country.value + input.value);
+    //         } else if ( code_len == 3) {
+    //             let update_input = input.value.trim().split(input.value.trim().substring(0,4));
+    //             input.value = update_input[1];
+    //             $('input[name=contact_no]').val('+' + country.value + input.value);
 
-            }else {
-                $('input[name=contact_no]').val('+' + country.value + input.value);
-            }
-        } else {
-            $('input[name=contact_no]').val('+' + country.value + input.value.trim());
-        }
+    //         }else {
+    //             $('input[name=contact_no]').val('+' + country.value + input.value);
+    //         }
+    //     } else {
+    //         $('input[name=contact_no]').val('+' + country.value + input.value.trim());
+    //     }
 
-        if (input.value.trim()) {
-            if (iti.isValidNumber()) {
-                validMsg.classList.remove("hide");
-                $('#submit2').show('slow');
-            } else {
-                input.classList.add("error");
-                var errorCode = iti.getValidationError();
+    //     if (input.value.trim()) {
+    //         if (iti.isValidNumber()) {
+    //             validMsg.classList.remove("hide");
+    //             $('#submit2').show('slow');
+    //         } else {
+    //             input.classList.add("error");
+    //             var errorCode = iti.getValidationError();
 
-                if (errorCode == -99) {
-                    errorMsg.innerHTML = errorMap[5];
-                    errorMsg.classList.remove("hide");
-                    $('#submit2').hide('slow');
-                } else {
-                    errorMsg.innerHTML = errorMap[errorCode];
-                    errorMsg.classList.remove("hide");
-                    $('#submit2').hide('slow');
-                }
-            }
-        }
-    });
+    //             if (errorCode == -99) {
+    //                 errorMsg.innerHTML = errorMap[5];
+    //                 errorMsg.classList.remove("hide");
+    //                 $('#submit2').hide('slow');
+    //             } else {
+    //                 errorMsg.innerHTML = errorMap[errorCode];
+    //                 errorMsg.classList.remove("hide");
+    //                 $('#submit2').hide('slow');
+    //             }
+    //         }
+    //     }
+    // });
 
     // on keyup / change flag: reset
-    input.addEventListener('change', reset);
-    input.addEventListener('keyup', reset);
+    // input.addEventListener('change', reset);
+    // input.addEventListener('keyup', reset);
 
     $('input[type=file]').change(function(e){
         console.log('photo updated');
@@ -217,52 +249,49 @@
         }
     }
 
-    var nric = document.querySelector("#id_identification_no");
-    var errorNRIC = document.querySelector("#detail-error-nric");
-    var validNRIC = document.querySelector("#detail-valid-nric");
+    // var nric = document.querySelector("#id_identification_no");
+    // var errorNRIC = document.querySelector("#detail-error-nric");
+    // var validNRIC = document.querySelector("#detail-valid-nric");
 
-    var resetNric = function() {
-        errorNRIC.innerHTML = "";
-        validNRIC.innerHTML = "";
-        errorNRIC.classList.add("hide");
-        validNRIC.classList.add("hide");
-    };
+    // var resetNric = function() {
+    //     errorNRIC.innerHTML = "";
+    //     validNRIC.innerHTML = "";
+    //     errorNRIC.classList.add("hide");
+    //     validNRIC.classList.add("hide");
+    // };
 
     $(document).ready(function () {
 
-        $('#id_identification_no').change(function(e) {
-            resetNric();
+        // $('#id_identification_no').change(function(e) {
+        //     resetNric();
+        //     if (this.value !== '') {
+        //         $.ajax({
+        //             headers: { "X-CSRFToken": getCookie('csrftoken') },
+        //             url : '/self-register/validate-nric/',
+        //             method : "POST",
+        //             data: {
+        //                 'nric': this.value,
+        //             },
+        //             success : function(data) {
 
-            if (this.value !== '') {
-
-                $.ajax({
-                    headers: { "X-CSRFToken": getCookie('csrftoken') },
-                    url : '/self-register/validate-nric/',
-                    method : "POST",
-                    data: {
-                        'nric': this.value,
-                    },
-                    success : function(data) {
-
-                        if (data.valid) {
-                            validNRIC.innerHTML = data.message;
-                            $('#submit2').show('slow');
-                        } else {
-                            errorNRIC.innerHTML = data.message;
-                            $('#submit2').hide('slow');
-
-                        }
-                    },
-                    error : function(response) {
-                        console.log(response)
-                    },
-                    cache: false,
-                });
-            }
-        })
+        //                 if (data.valid) {
+        //                     validNRIC.innerHTML = data.message;
+        //                     $('#submit2').show('slow');
+        //                 } else {
+        //                     errorNRIC.innerHTML = data.message;
+        //                     $('#submit2').hide('slow');
+        //                 }
+        //             },
+        //             error : function(response) {
+        //                 console.log(response)
+        //             },
+        //             cache: false,
+        //         });
+        //     }
+        // })
 
         // nric.addEventListener('change', resetNric);
-        nric.addEventListener('keyup', resetNric);
+        // nric.addEventListener('keyup', resetNric);
     });
   
 </script>

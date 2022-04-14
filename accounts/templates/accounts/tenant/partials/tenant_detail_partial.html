@@ -17,7 +17,7 @@
         <p><strong>Start Date/Time:</strong> {{ visitor.start_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
         <p><strong>End Date/Time:</strong> {{ visitor.end_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
         <hr>
-        <div class="row mb-4">
+        <div class="row mb-3">
             <div class="col-md-4">
                 {% if visitor.photo %}
                 <img src="/static{{ visitor.photo.url }}" width="150px">
@@ -31,14 +31,30 @@
                 <p><strong>Contact : </strong> {{ visitor.contact_no|default_if_none:"-" }}</p>
             </div>
         </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <span>QR Image: </span>
+                {% if visitor.qr_image %}
+                <img id="qr-download" src="/static{{ visitor.qr_image.url }}" alt="visitor__qrcode" width="150px">
+                <span class="text-sm">
+                    <a href="/static{{ visitor.qr_image.url }}" title="download image" download>
+                        <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>
+                    </a>
+                    &nbsp; .png
+                </span>
+                {% else %}
+                -
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 {% elif staff %}
 <div class="modal-body">
     <div class="container-fluid">
-        <p>Registered At: {{ staff.created_at|default_if_none:"-" }}</p>
+        <p><strong> Registered At:</strong> {{ staff.created_at|default_if_none:"-" }}</p>
         <hr>
-        <div class="row mb-4">
+        <div class="row mb-3">
             <div class="col-md-4">
                 {% if staff.photo %}
                 <img src="/static{{ staff.photo.url }}" width="150px">
@@ -53,10 +69,26 @@
                 <p><strong>Email : </strong> {{ staff.email|default_if_none:"-" }}</p>
             </div>
         </div>
-        <div class="row mb-4">
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <span>QR Image: </span>
+                {% if staff.qr_image %}
+                <img id="qr-download" src="/static{{ staff.qr_image.url }}" alt="staff__qrcode" width="150px">
+                <span class="text-sm">
+                    <a href="/static{{ staff.qr_image.url }}" title="download image" download>
+                        <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>
+                    </a>
+                    &nbsp; .png
+                </span>
+                {% else %}
+                -
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-12">
                 <span>Remarks: </span>
-                <textarea id="remarks" name="remarks" rows="4" cols="50" readonly style="border-color: gray; color:#858796;">
+                <textarea id="remarks" name="remarks" rows="2" cols="45" readonly style="border-color: gray; color:#858796;">
                     {{ staff.remarks|default_if_none:"-" }}
                 </textarea>
             </div>
