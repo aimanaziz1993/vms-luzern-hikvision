@@ -305,37 +305,32 @@ def staff_approval(request, pk):
 @login_required
 @tenant_required
 def visitor_approval(request, pk):
-    # staff = Staff.objects.get(pk=pk)
     visitor = Visitor.objects.get(pk=pk)
-
-    user = User.objects.get(id=request.user.id)
-    print(user)
-    exit()
 
     if request.POST:
         if request.POST.get('pk') == '3':
             visitor.is_active = False
-            email_template = 'emailnew/staff_rejected.html'
+            # email_template = 'emailnew/staff_rejected.html'
         else:
-            email_template = 'emailnew/staff_approve.html'
-        visitor.is_approved = request.POST.get('pk')
+            # email_template = 'emailnew/staff_approve.html'
+            visitor.is_approved = request.POST.get('pk')
         visitor.save()
 
-        email_context = {
-            'code': visitor.code
-        }
+        # email_context = {
+        #     'code': visitor.code
+        # }
 
-        try:
-            html_email = render_to_string(email_template, email_context)
-            email = send_mail(
-                'VMS-Luzern: Staff Registration',
-                html_email,
-                'webmaster@localhost',
-                [ visitor.email ],
-                fail_silently=False
-            )
-        except Exception as e:
-            raise e
+        # try:
+        #     html_email = render_to_string(email_template, email_context)
+        #     email = send_mail(
+        #         'VMS-Luzern: Staff Registration',
+        #         html_email,
+        #         'webmaster@localhost',
+        #         [ visitor.email ],
+        #         fail_silently=False
+        #     )
+        # except Exception as e:
+        #     raise e
 
         data = dict()
         data['updated'] = True

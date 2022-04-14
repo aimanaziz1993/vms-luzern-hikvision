@@ -187,9 +187,7 @@
 
         $('#id_identification_no').change(function(e) {
             resetNric();
-
             if (this.value !== '') {
-
                 $.ajax({
                     headers: { "X-CSRFToken": getCookie('csrftoken') },
                     url : '/self-register/validate-nric/',
@@ -205,7 +203,6 @@
                         } else {
                             errorNRIC.innerHTML = data.message;
                             $('#submit').hide('slow');
-
                         }
                     },
                     error : function(response) {
@@ -219,6 +216,12 @@
         // nric.addEventListener('change', resetNric);
         nric.addEventListener('keyup', resetNric);
     });
+
+    $(function () {
+        $('#selfregister-visitor').on('submit', function() {
+            $('#submit').attr('disabled', true);
+        })
+     });
   
   </script>
 

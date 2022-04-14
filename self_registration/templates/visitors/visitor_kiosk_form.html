@@ -45,7 +45,10 @@
       </div>
     {% endfor %}
     
-    <input id="submit" type="submit" class="btn btn-info btn-sm" value="Submit Registration"></input>
+        <input id="submit2" type="submit" class="btn btn-info btn-sm" value="Submit Registration"></input>
+    <div>
+        <input id="submit-disabled" type="submit" class="btn btn-info btn-sm" value="Submit Registration" disabled></input>
+    </div>
 
 </form>
 
@@ -53,6 +56,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/static/js/vendor/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
 <script>
+    $('#submit-disabled').hide();
 
     $.fn.noMask = function(regex) { 
         this.on("keypress", function(e) {
@@ -131,11 +135,11 @@
         } else {
             $('input[name=contact_no]').val('+' + country.value + input.value.trim());
         }
-
+        console.log(iti.isValidNumber());
         if (input.value.trim()) {
             if (iti.isValidNumber()) {
                 validMsg.classList.remove("hide");
-                $('#submit').show('slow');
+                $('#submit2').show('slow');
             } else {
                 input.classList.add("error");
                 var errorCode = iti.getValidationError();
@@ -143,11 +147,11 @@
                 if (errorCode == -99) {
                     errorMsg.innerHTML = errorMap[5];
                     errorMsg.classList.remove("hide");
-                    $('#submit').hide('slow');
+                    $('#submit2').hide('slow');
                 } else {
                     errorMsg.innerHTML = errorMap[errorCode];
                     errorMsg.classList.remove("hide");
-                    $('#submit').hide('slow');
+                    $('#submit2').hide('slow');
                 }
             }
         }
@@ -191,9 +195,7 @@
 
         $('#id_identification_no').change(function(e) {
             resetNric();
-
             if (this.value !== '') {
-
                 $.ajax({
                     headers: { "X-CSRFToken": getCookie('csrftoken') },
                     url : '/self-register/validate-nric/',
@@ -202,14 +204,12 @@
                         'nric': this.value,
                     },
                     success : function(data) {
-
                         if (data.valid) {
                             validNRIC.innerHTML = data.message;
-                            $('#submit').show('slow');
+                            $('#submit2').show('slow');
                         } else {
                             errorNRIC.innerHTML = data.message;
-                            $('#submit').hide('slow');
-
+                            $('#submit2').hide('slow');
                         }
                     },
                     error : function(response) {
@@ -223,7 +223,15 @@
         // nric.addEventListener('change', resetNric);
         nric.addEventListener('keyup', resetNric);
     });
-  
+    
+    $(function () {
+        $('#selfregister-kiosk-visitor').on('submit', function() {
+            console.log('submit start')
+            // var submitDisabled = document.getElementById('submit-disabled')
+            $('#submit2').hide();
+            $('#submit-disabled').show();
+        })
+     });
   </script>
 
 {% endblock javascripts %}
