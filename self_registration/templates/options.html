@@ -1,0 +1,74 @@
+{% extends 'base-guest.html' %}
+
+{% block extrastyles %}
+
+<style>
+    @media only screen and (max-width: 768px) {
+      /* For mobile phones: */
+      [class*="col-"] {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      h4 {
+          font-size: small;
+      }
+    }  
+    .icons {
+      background-position: 0 0;
+      margin: auto;
+      display: block;
+      text-align: center;
+      font-family: "Helvetica";
+    }
+
+    /* div #option-box {
+
+    } */
+    div #option-box:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 5px 5px;
+}
+</style>
+
+{% endblock extrastyles %}
+
+{% block content_guest %}
+
+<div class="container" style="transform: translate(-3px, 13px);">
+    <div class="row d-flex align-items-center justify-content-around">
+        <div id="option-box" class="col-4 col-md-4">
+            <a href="/self-register/visitor/" style="text-decoration: none">
+                <div class="card text-center bg-primary text-white">
+                <div class="card-block" >             
+                    <h2><i class="fa fa-street-view fa-sm"style="padding-top: 20px"></i></h2>
+                </div>
+                <div class="row px-2 no-gutters">
+                <h4 class="card-title">Entries as Guest</h4>
+                </div>
+            </div>
+            </a>
+        </div>
+        <div id="option-box" class="col-4 col-md-4">
+            <a href="/self-register/visitor/" style="text-decoration: none">
+                <div class="card text-center bg-info text-white">
+                <div class="card-block" >             
+                    <h2><i class="fa fa-paper-plane fa-sm"style="padding-top: 20px"></i></h2>
+                </div>
+                <div class="row px-2 no-gutters">
+                <h4 class="card-title">Courier/Delivery</h4>
+                </div>
+            </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock content_guest %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

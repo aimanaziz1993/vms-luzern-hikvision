@@ -59,9 +59,9 @@ class Tenant(models.Model):
 
     def __str__(self):
         if self.company_name or self.unit_no:
-            return f"{self.user.username}-{self.company_name}-{self.building}-{self.floor}-{self.unit_no}"
+            return f"{self.company_name}-{self.unit_no} : {self.building}-{self.floor}"
         else:
-            return f"{self.user.username}-{self.building}-{self.floor}"
+            return f"{self.user.username} : {self.building}-{self.floor}"
 
     def get_absolute_url(self):
         userid = self.user.pk

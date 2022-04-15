@@ -63,9 +63,17 @@ class TenantCreationForm(BootstrapHelperForm, UserCreationForm):
         required=True
     )
 
+    company_name = forms.CharField(
+        required=True
+    )
+
+    unit_no = forms.CharField(
+        required=True
+    )
+
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ("username", "email", "password1", "password2", "devices")
+        fields = ("username", "email", "password1", "password2", "devices", "company_name", "unit_no")
         help_texts = { k:"" for k in fields }
 
     def __init__(self, *args, **kwargs):
@@ -83,6 +91,10 @@ class TenantCreationForm(BootstrapHelperForm, UserCreationForm):
         tenant.device = device
         tenant.building = device.building.name
         tenant.floor = device.floor.name
+        company_name = self.cleaned_data.get('company_name')
+        tenant.company_name = company_name.upper()
+        unit_no = self.cleaned_data.get('unit_no')
+        tenant.unit_no = unit_no
         tenant.code = generate_ref_code()
         tenant.save()
         return user

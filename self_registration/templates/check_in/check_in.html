@@ -121,14 +121,12 @@
         var phone = $('input[name=phone]').val();
 
         if (search != '' && phone != '') {
-            alert("You must provide only one of the details: Ref Code or Mobile No. only");
+            // alert("You must provide only one of the details: Ref Code or Mobile No. only");
         }
 
         if (search == '' && phone == '') {
             alert("Kindly enter one of the details: Ref Code or Mobile No.");
-        }
-
-        if (search != '') {
+        } else if (search != '') {
             var condition = 'search';
         } else if( phone != '') {
             var condition = 'phone';
@@ -178,14 +176,12 @@
         var phone = $('input[name=phone]').val();
 
         if (search != '' && phone != '') {
-            alert("You must provide only one of the details: Ref Code or Mobile No. only");
+            // alert("You must provide only one of the details: Ref Code or Mobile No. only");
         }
 
         if (search == '' && phone == '') {
             alert("Kindly enter one of the details: Ref Code or Mobile No.");
-        }
-
-        if (search != '') {
+        } else if (search != '') {
             var condition = 'search';
         } else if( phone != '') {
             var condition = 'phone';

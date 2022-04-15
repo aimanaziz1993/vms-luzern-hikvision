@@ -104,3 +104,6 @@ class Staff(models.Model):
             code = generate_ref_code2()
             self.code = code
         super().save(*args, **kwargs)
+
+
+# class Delivery

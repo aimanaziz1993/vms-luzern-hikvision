@@ -5,6 +5,9 @@ from . import views
 
 urlpatterns = [
 
+    # Deliveries or Guest
+    path('', views.option_page, name='option-page'),
+
     # Search Registration
     path('search-mobile/', views.search_registration, name='search-mobile'),
     path('result/<str:mobile>/', views.search_result, name='search-result'),

@@ -28,6 +28,11 @@ from hikvision_api.api import initiate, Card, FaceData, Person
 
 from sorl.thumbnail import get_thumbnail
 
+def option_page(request):
+
+    return render (request, 'options.html', {})
+
+
 def visitor_reg(request, *args, **kwargs):
     try:
         context = {}
@@ -319,13 +324,9 @@ def details_checkin(request, *args, **kwargs):
     search = request.GET.get('search')
     phone = request.GET.get('phone')
 
-    print(request.GET)
-
     if request.GET.get('condition') == 'search':
         visitor = get_object_or_404(Visitor, code__exact=search)
-        print(visitor)
     elif request.GET.get('condition') == 'phone':
-        print('enter phone')
         # visitor = get_object_or_404(Visitor, contact_no__icontains=phone)
         visitor = Visitor.objects.filter(contact_no__icontains=phone, is_checkin=False)
 
@@ -338,11 +339,9 @@ def details_checkin(request, *args, **kwargs):
 
             closest_date = min(visitor_dt, key=lambda d: abs(d - current_dt))
             visitor = Visitor.objects.get(start_date=closest_date)
-            print(visitor)
-            # exit()
     else:
         visitor = Visitor.objects.get(id = request.POST.get('visitor_id'))
-    # exit()
+
     form = VisitorCheckInForm(request.POST or None, request.FILES or None, instance=visitor)
 
     if request.is_ajax() and request.method == 'POST':
