@@ -28,7 +28,7 @@
     /* div #option-box {
 
     } */
-    div #option-box:hover {
+    #option-box:hover {
         transform: scale(1.1);
         box-shadow: 0 0 5px 5px;
 }
@@ -40,28 +40,28 @@
 
 <div class="container" style="transform: translate(-3px, 13px);">
     <div class="row d-flex align-items-center justify-content-around">
-        <div id="option-box" class="col-4 col-md-4">
+        <div class="col-4 col-md-4">
             <a href="/self-register/visitor/" style="text-decoration: none">
-                <div class="card text-center bg-primary text-white">
-                <div class="card-block" >             
-                    <h2><i class="fa fa-street-view fa-sm"style="padding-top: 20px"></i></h2>
+                <div id="option-box" class="card text-center bg-primary text-white">
+                    <div class="card-block" >             
+                        <h2><i class="fa fa-street-view fa-sm"style="padding-top: 20px"></i></h2>
+                    </div>
+                    <div class="row px-2 no-gutters">
+                    <h4 class="card-title">Entries as Guest</h4>
+                    </div>
                 </div>
-                <div class="row px-2 no-gutters">
-                <h4 class="card-title">Entries as Guest</h4>
-                </div>
-            </div>
             </a>
         </div>
-        <div id="option-box" class="col-4 col-md-4">
-            <a href="/self-register/visitor/" style="text-decoration: none">
-                <div class="card text-center bg-info text-white">
-                <div class="card-block" >             
-                    <h2><i class="fa fa-paper-plane fa-sm"style="padding-top: 20px"></i></h2>
+        <div class="col-4 col-md-4">
+            <a href="/self-register/visitor/" style="text-decoration: none" class="disabled">
+                <div id="option-box" class="card text-center bg-info text-white">
+                    <div class="card-block" >             
+                        <h2><i class="fa fa-paper-plane fa-sm"style="padding-top: 20px"></i></h2>
+                    </div>
+                    <div class="row px-2 no-gutters">
+                        <h4 class="card-title">Courier/Delivery</h4>
+                    </div>
                 </div>
-                <div class="row px-2 no-gutters">
-                <h4 class="card-title">Courier/Delivery</h4>
-                </div>
-            </div>
             </a>
         </div>
     </div>
