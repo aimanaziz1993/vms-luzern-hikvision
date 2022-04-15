@@ -26,7 +26,8 @@
                 {% endif %}
             </div>
             <div class="col-md-8">
-                <p><strong>Name : </strong> {{ visitor.name|upper|default_if_none:"-" }}</p>
+                <p><strong>Entries Code : </strong> {{ visitor.code|default_if_none:"-" }}</p>
+                <p><strong>Name : </strong> {{ visitor.name|default_if_none:"-" }}</p>
                 <p><strong>Identification No. : </strong> {{ visitor.identification_no|default_if_none:"-" }}</p>
                 <p><strong>Contact : </strong> {{ visitor.contact_no|default_if_none:"-" }}</p>
             </div>
@@ -38,9 +39,9 @@
                 <img id="qr-download" src="/static{{ visitor.qr_image.url }}" alt="visitor__qrcode" width="150px">
                 <span class="text-sm">
                     <a href="/static{{ visitor.qr_image.url }}" title="download image" download>
-                        <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>
+                        <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>&nbsp; .png
                     </a>
-                    &nbsp; .png
+                    
                 </span>
                 {% else %}
                 -

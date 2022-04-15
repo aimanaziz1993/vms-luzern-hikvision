@@ -1,6 +1,6 @@
 import json
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from time import strftime
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -46,7 +46,17 @@ def visitor_reg(request, *args, **kwargs):
             form = VisitorRegistrationForm(request.POST, request.FILES)
             if form.is_valid():
                 form.clean()
-                visitor = form.save(commit=False)
+                visitor = form.save(commit=True)
+                qr_image = qrcode.make(visitor.code)
+                qr_offset = Image.new('RGB', (310,310), 'white')
+                draw_img = ImageDraw.Draw(qr_offset)
+                qr_offset.paste(qr_image)
+                filename = f'{visitor.code}_{visitor.identification_no}'
+                print('filename qr', filename)
+                thumb_io  = BytesIO()
+                qr_offset.save(thumb_io , 'PNG')
+                visitor.qr_image.save(filename+'.png', ContentFile(thumb_io.getvalue()), save=False)
+                qr_offset.close()
                 visitor.tenant = tenant
 
                 if security:
@@ -83,7 +93,7 @@ def visitor_reg(request, *args, **kwargs):
                     raise e
 
                 messages.success(request, 'Success')
-                return render(request, 'visitors/success.html', { 'code': visitor.code })
+                return render(request, 'visitors/success.html', { 'code': visitor.code, 'visitor': visitor })
             else:
                 print('form_invalid')
 
@@ -109,7 +119,19 @@ def visitor_reg(request, *args, **kwargs):
 
             if form.is_valid():
                 form.clean()
-                visitor = form.save(commit=False)
+                visitor = form.save(commit=True)
+                # visitor.start_date = datetime.now()
+                # generate QR code image from visitor code, this will serve as check in
+                qr_image = qrcode.make(visitor.code)
+                qr_offset = Image.new('RGB', (310,310), 'white')
+                draw_img = ImageDraw.Draw(qr_offset)
+                qr_offset.paste(qr_image)
+                filename = f'{visitor.code}_{visitor.identification_no}'
+                print('filename qr', filename)
+                thumb_io  = BytesIO()
+                qr_offset.save(thumb_io , 'PNG')
+                visitor.qr_image.save(filename+'.png', ContentFile(thumb_io.getvalue()), save=False)
+                qr_offset.close()
                 visitor.tenant = tenant
 
                 if security:
@@ -148,7 +170,7 @@ def visitor_reg(request, *args, **kwargs):
                     raise e
 
                 messages.success(request, 'Visitor Registration Success. Thank you.')
-                return render(request, 'visitors/success.html', { 'code': visitor.code })
+                return render(request, 'visitors/success.html', { 'code': visitor.code, 'visitor': visitor })
 
         context = { 'segment': 'visitors kiosk', 'form': form }
 
@@ -244,29 +266,45 @@ def check_in(request):
     if request.method == 'POST':
 
         try:
-            visitor = Visitor.objects.get(code=request.POST.get('search'))
+            if request.POST.get('cond') == 'search':
+                visitor = Visitor.objects.get(code=request.POST.get('search'))
 
-            # for v in visitor:
-
-            if visitor.is_approved == 1:
-                return JsonResponse({
+                if visitor.is_approved == 1:
+                    return JsonResponse({
+                        'error': True,
+                        'data': 'Your registration is currently pending approval from Host. Kindly call the Host to approve your appointment. Thank you.'
+                    })
+                elif visitor.is_approved == 2 and visitor.is_checkin == True:
+                    return JsonResponse({
+                        'error': True,
+                        'data': "You have checked in before. Kindly register for a new appointment to obtain new code for check in.",
+                    }) 
+                else:
+                    return JsonResponse({
+                        'error': False,
+                    })
+            elif request.POST.get('cond') == 'phone':
+                # Filter list queryset of visitor with same phone no
+                visitor = Visitor.objects.filter(contact_no__icontains = request.POST.get('phone'), is_checkin=False)
+                if visitor:
+                    return JsonResponse({
+                        'error': False,
+                    })
+                else:
+                    return JsonResponse({
                     'error': True,
-                    'data': 'Your registration is currently pending approval from Host. Kindly call the Host to approve your appointment. Thank you.'
+                    'data': "Details not found.",
                 })
-            elif visitor.is_approved == 2 and visitor.is_checkin == True:
-                return JsonResponse({
-                    'error': True,
-                    'data': "You have checked in before. Kindly register for a new appointment to obtain new code for check in.",
-                }) 
             else:
                 return JsonResponse({
-                    'error': False,
-                })
+                    'error': True,
+                    'data': "Try again.",
+                }) 
 
         except Visitor.DoesNotExist as e:
             return JsonResponse({
                 'error': True,
-                'data': "Opps, The code you provided not exist. Try Again.",
+                'data': "Opps, The details you provided not exist. Try Again.",
             })
 
     return render(request, 'check_in/check_in.html', context)
@@ -279,13 +317,32 @@ def details_checkin(request, *args, **kwargs):
         template_name = 'check_in/modal/checkin_detail.html'
 
     search = request.GET.get('search')
+    phone = request.GET.get('phone')
 
-    if search:
+    print(request.GET)
+
+    if request.GET.get('condition') == 'search':
         visitor = get_object_or_404(Visitor, code__exact=search)
+        print(visitor)
+    elif request.GET.get('condition') == 'phone':
+        print('enter phone')
+        # visitor = get_object_or_404(Visitor, contact_no__icontains=phone)
+        visitor = Visitor.objects.filter(contact_no__icontains=phone, is_checkin=False)
+
+        # find closest date to visitor list
+        if visitor:
+            current_dt = datetime.now()
+            visitor_dt = []
+            for v in visitor:
+                visitor_dt.append(v.start_date)
+
+            closest_date = min(visitor_dt, key=lambda d: abs(d - current_dt))
+            visitor = Visitor.objects.get(start_date=closest_date)
+            print(visitor)
+            # exit()
     else:
         visitor = Visitor.objects.get(id = request.POST.get('visitor_id'))
-
-    
+    # exit()
     form = VisitorCheckInForm(request.POST or None, request.FILES or None, instance=visitor)
 
     if request.is_ajax() and request.method == 'POST':
@@ -414,7 +471,7 @@ def details_checkin(request, *args, **kwargs):
                             # Get & loop all past visitor code - compare code to FRA & delete all visitor from FRA
                             for visitor in get_checked_in_visitor:
                                 # delete every code if exist in FRA
-                                if visitor.end_date <= datetime.now():
+                                if visitor.end_date <= datetime.now() or visitor.contact_no == visitor_update.contact_no:
                                     print("deleting all end date visitor")
                                     del_res = person_instance.delete(visitor.code, host, auth)
                                     print(del_res)
@@ -436,6 +493,7 @@ def details_checkin(request, *args, **kwargs):
 
                 return render(request, 'check_in/checkin_success.html', { 'visitor': visitor_update })
             else:
+                print('invalid')
                 return JsonResponse({
                     'error': True,
                     'message': form.errors

@@ -8,7 +8,7 @@
     }
 
     .iti {
-        width: 100%%
+        width: 100%
     }
 
     .iti .error {
@@ -44,7 +44,9 @@
                     {% csrf_token %}
                     <div class="form_group">
                         <label for="search">Search for Visit Details: </label></br>
-                        <input class="form-control form_input" type="text" id="search" name="search" placeholder="Enter Ref Code">
+                        <input class="form-control form_input" type="text" id="search" name="search" placeholder="Enter Ref Code"></br>
+                        <label for="phone">Or: </label></br>
+                        <input class="form-control form_input" type="tel" id="phone" name="phone" placeholder="Enter Mobile No.">
                     </div>
                     <div>
                         <span id="error-not-found" class="hide text-danger small"></span>
@@ -71,11 +73,23 @@
 <script src="/static/js/vendor/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
 
 <script>
+    $.fn.noMask = function(regex) { 
+        this.on("keypress", function(e) {
+            if (regex.test(String.fromCharCode(e.which))) {
+                return false;
+            }
+        });
+    }
+    
+    $("input[type=tel]").noMask( /[a-zA-Z]/ );
+
     $('.show-if-visitor').hide();
     var errorMsg = document.querySelector("#error-not-found");
     var successMsg = document.querySelector("#found");
-    {% comment %} var errordiv = document.querySelector("#errorDiv");
-    var errorspan = document.querySelector("#error-span"); {% endcomment %}
+    // var errorDiv = document.querySelector("#errorDiv");
+    var errorDiv = document.getElementById('errorDiv');
+    // var errorSpan = document.querySelector("#error-span");
+    var errorSpan = document.getElementById('error-span');
 
     var resetSearch = function() {
         successMsg.innerHTML = "",
@@ -85,8 +99,15 @@
     }
 
     var search_input = document.querySelector("#search");
+    var phone_input = document.querySelector("#phone");
 
     search_input.addEventListener('blur', function() {
+        resetSearch();
+        $('#updateDetails').hide();
+        $('#submit').show();
+    })
+
+    phone_input.addEventListener('blur', function() {
         resetSearch();
         $('#updateDetails').hide();
         $('#submit').show();
@@ -97,25 +118,42 @@
 
         var url = $(this).attr("action");
         var search = $('input[name=search]').val();
+        var phone = $('input[name=phone]').val();
+
+        if (search != '' && phone != '') {
+            alert("You must provide only one of the details: Ref Code or Mobile No. only");
+        }
+
+        if (search == '' && phone == '') {
+            alert("Kindly enter one of the details: Ref Code or Mobile No.");
+        }
+
+        if (search != '') {
+            var condition = 'search';
+        } else if( phone != '') {
+            var condition = 'phone';
+        }
 
         $.ajax({
             headers: { "X-CSRFToken": $('input[name=csrfmiddlewaretoken]').val() },
             url : url,
             method : "POST",
             data: {
+                'cond': condition,
                 'search': search,
+                'phone': phone
             },
             dataType: 'json',
 
             success : function(data) {
-
+                console.log(data);
                 if (data.error) {
                     errorMsg.innerHTML = data.data;
                     errorMsg.classList.remove("hide");
                     successMsg.innerHTML = '';
                     successMsg.classList.add("hide");
                 } else {
-                    console.log(data);
+                    
                     successMsg.innerHTML = 'Details Found.';
                     successMsg.classList.remove("hide");
                     $('#updateDetails').show();
@@ -125,7 +163,7 @@
                 }
             },
             error : function(xhr, ajaxOptions, thrownError) {
-                swal.fire("!Opps ", "Something went wrong. You might entered a wrong code. Try Again. Thank you.", "error");
+                swal.fire("!Opps ", "Something went wrong. You might entered an incorrect details. Try Again. Thank you.", "error");
             },
         });
     });
@@ -137,12 +175,29 @@
         var url = $(event.target).closest('a').attr('href');
 
         var search = $('input[name=search]').val();
+        var phone = $('input[name=phone]').val();
+
+        if (search != '' && phone != '') {
+            alert("You must provide only one of the details: Ref Code or Mobile No. only");
+        }
+
+        if (search == '' && phone == '') {
+            alert("Kindly enter one of the details: Ref Code or Mobile No.");
+        }
+
+        if (search != '') {
+            var condition = 'search';
+        } else if( phone != '') {
+            var condition = 'phone';
+        }
 
         $.ajax({
             type: "GET",
             url: url,
             data: {
-                search: search, 
+                condition: condition,
+                search: search,
+                phone: phone
             }
         }).done(function(data, textStatus, jqXHR) {
             // formAjaxSubmit(modal, url);
@@ -175,17 +230,17 @@
 
             success : function(data) {
                 console.log('success');
-
+                console.log(data);
                 if (data.error) {
                     
                     if (data.message) {
-                        errorDiv.classList.remove("hide");
-                        errorDiv.classList.add("show");
-                        errorSpan.innerHTML = data.message.__all__[0];
+                        // errorDiv.classList.remove("hide");
+                        // errorDiv.classList.add("show");
+                        // errorSpan.innerHTML = data.message.__all__[0];
                     } else {
-                        errorDiv.classList.remove("hide");
-                        errorDiv.classList.add("show");
-                        errorSpan.innerHTML = data.data;
+                        // errorDiv.classList.remove("hide");
+                        // errorDiv.classList.add("show");
+                        // errorSpan.innerHTML = data.data;
                     }
                 } else {
                     swal.fire({

@@ -5,7 +5,7 @@ from accounts.models import User, Tenant
 from datetime import datetime, timezone
 from PIL import Image
 
-from .utils import generate_ref_code, id_generator
+from .utils import generate_ref_code, generate_ref_code2
 
 def image_max_size(width=None, height=None):
 
@@ -59,8 +59,8 @@ class Visitor(models.Model):
             if self.end_date <= self.start_date:
                 raise ValidationError("Ending Time must end after it starts.")
 
-            if self.start_date <= datetime.now():
-                raise ValidationError("Appointment Time must starts in future. Not in the past.")
+            # if self.start_date < datetime.now():
+            #     raise ValidationError("Appointment Time must starts in future. Not in the past.")
 
     def save(self, *args, **kwargs):
         if self.code == "":
@@ -101,6 +101,6 @@ class Staff(models.Model):
 
     def save(self, *args, **kwargs):
         if self.code == "":
-            code = generate_ref_code()
+            code = generate_ref_code2()
             self.code = code
         super().save(*args, **kwargs)

@@ -6,30 +6,45 @@
     <div class="col-12 d-flex align-items-center justify-content-center">
         <div class="card">
             <div class="card-header">
-                <h4 class="m-0 font-weight-bold text-primary">Visitor Self Registration - Done</h4>
+                <div class="row d-flex align-items-center justify-content-between">
+                    <h4 class="m-0 font-weight-bold text-primary">Visitor Self Register Entries - Done</h4>
+                    <span><button class="btn btn-primary btn-circle btn-sm" onclick="window.print()">
+                        <i class="fas fa-print"></i>
+                    </button></span>
+                </div>
             </div>
             <div class="card-body">
                 <p>
-                    Success Submit Appointment Registration! We have emailed your Host for an appointment request.
+                    <span class="text-success font-weight-bold">Self Register Entries Success!</span>
                 </p>
                 <p>
-                    You can proceed for check-in at the specified data/time using your registration code: <strong>{{ code }}</strong>. Or
+                    Kindly key-in the provided code: <strong>{{ code }}</strong> or your mobile no during check in.
                 </p>
                 <p>
                     You can also check in using QR generated for you below: 
-                    <img src="/static{{ visitor.qr_image.url }}" alt="visitor QR">
-                    Download & scan the QR code when entering premises/floor here:
-                    <a href="/static{{ visitor.qr_image.url }}" title="download image" download>
+                </p>
+                <p>
+                    <img src="/static{{ visitor.qr_image.url }}" alt="visitor QR" width="220px">
+                </p>
+                <p>
+                    Download & scan the QR code when entering premises/floor here after check in at the kiosk:
+                    <a href="/static{{ visitor.qr_image.url }}" title="download QR" download>
                         <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>
                     </a>
                 </p>
                 <p>
-                    Reminder: Do not lose your registration code. Note that this is only a one way entry. If you loss your check in privilege, kindly do another self registration at the kiosk.
+                    <strong>Reminder:</strong>
+                </p>
+                <p>
+                    <ul>
+                        <li>Do not lose your registration code.</li>
+                        <li>Note that this is only a one way entry. You may do a self register for another entry.</li>
+                        <li>If you loss your check in privilege, you can always search your registered details using you unique code or mobile numbers.</li>
+                    </ul>
                 </p>
                 <p>Thank you.</p>
             </div>
         </div>
-        
     </div>
 </div>
 

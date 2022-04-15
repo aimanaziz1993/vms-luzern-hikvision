@@ -20,13 +20,17 @@
 </style>
 
 <div class="container-fluid">
-    <p><strong>Registered At:</strong> {{ visitor.created_at|default_if_none:"-" }}</p>
-    <p><strong>Start Date/Time:</strong> {{ visitor.start_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
-    <p><strong>End Date/Time:</strong> {{ visitor.end_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
-    <p><span id="msg-info" class="small text-success">Valid start date will be auto updated to current time you're checking in.</span></p>
-    <hr>
     <form id="check_in" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+        <p><span id="msg-info" class="small text-danger">Are you sure this are your details information?</span></p>
+        <p><strong>Registered At:</strong> {{ visitor.created_at|default_if_none:"-" }}</p>
+        <p><strong><label for="id_start_date1">Start Date/Time: </label></strong></p>
+        <input type="datetime-local" class="form-control form_input" id="id_start_date1" name="start_date1">
+        <p><span id="msg-info" class="small text-success">Valid start date will be auto updated to current time you're checking in.</span></p>
+        <p><strong>End Date/Time:</strong></p>
+        <p>{{ visitor.end_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
+        <p><span id="msg-info" class="small text-info">Your valid session entries will end on the above date stated.</span></p>
+        <hr>
         <div class="row mb-3 d-flex align-items-center justify-content-center">
             <div class="col-md-4" style="display: flex;align-items: center;justify-content: center;">
                 {% if visitor.photo %}
@@ -41,14 +45,18 @@
                     <i id="icon" class="fas fa-upload fa-sm text-gray-500" aria-hidden="true"></i>
                 </label>
                 {{ form.photo }}
+                <p><strong>Entries Code : </strong> {{ visitor.code|default_if_none:"-" }}</p>
                 <p><strong>Name : </strong> {{ visitor.name|default_if_none:"-" }}</p>
                 <p><strong>Identification No. : </strong> *****{{ visitor.identification_no|default_if_none:"-" }}</p>
                 <p><strong>Contact No.: </strong> {{ visitor.contact_no|default_if_none:"-" }}</p>
             </div>
         </div>
+        {% comment %} <div id="errorDiv" class="col-md alert alert-warning alert-dismissible fade hide" id="update_alert" role="alert">
+            <span id="error-span" class="error-all hide"></span>
+        </div> {% endcomment %}
         <input type="hidden" name="visitor_id" value="{{ visitor.id }}" />
         <div class="row d-flex align-items-center justify-content-center">
-            <input id="submit2" type="submit" class="btn btn-info btn-sm mt-3" value="Check In"></input>
+            <input id="submit2" type="submit" class="btn btn-primary btn-sm mt-3" value="Check In"></input>
         </div>
     </form>
 </div>
@@ -122,12 +130,12 @@
     
     $("input[type=tel]").noMask( /[a-zA-Z]/ );
 
-    // var now = new Date();
-    // now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    // now.setSeconds(now.getSeconds() + 20)
-    // // 2022-04-12T17:09
-    // document.getElementById('id_start_date1').setAttribute("readonly", "readonly");
-    // document.getElementById('id_start_date1').value = now.toISOString().slice(0,16);
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    now.setSeconds(now.getSeconds() + 20)
+    // 2022-04-12T17:09
+    document.getElementById('id_start_date1').setAttribute("readonly", "readonly");
+    document.getElementById('id_start_date1').value = now.toISOString().slice(0,16);
 
     // var input = document.querySelector("#phone2");
     // var country = document.querySelector("#country2");
