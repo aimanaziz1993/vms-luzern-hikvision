@@ -1,5 +1,18 @@
 {% extends 'base2.html' %}
 
+<style>
+
+  /* p .error {
+    color: red;
+    font-size: small; !important;
+  } */
+
+  /* p .text-danger {
+    margin-bottom: 0.2rem; !important
+  } */
+
+</style>
+
 {% block content %}
 
 <div class="container-fluid">
@@ -13,7 +26,19 @@
           <form method="post" novalidate>
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}">
-            {{ form.as_p }}
+            {% comment %} {{ form.as_p }} {% endcomment %}
+            {% for field in form %}
+              <div class="form-group{% if field.errors %} has-error{% endif %}">
+                <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
+                {{field}}
+                {% for nfe in field.non_field_errors %}
+                  <p class="help-block text-danger">{{ nfe }}</p>
+                {% endfor %}
+                {% for error in field.errors %}
+                  <p class="help-block text-danger">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endfor %}
             <button type="submit" class="btn btn-primary btn-sm">Create Administrator</button>
           </form>
         </div>
