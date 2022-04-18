@@ -170,4 +170,3 @@ def change_security(request):
         response.set_cookie('security', obj.security)
         return response
 
-    
