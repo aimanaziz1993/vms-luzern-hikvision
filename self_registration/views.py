@@ -327,9 +327,7 @@ def details_checkin(request, *args, **kwargs):
     if request.GET.get('condition') == 'search':
         visitor = get_object_or_404(Visitor, code__exact=search)
     elif request.GET.get('condition') == 'phone':
-        # visitor = get_object_or_404(Visitor, contact_no__icontains=phone)
         visitor = Visitor.objects.filter(contact_no__icontains=phone, is_checkin=False)
-        # print(visitor)
 
         # find closest date to visitor list
         if visitor:
@@ -339,7 +337,6 @@ def details_checkin(request, *args, **kwargs):
                 visitor_dt.append(v.start_date)
 
             closest_date = min(visitor_dt, key=lambda d: abs(d - current_dt))
-            print(closest_date)
             if closest_date < current_dt:
                 print('You cannot check in past data registration')
             visitor = Visitor.objects.filter(start_date=closest_date)
@@ -348,7 +345,6 @@ def details_checkin(request, *args, **kwargs):
                 visitor = visitor[0]
             else:
                 visitor = visitor
-            print(visitor)
     else:
         visitor = Visitor.objects.get(id = request.POST.get('visitor_id'))
 
