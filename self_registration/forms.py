@@ -13,7 +13,8 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
         label=u'Select Host (Visiting Company)',
         empty_label=u'Select Visiting Company:',
         queryset=Tenant.objects.all(),
-        widget=forms.Select
+        widget=forms.Select,
+        required=True
     )
 
     class Meta:

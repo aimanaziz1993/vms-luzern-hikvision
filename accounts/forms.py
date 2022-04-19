@@ -69,7 +69,7 @@ class TenantCreationForm(BootstrapHelperForm, UserCreationForm):
         required=True
     )
 
-    unit_no = forms.IntegerField(
+    unit_no = forms.CharField(
         required=True,
         widget=forms.HiddenInput(),
     )

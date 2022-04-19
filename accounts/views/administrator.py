@@ -9,6 +9,7 @@ from django.views.generic import CreateView, TemplateView, ListView
 from accounts.decorators import superuser_required, administrator_required
 from cms.ajax_views import AjaxCreateView, AjaxDeleteView, AjaxDetailView, AjaxUpdateView
 from cms.views import CoreListView
+from self_registration.models import Visitor
 
 from ..models import Building, Device, Floor, SecurityOption, Tenant, User
 from ..forms import AdminCreationForm, BuildingForm, DeviceForm, EnableSecurityForm, FloorForm, TenantCreationForm
@@ -55,6 +56,12 @@ class TenantList(CoreListView):
 @method_decorator([login_required, administrator_required], name='dispatch')
 class TenantDetail(AjaxDetailView):
     model = Tenant
+
+    def get_context_data(self, **kwargs):
+        context = super(TenantDetail, self).get_context_data(**kwargs)
+        context['visitors'] = Visitor.objects.filter(tenant=self.get_object())
+        print(context)
+        return context
 
 @method_decorator([login_required, administrator_required], name='dispatch')
 class TenantCreate(AjaxCreateView):

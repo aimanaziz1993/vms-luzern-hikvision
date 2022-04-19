@@ -12,6 +12,7 @@ var table = $('#table__vms').DataTable( {
     fixedHeader: true,
     lengthChange: true,
     lengthMenu: [5, 10, 20, 30],
+    pagingType: "full_numbers",
     buttons: [
         {
             extend: 'pdf',
