@@ -53,7 +53,7 @@ def visitor_reg(request, *args, **kwargs):
                 form.clean()
                 visitor = form.save(commit=True)
                 qr_image = qrcode.make(visitor.code)
-                qr_offset = Image.new('RGB', (310,310), 'white')
+                qr_offset = Image.new('RGB', (280,280), 'white')
                 draw_img = ImageDraw.Draw(qr_offset)
                 qr_offset.paste(qr_image)
                 filename = f'{visitor.code}_{visitor.identification_no}'
@@ -128,7 +128,7 @@ def visitor_reg(request, *args, **kwargs):
                 # visitor.start_date = datetime.now()
                 # generate QR code image from visitor code, this will serve as check in
                 qr_image = qrcode.make(visitor.code)
-                qr_offset = Image.new('RGB', (310,310), 'white')
+                qr_offset = Image.new('RGB', (280,280), 'white')
                 draw_img = ImageDraw.Draw(qr_offset)
                 qr_offset.paste(qr_image)
                 filename = f'{visitor.code}_{visitor.identification_no}'
@@ -220,7 +220,7 @@ def staff_reg(request, *args, **kwargs):
                     raise e
 
                 messages.success(request, 'Staff Registration Success. Thank you.')
-                return render(request, 'staffs/success.html', { 'code': staff.code })
+                return render(request, 'staffs/success.html', { 'code': staff.code, 'staff': staff })
 
         context = { 'segment': 'staffs', 'tenant': tenant, 'form': form, 'code': code }
         return render(request, 'staffs/staff_self_register.html', context)
@@ -339,12 +339,9 @@ def details_checkin(request, *args, **kwargs):
             closest_date = min(visitor_dt, key=lambda d: abs(d - current_dt))
             if closest_date < current_dt:
                 print('You cannot check in past data registration')
-            visitor = Visitor.objects.filter(start_date=closest_date)
-
-            if len(visitor) > 1:
-                visitor = visitor[0]
+                visitor = Visitor.objects.filter(start_date=closest_date).first()
             else:
-                visitor = visitor
+                visitor = Visitor.objects.get(start_date=closest_date)
     else:
         visitor = Visitor.objects.get(id = request.POST.get('visitor_id'))
 
@@ -359,7 +356,7 @@ def details_checkin(request, *args, **kwargs):
                 visitor_update.start_date = datetime.now()
                 # generate QR code image for unique card ID
                 qr_image = qrcode.make(visitor_update.code)
-                qr_offset = Image.new('RGB', (310,310), 'white')
+                qr_offset = Image.new('RGB', (280,280), 'white')
                 draw_img = ImageDraw.Draw(qr_offset)
                 qr_offset.paste(qr_image)
                 filename = f'{visitor_update.code}_{visitor_update.identification_no}'

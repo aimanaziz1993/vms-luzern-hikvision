@@ -27,7 +27,7 @@
             </div>
             <div class="col-md-8">
                 <p><strong>Entries Code : </strong> {{ visitor.code|default_if_none:"-" }}</p>
-                <p><strong>Name : </strong> {{ visitor.name|default_if_none:"-" }}</p>
+                <p><strong>Name : </strong> {{ visitor.name|title|default_if_none:"-" }}</p>
                 <p><strong>Identification No. : </strong> {{ visitor.identification_no|default_if_none:"-" }}</p>
                 <p><strong>Contact : </strong> {{ visitor.contact_no|default_if_none:"-" }}</p>
             </div>
@@ -64,7 +64,7 @@
                 {% endif %}
             </div>
             <div class="col-md-8">
-                <p><strong>Name : </strong> {{ staff.name|upper|default_if_none:"-" }}</p>
+                <p><strong>Name : </strong> {{ staff.name|title|default_if_none:"-" }}</p>
                 <p><strong>Identification No. : </strong> {{ staff.identification_no|default_if_none:"-" }}</p>
                 <p><strong>Contact : </strong> {{ staff.contact_no|default_if_none:"-" }}</p>
                 <p><strong>Email : </strong> {{ staff.email|default_if_none:"-" }}</p>

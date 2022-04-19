@@ -26,7 +26,7 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string, get_template
 
 from cms.ajax_views import AjaxDeleteView, AjaxDetailView, AjaxUpdateView
-from self_registration.utils import generate_ref_code, timedeltaObj
+from self_registration.utils import generate_ref_code, generate_ref_code2, timedeltaObj
 
 from ..forms import TenantCreationForm, TenantProfileUpdateForm
 from ..models import Device, Tenant, User
@@ -168,7 +168,7 @@ def generate_code(request):
     user_id = request.POST.get('user_id')
     tenant = Tenant.objects.get(user_id = user_id)
     if request.POST:
-        tenant.code = generate_ref_code()
+        tenant.code = generate_ref_code2()
         tenant.save()
     return HttpResponse("done")
 
@@ -193,7 +193,7 @@ def staff_approval(request, pk):
             staff.code = employeeNo.upper()
             # generate QR code image for unique card ID
             qr_image = qrcode.make(staff.code)
-            qr_offset = Image.new('RGB', (310,310), 'white')
+            qr_offset = Image.new('RGB', (280,280), 'white')
             draw_img = ImageDraw.Draw(qr_offset)
             qr_offset.paste(qr_image)
             lower_code = staff.code.lower()
