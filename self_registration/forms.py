@@ -10,8 +10,8 @@ from .models import Staff, Visitor
 class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
     tenant = forms.ModelChoiceField(
-        label=u'Select Host',
-        empty_label=u'Select Host or Tenant:',
+        label=u'Select Host (Visiting Company)',
+        empty_label=u'Select Visiting Company:',
         queryset=Tenant.objects.all(),
         widget=forms.Select
     )
@@ -22,8 +22,7 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
         labels = {
             'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
-            'identification_no': 'Identification No',
-            'tenant': 'Select Host',
+            'identification_no': 'NRIC',
             'remarks': 'Remarks [ Optional ]'
         }
 
@@ -46,8 +45,8 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 class VisitorUpdateRegistrationForm(BootstrapHelperForm, forms.ModelForm):
     
     tenant = forms.ModelChoiceField(
-        label=u'Select Host',
-        empty_label=u'Select Host or Tenant:',
+        label=u'Select Host (Visiting Company)',
+        empty_label=u'Select Visiting Company:',
         queryset=Tenant.objects.all(),
         widget=forms.Select
     )
@@ -58,15 +57,14 @@ class VisitorUpdateRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
         labels = {
             'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
-            'identification_no': 'Identification No',
-            'tenant': 'Select Host',
+            'identification_no': 'NRIC.',
             'remarks': 'Remarks [ Optional ]'
         }
 
         widgets = {
             'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
-            'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
+            'identification_no': TextInput(attrs={'class': 'form-control form_input', 'placeholder':"e.g: last 3 digits and an alphabet"}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': forms.HiddenInput(),
             'start_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),

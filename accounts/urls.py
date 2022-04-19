@@ -62,6 +62,7 @@ urlpatterns = [
         path('staff-list/', tenant.TenantStaffList.as_view(), name='tenant-staff-list'),
         path('staff-list/<str:status>/', tenant.TenantStaffListFilter.as_view(), name='staff-update-list'),
         path('staff/<int:pk>/detail', tenant.TenantStaffDetail.as_view(), name='tenant-staff-detail'),
+        path('staff/<int:pk>/delete', tenant.TenantStaffDelete.as_view(), name='tenant-staff-delete'),
         path('staff/<int:pk>/approval/', tenant.staff_approval, name='tenant-staff-approval'),
 
     ], 'accounts'), namespace='tenants'))

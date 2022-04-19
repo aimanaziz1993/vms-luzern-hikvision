@@ -10,7 +10,10 @@ import random
 from datetime import timedelta
 
 def generate_ref_code(N=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars + string.digits) for _ in range(N))
+    # Alphanumeric
+    # return ''.join(random.choice(chars + string.digits) for _ in range(N))
+    # Numeric Only
+    return ''.join(random.choice(string.digits) for _ in range(N))
 
 def generate_ref_code2():
     code = str( uuid.uuid4() ).replace("-", "")[:12]

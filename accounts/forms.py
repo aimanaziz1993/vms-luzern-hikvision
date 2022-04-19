@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Building, Floor, SecurityOption, User, Tenant, Device
 from cms.forms import BootstrapHelperForm
-from self_registration.utils import generate_ref_code
+from self_registration.utils import generate_ref_code, generate_ref_code2
 
 class EnableSecurityForm(BootstrapHelperForm, forms.ModelForm):
 
@@ -102,7 +102,7 @@ class TenantCreationForm(BootstrapHelperForm, UserCreationForm):
         tenant.company_name = company_name.upper()
         unit_no = self.cleaned_data.get('unit_no')
         tenant.unit_no = unit_no
-        tenant.code = generate_ref_code()
+        tenant.code = generate_ref_code2()
         tenant.save()
         return user
 

@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <title>The page you were looking for doesn't exist (404)</title>
+    <meta name="robots" content="noindex">
+    <style type="text/css">
+      body {
+        background: #fafafa;
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 300;
+        color: #979997;
+      }
+
+      *,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 300;
+      }
+
+      h1,
+      h2,
+      h4 {
+        text-align: center;
+        margin: 10px 0;
+      }
+
+      h1 {
+        font-size: 45px;
+      }
+
+      hgroup {
+        position: absolute;
+        bottom: 15%;
+        width: 100%;
+        left: 0;
+      }
+
+      a {
+        text-decoration: underline;
+        cursor: pointer;
+        color: blue;
+      }
+
+      #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        /* min-height:350px; */
+      }
+
+      hr {
+        border: 0;
+        width: 60%;
+        min-width: 300px;
+        color: #7c7e7c;
+        background-color: #afafaf;
+        height: 1px;
+      }
+
+      @media (max-width: 767px) {
+        h1 {
+          font-size: 22px;
+        }
+
+        h2 {
+          font-size: 10px;
+        }
+      }
+
+      @media (max-width: 480px) {
+
+        h1,
+        h2 {
+          text-align: left;
+          padding-left: 30px;
+        }
+
+        h2 {
+          font-size: 18px;
+        }
+
+        hgroup {
+          position: absolute;
+          top: 7%;
+        }
+      }
+    </style>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style-404.css' %}">
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <hgroup>
+      <h1>The page you were looking for doesn't exist.</h1>
+      <h2> You may have mistyped the address or the page may have moved. <a href="/" rel="nofollow">Homepage</a>
+      </h2>
+      <h4>Did you mean Visitor Self Register entries?. <a href="{% url 'visitors:visitors_reg' %}" rel="nofollow">Visitor Self Register</a>
+      </h4>
+    </hgroup>
+    <script src="{% static 'js/not_found.js' %}"></script>
+  </body>
+</html>

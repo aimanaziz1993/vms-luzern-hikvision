@@ -133,6 +133,9 @@
             </span>
             <span class="text text-xs">View</span>
           </a>
+          <a href="{% get_url 'delete' staff %}" class="btn btn-danger btn-circle btn-sm js-load-form">
+            <i class="fas fa-trash text-white-100"></i>
+          </a>
         </td>
       </tr>
     {% endfor %}
@@ -156,10 +159,11 @@
       title: 'Selection: '+ obj +'?',
       input: 'text',
       inputLabel: 'Employee No. (must be unique)',
+      showCancelButton: true,
       // inputPlaceholder: 'Enter the Employee No.',
       inputValidator: (value) => {
         if (!value || value == '') {
-          return 'You need to key-in something!'
+          return 'Employee No is required!'
         }
 
         var invalid = ['%', '&', '<', '>', '[', ']', '{', '}', '!', '@', '#', '$', '^', '*', '(', ')', '?'],

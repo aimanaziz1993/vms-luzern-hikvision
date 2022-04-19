@@ -1,7 +1,8 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 from accounts.views import tenant, dashboard, administrator
 
@@ -13,6 +14,8 @@ urlpatterns = [
     path('accounts/admin/create/', administrator.AdminCreationView.as_view(), name='create_admin'),
     path('accounts/tenant/create/', tenant.TenantCreationView.as_view(), name='create_tenant'),
 ]
+
+urlpatterns += [ re_path(r'^.*', TemplateView.as_view(template_name='404.html'), name='not-found') ]
 
 if settings.DEBUG:
     # urlpatterns += static(

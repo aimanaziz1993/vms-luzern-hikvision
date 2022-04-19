@@ -146,6 +146,15 @@ class TenantStaffListFilter(ListView):
         return staff
 
 @method_decorator([login_required, tenant_required], name='dispatch')
+class TenantStaffDelete(AjaxDeleteView):
+    model = Tenant
+    template_name = 'accounts/tenant_staff_confirm_delete.html'
+
+    def get_queryset(self):
+        tenant = Tenant.objects.get(user=self.request.user)
+        return tenant.refs_tenant_staff.all().order_by('-created_at')
+
+@method_decorator([login_required, tenant_required], name='dispatch')
 class TenantStaffDetail(AjaxDetailView):
     model = Tenant
 
