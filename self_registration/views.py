@@ -537,13 +537,13 @@ def validate_nric(request):
                 # if visitor.identification_no == request.POST.get('nric'):
                 #     return JsonResponse({'valid': False, 'message': 'Identification No. has already been registered'})
                 if regval == False:
-                    return JsonResponse({'valid': False, 'message': 'Identification No. must be only 3 digits and an Alphabet [Case Sensitive]'})
+                    return JsonResponse({'valid': False, 'message': 'NRIC must be last 3 digits and an Alphabet [Case Sensitive]'})
 
                 else:
                     return JsonResponse({'valid': True,'message': 'Ok'})
         else:
             if regval == False:
-                return JsonResponse({'valid': False, 'message': 'Identification No. must be only 3 digits and an Alphabet [Case Sensitive]'})
+                return JsonResponse({'valid': False, 'message': 'NRIC must be last 3 digits and an Alphabet [Case Sensitive]'})
             else:
                 return JsonResponse({'valid': True,'message': 'Ok'})
     return HttpResponse("nric validation")

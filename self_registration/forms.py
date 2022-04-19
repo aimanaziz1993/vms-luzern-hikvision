@@ -86,7 +86,7 @@ class VisitorRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
         labels = {
             'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
-            'identification_no': 'Identification No',
+            'identification_no': 'NRIC (e.g: last 3 digits and an alphabet)',
             'remarks': 'Remarks [ Optional ]'
         }
 
@@ -162,7 +162,7 @@ class StaffRegistrationForm(forms.ModelForm):
 
         labels = {
             'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
-            'identification_no': 'Identification No',
+            'identification_no': 'NRIC (e.g: last 3 digits and an alphabet)',
             'remarks': 'Remarks [ Optional ]'
         }
 
