@@ -25,7 +25,7 @@ from django.db.models.functions import TruncMonth
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string, get_template
 
-from cms.ajax_views import AjaxDetailView, AjaxUpdateView
+from cms.ajax_views import AjaxDeleteView, AjaxDetailView, AjaxUpdateView
 from self_registration.utils import generate_ref_code, timedeltaObj
 
 from ..forms import TenantCreationForm, TenantProfileUpdateForm
@@ -71,7 +71,7 @@ class TenantVisitorList(ListView):
 
     def get_queryset(self):
         tenant = Tenant.objects.get(user=self.request.user)
-        return tenant.refs_tenant_visitor.all().order_by('-created_at')
+        return tenant.refs_tenant_visitor.all().filter(is_active=True).order_by('-created_at')
 
 @method_decorator([login_required, tenant_required], name='dispatch')
 class TenantVisitorListFilter(ListView):
@@ -94,6 +94,15 @@ class TenantVisitorListFilter(ListView):
 
         visitor = visitor.filter(is_approved=query_id)
         return visitor
+
+@method_decorator([login_required, tenant_required], name='dispatch')
+class TenantVisitorDelete(AjaxDeleteView):
+    model = Tenant
+    template_name = 'accounts/tenant_visitor_confirm_delete.html'
+
+    def get_queryset(self):
+        tenant = Tenant.objects.get(user=self.request.user)
+        return tenant.refs_tenant_visitor.all().order_by('-created_at')
 
 @method_decorator([login_required, tenant_required], name='dispatch')
 class TenantVisitorDetail(AjaxDetailView):

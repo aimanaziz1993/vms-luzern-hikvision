@@ -99,16 +99,10 @@
 {% else %}
 <div class="modal-body">
     <div class="container-fluid">
-        <p>Last Login: {{ tenant.user.last_login|default_if_none:"-" }}</p>
+        <p><strong>Last Login: </strong> {{ tenant.user.last_login|default_if_none:"-" }}</p>
         <div class="row mb-4">
-            <div class="col-md-4 col-sm-4">
-                <strong>Building : </strong> {{ tenant.building|default_if_none:"-" }}
-            </div>
-            <div class="col-md-4 col-sm-4">
-                <strong>Floor : </strong> {{ tenant.floor|default_if_none:"-" }}
-            </div>
-            <div class="col-md-4 col-sm-4">
-                <strong>Unit No. : </strong> {{ tenant.unit_no|default_if_none:"-" }}
+            <div class="col-md-6 col-sm">
+                <strong>Location : </strong>Blk. {{ tenant.building|default_if_none:"-" }}, {{ tenant.floor|default_if_none:"-" }}-{{ tenant.unit_no|default_if_none:"-" }}
             </div>
         </div>
         <div class="row mb-4">

@@ -19,22 +19,35 @@ class Building(models.Model):
     status = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name
+        return 'Blk. {}'.format(self.name)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super().save(*args, **kwargs)
 
 class Floor(models.Model):
     name = models.CharField(max_length=50)
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+
+        if self.name == '1' or self.name == '2' or self.name == '3' or self.name == '4' or self.name == '5' or self.name == '6' or self.name == '7' or self.name == '8' or self.name == '9':
+            self.name = f'#0{self.name}'
+        else:
+            self.name = f'#{self.name}'
+        super().save(*args, **kwargs)
+        
+
     def __str__(self):
-        return '{}:{}'.format(self.name, self.building.name)
+        return 'Blk. {} {}'.format(self.building.name, self.name)
 
 class Device(models.Model):
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
     name = models.CharField(max_length=128, unique=True)
     ip_addr = models.GenericIPAddressField()
-    device_id = models.IntegerField()
+    device_id = models.IntegerField(blank=True, null=True)
     device_ver = models.CharField(max_length=100, null=True, blank=True)
     is_default = models.BooleanField(default=False)
     device_username = models.CharField(max_length=50, default="")
@@ -43,7 +56,7 @@ class Device(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return '{}-{}'.format(self.name, self.floor)
+        return '{}'.format(self.floor)
 
 class Tenant(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
@@ -58,10 +71,10 @@ class Tenant(models.Model):
     code = models.CharField(max_length=12, blank=True, null=True)
 
     def __str__(self):
-        if self.company_name or self.unit_no:
-            return f"{self.company_name}-{self.unit_no} : {self.building}-{self.floor}"
+        if self.company_name and self.unit_no:
+            return f"{self.company_name}, {self.floor}-{self.unit_no}"
         else:
-            return f"{self.user.username} : {self.building}-{self.floor}"
+            return f"{self.floor}-{self.unit_no}"
 
     def get_absolute_url(self):
         userid = self.user.pk

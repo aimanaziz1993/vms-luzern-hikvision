@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Building, Floor, SecurityOption, User, Tenant, Device
 from cms.forms import BootstrapHelperForm
@@ -57,7 +58,8 @@ class TenantCreationForm(BootstrapHelperForm, UserCreationForm):
     )
 
     devices = forms.ModelChoiceField(
-        empty_label=u'Select Devices Associated to the Tenant Floor:',
+        label=("Block/Level"),
+        empty_label=u'Select Block, Level:',
         queryset=Device.objects.all(),
         widget=forms.Select,
         required=True
@@ -67,14 +69,19 @@ class TenantCreationForm(BootstrapHelperForm, UserCreationForm):
         required=True
     )
 
-    unit_no = forms.CharField(
-        required=True
+    unit_no = forms.IntegerField(
+        required=True,
+        widget=forms.HiddenInput(),
     )
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ("username", "email", "password1", "password2", "devices", "company_name", "unit_no")
+        fields = ("username", "email", "password1", "password2", "company_name", "devices", "unit_no")
         help_texts = { k:"" for k in fields }
+
+        # widgets = {
+        #     'unit_no': forms.HiddenInput(),
+        # }
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
@@ -125,7 +132,8 @@ class DeviceForm(BootstrapHelperForm, forms.ModelForm):
     )
 
     floor = forms.ModelChoiceField(
-        empty_label=u'Select Floor:',
+        label=_("Level"),
+        empty_label=u'Select Level:',
         queryset=Floor.objects.all(),
         widget=forms.Select,
         required=True
@@ -133,7 +141,7 @@ class DeviceForm(BootstrapHelperForm, forms.ModelForm):
 
     class Meta:
         model = Device
-        fields = ('floor', 'name', 'ip_addr', 'device_id', 'is_default', 'device_username', 'device_password',)
+        fields = ('floor', 'name', 'ip_addr', 'device_username', 'device_password',)
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
@@ -149,6 +157,11 @@ class DeviceForm(BootstrapHelperForm, forms.ModelForm):
 
 class BuildingForm(BootstrapHelperForm, forms.ModelForm):
 
+    name = forms.CharField(
+        label=_("Block"),
+        required=True
+    )
+
     class Meta:
         model = Building
         fields = ('name',)
@@ -160,9 +173,15 @@ class BuildingForm(BootstrapHelperForm, forms.ModelForm):
 class FloorForm(BootstrapHelperForm, forms.ModelForm):
 
     building = forms.ModelChoiceField(
-        empty_label=u'Select Building/Blocks Associated to the Floor:',
+        label=_("Block"),
+        empty_label=u'Select Blocks Associated:',
         queryset=Building.objects.all(),
         widget=forms.Select,
+        required=True,
+    )
+
+    name = forms.IntegerField(
+        label=_("Level"),
         required=True
     )
     

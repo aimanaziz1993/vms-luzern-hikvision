@@ -3,7 +3,7 @@
 <form  method="post" novalidate="novalidate" action="{% url 'administrators:building-create' %}" class="js-save-form">
   {% csrf_token %}
   <div class="modal-header">
-    <h4 class="modal-title">{% if not form.instance.pk %}Add Building{% else %} {{form.instance}} - Update Building Details {% endif %}</h4>
+    <h4 class="modal-title">{% if not form.instance.pk %}Add Block No.{% else %} {{form.instance}} - Update Block No. Details {% endif %}</h4>
     {% comment %} <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button> {% endcomment %}
 
   </div>

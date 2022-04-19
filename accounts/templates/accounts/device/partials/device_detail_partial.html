@@ -10,11 +10,8 @@
         <p><strong>Last Updated: </strong> {{ device.updated_at|default_if_none:"-" }}</p>
         <hr>
         <div class="row mb-4">
-            <div class="col-md-3 col-sm-3">
-                <strong>Building : </strong> {{ device.building.name|default_if_none:"-" }}
-            </div>
-            <div class="col-md-3 col-sm-3">
-                <strong>Floor : </strong> {{ device.floor.name|default_if_none:"-" }}
+            <div class="col-md-6 col-sm">
+                <strong>Block, level : </strong>Blk. {{ device.building.name|default_if_none:"-" }} {{ device.floor.name|default_if_none:"-" }}
             </div>
         </div>
         <div class="row">

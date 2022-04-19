@@ -8,7 +8,7 @@
     <td style="text-align: center;">{{ device.pk }}</td>
     <td>{{ device.name }}</td>
     <td>{{ device.ip_addr }}</td>
-    <td>{{ device.device_id }}</td>
+    <td>{{ device.device_id|default_if_none:'-' }}</td>
     <td style="text-align: center;">
       <a href="{% get_url 'detail' device %}" class="btn btn-info btn-circle btn-sm js-load-form">
         <i class="fas fa-eye text-white-100"></i>

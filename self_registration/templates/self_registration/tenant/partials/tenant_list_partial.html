@@ -65,6 +65,9 @@
           </span>
           <span class="text text-xs">View</span>
         </a>
+        <a href="{% get_url 'delete' visitor %}" class="btn btn-danger btn-circle btn-sm js-load-form">
+          <i class="fas fa-trash text-white-100"></i>
+        </a>
       </td>
     </tr>
     {% endfor %}
