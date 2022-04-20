@@ -122,7 +122,7 @@ class VisitorCheckInForm(BootstrapHelperForm, forms.ModelForm):
                 # 'identification_no', 
                 # 'contact_no', 
                 # 'start_date', 
-                # 'end_date', 
+                'end_date',
                 # 'remarks', 
             )
 
@@ -139,7 +139,7 @@ class VisitorCheckInForm(BootstrapHelperForm, forms.ModelForm):
             # 'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
             # 'contact_no': forms.HiddenInput(),
             # 'start_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
-            # 'end_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
+            'end_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
             # 'remarks': Textarea( attrs={'class': 'form-control form_input mb-4', 'rows':6, 'cols':15} ),
         }
 
@@ -147,7 +147,7 @@ class VisitorCheckInForm(BootstrapHelperForm, forms.ModelForm):
             super(VisitorRegistrationForm, self).__init__(*args, **kwargs)
             # self.fields['start_date'].widget.attrs['readonly'] = True
             # self.fields['start_date'].input_formats = ('%Y-%m-%dT%H:%M',),
-            # self.fields['end_date'].input_formats = ('%Y-%m-%dT%H:%M',)
+            self.fields['end_date'].input_formats = ('%Y-%m-%dT%H:%M',)
 
 class StaffRegistrationForm(forms.ModelForm):
 

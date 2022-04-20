@@ -28,8 +28,9 @@
         <input type="datetime-local" class="form-control form_input" id="id_start_date1" name="start_date1">
         <p><span id="msg-info" class="small text-success">Valid start date will be auto updated to current time you're checking in.</span></p>
         <p><strong>End Date/Time:</strong></p>
-        <p>{{ visitor.end_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
+        <p>{{ form.end_date }}</p>
         <p><span id="msg-info" class="small text-info">Your valid session entries will end on the above date stated.</span></p>
+        <span id="msg-info" class="small text-info">If your valid end time is already past current, kindly update your new end time accordingly.</span>
         <hr>
         <div class="row mb-3 d-flex align-items-center justify-content-center">
             <div class="col-md-4" style="display: flex;align-items: center;justify-content: center;">
@@ -57,6 +58,9 @@
         <input type="hidden" name="visitor_id" value="{{ visitor.id }}" />
         <div class="row d-flex align-items-center justify-content-center">
             <input id="submit2" type="submit" class="btn btn-primary btn-sm mt-3" value="Check In"></input>
+        </div>
+        <div class="row d-flex align-items-center justify-content-center mt-2">
+            <p class="checkin-err hide text-danger small">{{ error }}</p>
         </div>
     </form>
 </div>
@@ -136,6 +140,18 @@
     // 2022-04-12T17:09
     document.getElementById('id_start_date1').setAttribute("readonly", "readonly");
     document.getElementById('id_start_date1').value = now.toISOString().slice(0,16);
+
+    var resetDateError = function() {
+        var checkinErr = document.querySelector('.checkin-err');
+        checkinErr.classList.remove("show");
+        checkinErr.classList.add("hide");
+        checkinErr.innerHTML = ''
+    }
+
+    var end_date = document.getElementById('id_end_date');
+    end_date.addEventListener('blur', function() {
+        resetDateError();
+    })
 
     // var input = document.querySelector("#phone2");
     // var country = document.querySelector("#country2");

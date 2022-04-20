@@ -2,6 +2,8 @@ import json
 import re
 from datetime import date, datetime, timedelta, timezone
 from time import strftime
+from django import template
+from django.template import loader
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -267,7 +269,6 @@ def search_result(request, *args, **kwargs):
 
 def check_in(request):
     context = {}
-
     if request.method == 'POST':
 
         try:
@@ -290,7 +291,11 @@ def check_in(request):
                     })
             elif request.POST.get('cond') == 'phone':
                 # Filter list queryset of visitor with same phone no
-                visitor = Visitor.objects.filter(contact_no__icontains = request.POST.get('phone'), is_checkin=False)
+                print(request.POST.get('phone'))
+                phone = request.POST.get('phone')
+                visitor = Visitor.objects.filter(contact_no__icontains = phone, is_checkin=False)
+                # visitor = Visitor.objects.all()
+                print(visitor)
                 if visitor:
                     return JsonResponse({
                         'error': False,
@@ -311,7 +316,6 @@ def check_in(request):
                 'error': True,
                 'data': "Opps, The details you provided not exist. Try Again.",
             })
-
     return render(request, 'check_in/check_in.html', context)
 
 def details_checkin(request, *args, **kwargs):
@@ -354,17 +358,6 @@ def details_checkin(request, *args, **kwargs):
                 # form.clean()
                 visitor_update = form.save(commit=False)
                 visitor_update.start_date = datetime.now()
-                # generate QR code image for unique card ID
-                qr_image = qrcode.make(visitor_update.code)
-                qr_offset = Image.new('RGB', (280,280), 'white')
-                draw_img = ImageDraw.Draw(qr_offset)
-                qr_offset.paste(qr_image)
-                filename = f'{visitor_update.code}_{visitor_update.identification_no}'
-                print('filename qr', filename)
-                thumb_io  = BytesIO()
-                qr_offset.save(thumb_io , 'PNG')
-                visitor_update.qr_image.save(filename+'.png', ContentFile(thumb_io.getvalue()), save=False)
-                qr_offset.close()
                 visitor_update.save()
 
                 # Try Except push to FRA Logic with the updated info

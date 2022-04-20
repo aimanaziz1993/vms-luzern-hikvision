@@ -230,6 +230,10 @@
                 if (data.error) {
                     
                     if (data.message) {
+                        var err = document.querySelector('.checkin-err');
+                        err.classList.remove("hide");
+                        err.classList.add("show");
+                        err.innerHTML = data.message.__all__[0];
                         // errorDiv.classList.remove("hide");
                         // errorDiv.classList.add("show");
                         // errorSpan.innerHTML = data.message.__all__[0];
@@ -258,11 +262,6 @@
             contentType: false,
             processData: false
         });
-
-        // } else {
-        //     // alert('You have entered invalid phone number!');
-        //     throw new Error("Stop script");
-        // }
     }
 </script>
 
