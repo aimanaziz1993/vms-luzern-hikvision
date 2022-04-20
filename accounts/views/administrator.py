@@ -147,6 +147,25 @@ def home(request):
     floors = Floor.objects.all()
     context['floors'] = floors
 
+    # from hikvision_api.api import initiate, Event
+    # initialize = initiate('admin', 'P@55w0rd')
+    # auth = initialize['auth']
+
+    # if initialize['client'] and auth:
+    #     host = str( str(request.scheme) + '://' + str('192.168.200.44') )
+    #     event_instance = Event()
+    #     res = event_instance.search(host, auth)
+    #     # print(res)
+    #     events = []
+    #     for item in res['AcsEvent']['InfoList']:
+    #         if item['cardNo'] != '' or item['employeeNoString'] != '':
+    #             # print(item)
+    #             # change date string to date time
+    #             events.append(item)
+    #             print(events)
+    # context['events'] = events
+    # print(context['events'])
+
     return render(request, 'dashboard/home2.html', context)
 
 @login_required

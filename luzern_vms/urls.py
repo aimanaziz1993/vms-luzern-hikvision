@@ -15,7 +15,7 @@ urlpatterns = [
     path('accounts/tenant/create/', tenant.TenantCreationView.as_view(), name='create_tenant'),
 ]
 
-urlpatterns += [ re_path(r'^.*', TemplateView.as_view(template_name='404.html'), name='not-found') ]
+# urlpatterns += [ re_path(r'^.*', TemplateView.as_view(template_name='404.html'), name='not-found') ]
 
 if settings.DEBUG:
     # urlpatterns += static(

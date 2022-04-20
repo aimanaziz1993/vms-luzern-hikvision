@@ -375,3 +375,29 @@ class Card(object):
             return result
         except:
             return HttpResponseBadRequest()
+
+class Event(object):
+    def __init__(self):
+        pass
+
+    def search(self, host, auth):
+        try:
+            
+            path = host+'/ISAPI/AccessControl/AcsEvent?format=json'
+            body =  {
+                        "AcsEventCond": {
+                            "searchID": "4",
+                            "searchResultPosition": 0,
+                            "maxResults": 32,
+                            "major": 0,
+                            "minor": 0,
+                            "startTime": "2022-04-19T00:00:00+08:00",
+                            "endTime": "2022-04-19T23:59:59+08:00"
+                        }
+                    }
+            response = requests.post(path, data=json.dumps(body), auth=auth)
+            # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+            result = json.loads( json.dumps( response.json() ) )
+            return result
+        except:
+            return HttpResponseBadRequest()

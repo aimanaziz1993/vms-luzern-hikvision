@@ -28,7 +28,7 @@ PUBLIC_DIR = os.path.abspath(os.path.join(
 SECRET_KEY = 'django-insecure-=vc)#zpcz*zluqv5byt=4v@fxvx@v4b40$0&9z^=6-yiw1kt-#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -188,3 +188,5 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
 }
+
+APPEND_SLASH = True

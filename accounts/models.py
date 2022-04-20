@@ -77,6 +77,13 @@ class Tenant(models.Model):
         else:
             return f"Blk. {self.building} {self.floor}-{self.unit_no}"
 
+    def save(self, *args, **kwargs):
+        if self.unit_no == '1' or self.unit_no == '2' or self.unit_no == '3' or self.unit_no == '4' or self.unit_no == '5' or self.unit_no == '6' or self.unit_no == '7' or self.unit_no == '8' or self.unit_no == '9':
+            self.unit_no = f'0{self.unit_no}'
+        else:
+            self.unit_no = f'{self.unit_no}'
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         userid = self.user.pk
         return reverse_lazy('tenants:tenant-update', kwargs={'pk': userid})
