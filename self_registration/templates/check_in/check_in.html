@@ -238,6 +238,10 @@
                         // errorDiv.classList.add("show");
                         // errorSpan.innerHTML = data.message.__all__[0];
                     } else {
+                        var err = document.querySelector('.checkin-err');
+                        err.classList.remove("hide");
+                        err.classList.add("show");
+                        err.innerHTML = data.data;
                         // errorDiv.classList.remove("hide");
                         // errorDiv.classList.add("show");
                         // errorSpan.innerHTML = data.data;
