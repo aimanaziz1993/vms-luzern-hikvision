@@ -1,9 +1,32 @@
+{% load cms %}
+
+<style>
+  i {
+    width: 100%;
+  }
+
+  i:hover {
+    width: 100%;
+    transform: scale(1.2);
+  }
+
+</style>
+
 {% if buildings %}
   {% for building in buildings %}
 
   <tr>
     <td style="text-align: center;">{{ building.pk }}</td>
-    <td>Blk. {{ building.name }}</td>
+    <td>
+      <div class="d-flex alignt-items-center justify-content-between"> 
+        <span> Blk. {{ building.name }} </span>
+        <span> 
+          <a href="{% url 'administrators:building-delete' building.pk %}" class=" js-load-form" data-bs-toggle="tooltip" data-bs-placement="top" title="delete">
+            <i class="fas fa-times-circle fa-sm text-danger"></i>
+          </a>
+        </span>
+      </div>
+    </td>
   </tr>
   {% endfor %}
 {% else %}
@@ -11,5 +34,11 @@
 <tr>
   <td colspan="2" style="text-align: center;">No building data</td>
 </tr>
+
+<script>
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
 
 {% endif %}

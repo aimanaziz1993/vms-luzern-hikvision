@@ -19,17 +19,18 @@ urlpatterns = [
         # path('building-list', administrator.BuildingList.as_view(), name='building-list'),
         path('building/create/', administrator.BuildingCreate.as_view(), name='building-create'),
         # path('building/<int:pk>/edit'),
-        # path('building/<int:pk>/delete', ),
+        path('building/<int:pk>/delete', administrator.BuildingDelete.as_view(), name='building-delete'),
 
         # FLOOR
         path('floor/create/', administrator.FloorCreate.as_view(), name='floor-create'),
+        path('floor/<int:pk>/delete', administrator.FloorDelete.as_view(), name='floor-delete'),
 
 
         # TENANT
         path('tenant-list/', administrator.TenantList.as_view(), name='tenant-list'),
         path('tenant/create/', administrator.TenantCreate.as_view(), name='tenant-create'),
         path('tenant/<int:pk>/detail', administrator.TenantDetail.as_view(), name='tenant-detail'),
-        path('delete/<int:pk>/', administrator.TenantDelete.as_view(), name='tenant-delete'),
+        path('tenant/delete/<int:pk>/', administrator.TenantDelete.as_view(), name='tenant-delete'),
 
         # DEVICE
         path('device-list/', administrator.DeviceList.as_view(), name='device-list'),

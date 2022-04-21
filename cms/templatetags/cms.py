@@ -44,7 +44,6 @@ def get_template_name(context, *args):
 
 @register.simple_tag(takes_context=True)
 def get_url(context, action, obj=None):
-
     if context['user'].is_tenant:
         model = 'tenant'
         lower_name = 'tenant'

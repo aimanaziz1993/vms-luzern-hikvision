@@ -397,8 +397,8 @@ def home(request):
     context['tot_pending'] = tot_pending
 
     # Visitors Monthly Chart
-    visitor = Visitor.objects.filter(tenant=tenant)
-    visitor = visitor.annotate(month=TruncMonth('start_date')).values('month').annotate(total=Count('id'))
+    # visitor = Visitor.objects.filter(tenant=tenant)
+    visitor = visitors.annotate(month=TruncMonth('start_date')).values('month').annotate(total=Count('id'))
     labels = []
     data = []
 
