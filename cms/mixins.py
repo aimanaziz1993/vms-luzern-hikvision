@@ -15,7 +15,7 @@ class ModelMixin:
         context['model_name'] = self.model.__name__.lower()
         context['app_name'] = self.model._meta.app_label
         context['page_title'] = self.model.__name__.capitalize()
-        print(context)
+        # print(context)
         return context
 
 class ObjectMixin:
