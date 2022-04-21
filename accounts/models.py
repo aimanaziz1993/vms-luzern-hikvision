@@ -46,7 +46,7 @@ class Device(models.Model):
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
     name = models.CharField(max_length=128, unique=True)
-    ip_addr = models.GenericIPAddressField()
+    ip_addr = models.GenericIPAddressField(unique=True)
     device_id = models.IntegerField(blank=True, null=True)
     device_ver = models.CharField(max_length=100, null=True, blank=True)
     is_default = models.BooleanField(default=False)

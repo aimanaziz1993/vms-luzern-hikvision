@@ -143,6 +143,10 @@ class DeviceForm(BootstrapHelperForm, forms.ModelForm):
         model = Device
         fields = ('floor', 'name', 'ip_addr', 'device_username', 'device_password',)
 
+        labels = {
+            'ip_addr': 'IP Address (e.g 192.168.x.x)'
+        }
+
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
