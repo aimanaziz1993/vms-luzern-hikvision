@@ -302,10 +302,19 @@ def staff_approval(request, pk):
                                         'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
                                     })
                             else:
-                                return JsonResponse({
-                                    'error': True,
-                                    'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
-                                })
+                                print('face failed to be upload')
+                                pass
+                                # search & delete user instance in FRA
+                                # search_res = person_instance.search(staff.code, host, auth)
+                                # print(search_res)
+
+                                # delete_res = person_instance.delete(staff.code, host, auth)
+                                # print(delete_res)
+
+                                # return JsonResponse({
+                                #     'error': True,
+                                #     'data': f"Check in failed during face validation. Please try again by updating the face photo here. Thank you.",
+                                # })
 
                     try:
                         # Sent Email - Approval Status

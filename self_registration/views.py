@@ -457,9 +457,17 @@ def details_checkin(request, *args, **kwargs):
                                                 'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
                                             })
                                     else:
+                                        print('face failed to be upload')
+                                        # search & delete user instance in FRA
+                                        search_res = person_instance.search(visitor_update.code, host, auth)
+                                        print(search_res)
+
+                                        delete_res = person_instance.delete(visitor_update.code, host, auth)
+                                        print(delete_res)
+
                                         return JsonResponse({
                                             'error': True,
-                                            'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
+                                            'data': f"Check in failed during face validation. Please try again by updating your face photo here. Thank you.",
                                         })
 
                             # Step 4: Get All past checked in visitor with status True 
