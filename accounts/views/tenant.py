@@ -279,32 +279,33 @@ def staff_approval(request, pk):
 
                     print("Card information added")
 
-                    # Push Step 3: Add Picture Data, Check FPID returned
-                    face_data_instance = FaceData()
-                    face_add_response = face_data_instance.face_data_add(1, staff.code, staff.name, faceURL, host, auth)
-                    print(face_add_response)
+                    if staff.photo:
+                        # Push Step 3: Add Picture Data, Check FPID returned
+                        face_data_instance = FaceData()
+                        face_add_response = face_data_instance.face_data_add(1, staff.code, staff.name, faceURL, host, auth)
+                        print(face_add_response)
 
-                    f_status = face_add_response['statusCode']
-                    error_msg = face_add_response['subStatusCode']
-                    
-                    if f_status != 1:
-                        # if add face failed, edit person face from FRA using FPID
-                        if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
-                            # if face_add_response['subStatusCode'] == 'deviceUserAlreadyExistFace':
-                            edit_face = face_data_instance.face_data_update(1, staff.code, staff.name, faceURL, host, auth)
-                            print(edit_face)
-                            fe_status = edit_face['statusCode'] or None
+                        f_status = face_add_response['statusCode']
+                        error_msg = face_add_response['subStatusCode']
+                        
+                        if f_status != 1:
+                            # if add face failed, edit person face from FRA using FPID
+                            if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
+                                # if face_add_response['subStatusCode'] == 'deviceUserAlreadyExistFace':
+                                edit_face = face_data_instance.face_data_update(1, staff.code, staff.name, faceURL, host, auth)
+                                print(edit_face)
+                                fe_status = edit_face['statusCode'] or None
 
-                            if fe_status != 1:
+                                if fe_status != 1:
+                                    return JsonResponse({
+                                        'error': True,
+                                        'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
+                                    })
+                            else:
                                 return JsonResponse({
                                     'error': True,
-                                    'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
+                                    'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
                                 })
-                        else:
-                            return JsonResponse({
-                                'error': True,
-                                'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
-                            })
 
                     try:
                         # Sent Email - Approval Status

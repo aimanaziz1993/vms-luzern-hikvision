@@ -371,6 +371,7 @@ def details_checkin(request, *args, **kwargs):
 
                     if initialize['client'] and auth:
                         if visitor_update.photo:
+                            print('here')
                             img = get_thumbnail(visitor_update.photo, '200x200', crop='center', quality=99)
                             faceURL = str( str(absolute_uri) + '/static' + str(img.url) )
                             print('push face url', faceURL)
@@ -395,7 +396,6 @@ def details_checkin(request, *args, **kwargs):
                             a_status = add_res['statusCode'] or None
 
                             if a_status != 1:
-                                
                                 if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
                                     edit_res = person_instance.update(visitor_update, user_type, valid_begin, valid_end, host, auth)
                                     print(edit_res)
@@ -434,32 +434,33 @@ def details_checkin(request, *args, **kwargs):
 
                             print("Card information added")
 
-                            # Push Step 3: Add Picture Data, Check FPID returned
-                            face_data_instance = FaceData()
-                            face_add_response = face_data_instance.face_data_add(1, visitor_update.code, visitor_update.name, faceURL, host, auth)
-                            print(face_add_response)
+                            # Push Step 3: Add Picture Data, Check FPID returned - ONLY RUN THIS WHEN PHOTO IS NOT NONE
+                            if visitor_update.photo:
+                                face_data_instance = FaceData()
+                                face_add_response = face_data_instance.face_data_add(1, visitor_update.code, visitor_update.name, faceURL, host, auth)
+                                print(face_add_response)
 
-                            f_status = face_add_response['statusCode']
-                            error_msg = face_add_response['subStatusCode']
-                            
-                            if f_status != 1:
-                                # if add face failed, edit person face from FRA using FPID
-                                if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
-                                    # if face_add_response['subStatusCode'] == 'deviceUserAlreadyExistFace':
-                                    edit_face = face_data_instance.face_data_update(1, visitor_update.code, visitor_update.name, faceURL, host, auth)
-                                    print(edit_face)
-                                    fe_status = edit_face['statusCode'] or None
+                                f_status = face_add_response['statusCode']
+                                error_msg = face_add_response['subStatusCode']
+                                
+                                if f_status != 1:
+                                    # if add face failed, edit person face from FRA using FPID
+                                    if add_res['subStatusCode'] == 'deviceUserAlreadyExist':
+                                        # if face_add_response['subStatusCode'] == 'deviceUserAlreadyExistFace':
+                                        edit_face = face_data_instance.face_data_update(1, visitor_update.code, visitor_update.name, faceURL, host, auth)
+                                        print(edit_face)
+                                        fe_status = edit_face['statusCode'] or None
 
-                                    if fe_status != 1:
+                                        if fe_status != 1:
+                                            return JsonResponse({
+                                                'error': True,
+                                                'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
+                                            })
+                                    else:
                                         return JsonResponse({
                                             'error': True,
-                                            'data': "Check in failed during editing person face into FRA. Please try again. Thank you.",
+                                            'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
                                         })
-                                else:
-                                    return JsonResponse({
-                                        'error': True,
-                                        'data': f"Check in failed during face validation. Please try again. You can always update your selfie picture here. Thank you.",
-                                    })
 
                             # Step 4: Get All past checked in visitor with status True 
                             get_checked_in_visitor = Visitor.objects.filter(is_checkin = True)

@@ -22,13 +22,13 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
         fields = ('photo', 'name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
 
         labels = {
-            'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
+            'photo': 'Face Picture. Take your best possible selfie.',
             'identification_no': 'NRIC',
             'remarks': 'Remarks [ Optional ]'
         }
 
         widgets = {
-            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'required': 'required'}),
+            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
             'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
@@ -57,7 +57,7 @@ class VisitorUpdateRegistrationForm(BootstrapHelperForm, forms.ModelForm):
         fields = ('photo', 'name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
 
         labels = {
-            'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
+            'photo': 'Face Picture. Take your best possible selfie.',
             'identification_no': 'NRIC.',
             'remarks': 'Remarks [ Optional ]'
         }
@@ -86,13 +86,13 @@ class VisitorRegistrationForm(BootstrapHelperForm, forms.ModelForm):
         fields = ('photo', 'name', 'identification_no', 'contact_no', 'start_date', 'end_date', 'remarks', )
 
         labels = {
-            'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
+            'photo': 'Face Picture. Take your best possible selfie.',
             'identification_no': 'NRIC (e.g: last 3 digits and an alphabet)',
             'remarks': 'Remarks [ Optional ]'
         }
 
         widgets = {
-            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'required': 'required'}),
+            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
             'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
@@ -127,7 +127,7 @@ class VisitorCheckInForm(BootstrapHelperForm, forms.ModelForm):
             )
 
         labels = {
-            'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
+            'photo': 'Face Picture. Take your best possible selfie.',
             # 'identification_no': 'Identification No',
             # 'remarks': 'Remarks [ Optional ]'
         }
@@ -162,13 +162,13 @@ class StaffRegistrationForm(forms.ModelForm):
         fields = ('photo', 'name', 'identification_no', 'contact_no', 'email', 'remarks', )
 
         labels = {
-            'photo': 'Face Picture. Take your best possible selfie. [ Important ]',
+            'photo': 'Face Picture. Take your best possible selfie',
             'identification_no': 'NRIC (e.g: last 3 digits and an alphabet)',
             'remarks': 'Remarks [ Optional ]'
         }
 
         widgets = {
-            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'required': 'required'}),
+            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
             'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
