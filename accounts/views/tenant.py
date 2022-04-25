@@ -1,5 +1,5 @@
 from django.contrib.auth import login
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -153,6 +153,52 @@ class TenantStaffDelete(AjaxDeleteView):
     def get_queryset(self):
         tenant = Tenant.objects.get(user=self.request.user)
         return tenant.refs_tenant_staff.all().order_by('-created_at')
+
+    def post(self, *args, **kwargs):
+        if self.request.is_ajax():
+            self.object = self.get_object()
+            # search FRA for user
+            device = Device.objects.get(pk=self.object.tenant.device.pk)
+            host = str( str(self.request.scheme) + '://' + str(device.ip_addr) )
+            # absolute_uri = self.request.build_absolute_uri('/')[:-1].strip("/")
+            
+            initialize = initiate(device.device_username, device.device_password)
+            auth = initialize['auth']
+
+            if initialize['client'] and auth:
+                # Search User in FRA
+                person_instance = Person()
+                search_res = person_instance.search(self.object.code, host, auth)
+                print(search_res)
+                s_status = search_res['UserInfoSearch']['responseStatusStrg']
+
+                # if s_status == 'NO MATCH':
+                #     messages.error(self.request, "Object Not Deleted")
+                #     self.object.delete()
+                #     return HttpResponseBadRequest()
+
+                if s_status == 'OK':
+                    # proceed delete
+                    del_res = person_instance.delete(self.object.code, host, auth)
+                    print(del_res)
+                    d_status = del_res['statusCode']
+
+                    if d_status != 1:
+                        print(self)
+                        data = dict()
+                        data['form_is_valid'] = False
+                        messages.error(self.request, "Object not deleted")
+                        return JsonResponse(data)
+                    
+                self.object.delete()
+                data = dict()
+                data['form_is_valid'] = True
+                messages.success(self.request, "Object Deleted Successfully")
+                return JsonResponse(data)
+        else:
+            pass
+            # return self.delete(*args, **kwargs)
+
 
 @method_decorator([login_required, tenant_required], name='dispatch')
 class TenantStaffDetail(AjaxDetailView):
