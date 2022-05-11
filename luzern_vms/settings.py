@@ -174,10 +174,17 @@ LOGOUT_REDIRECT_URL = 'home'
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
 
-EMAIL_HOST = 'smtp.mailtrap.io'
-EMAIL_HOST_USER = '48cb9f8bab4c10'
-EMAIL_HOST_PASSWORD = '061a6746ef796c'
-EMAIL_PORT = '2525'
+# EMAIL_HOST = 'smtp.mailtrap.io'
+# EMAIL_HOST_USER = '48cb9f8bab4c10'
+# EMAIL_HOST_PASSWORD = '061a6746ef796c'
+# EMAIL_PORT = '2525'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.blivracle.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'notification.vms@blivracle.com'
+EMAIL_HOST_PASSWORD = 'Notificationvms1234'
 
 # Messages built-in framework
 

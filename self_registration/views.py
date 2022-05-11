@@ -82,9 +82,9 @@ def visitor_reg(request, *args, **kwargs):
                 try:
                     html_email = render_to_string(email_template, email_context)
                     email = EmailMultiAlternatives(
-                        subject='VMS-Luzern: Visitor Appointment Registration',
+                        subject='VMS-Luzerne: Visitor Appointment Registration',
                         body='mail testing',
-                        from_email='webmaster@localhost',
+                        from_email='notification.vms@blivracle.com',
                         to = [tenant.user.email]
                     )
                     email.attach_alternative(html_email, "text/html")
@@ -166,9 +166,9 @@ def visitor_reg(request, *args, **kwargs):
                     #     fail_silently=False
                     # )
                     email = EmailMultiAlternatives(
-                        subject='VMS-Luzern: Visitor Appointment Registration',
+                        subject='VMS-Luzerne: Visitor Appointment Registration',
                         body='mail testing',
-                        from_email='webmaster@localhost',
+                        from_email='notification.vms@blivracle.com',
                         to = [ tenant.user.email ]
                     )
                     email.attach_alternative(html_email, "text/html")
@@ -211,10 +211,10 @@ def staff_reg(request, *args, **kwargs):
                     #     fail_silently=False
                     # )
                     email = EmailMultiAlternatives(
-                        subject='VMS-Luzern: Staff Registration',
+                        subject='VMS-Luzerne: Staff Registration',
                         body='mail testing',
-                        from_email='webmaster@localhost',
-                        to = [ staff.email ]
+                        from_email='notification.vms@blivracle.com',
+                        to = [ staff.email, staff.tenant.user.email ]
                     )
                     email.attach_alternative(html_email, "text/html")
                     email.send(fail_silently=False)
