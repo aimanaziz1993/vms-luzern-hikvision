@@ -239,7 +239,23 @@ def staff_approval(request, pk):
 
         if request.POST.get('pk') == '3':
             staff.is_active = False
+            staff.is_approved = request.POST.get('pk')
             email_template = 'emailnew/staff_rejected.html'
+
+            try:
+                # Sent Email - Approval Status
+                email_context = { 'code': staff.code }
+                html_email = render_to_string(email_template, email_context)
+                email = EmailMultiAlternatives(
+                    subject='VMS-Luzerne: Staff Registration',
+                    body='mail testing',
+                    from_email='notification.vms@blivracle.com',
+                    to = [ staff.email, staff.tenant.user.email ]
+                )
+                email.attach_alternative(html_email, "text/html")
+                email.send(fail_silently=False)
+            except Exception as e:
+                raise e
         else:
             email_template = 'emailnew/staff_approve.html'
             staff.is_approved = request.POST.get('pk')

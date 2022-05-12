@@ -214,7 +214,7 @@ def staff_reg(request, *args, **kwargs):
                         subject='VMS-Luzerne: Staff Registration',
                         body='mail testing',
                         from_email='notification.vms@blivracle.com',
-                        to = [ staff.email, staff.tenant.user.email ]
+                        to = [ staff.email, tenant.user.email ]
                     )
                     email.attach_alternative(html_email, "text/html")
                     email.send(fail_silently=False)
