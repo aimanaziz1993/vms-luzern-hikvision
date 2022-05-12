@@ -19,6 +19,9 @@ urlpatterns = [
     # Validate NRIC
     path('validate-nric/', views.validate_nric, name='validate-nric'),
 
+    # Face Verification
+    path('validate-photo/', views.validate_photo, name='validate-photo'),
+
     # Visitor Registration Path
     path('visitor/', include(([
         path('', views.visitor_reg, name='visitors_reg'),

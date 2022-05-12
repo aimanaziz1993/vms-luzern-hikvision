@@ -1,5 +1,8 @@
-import json
 import re
+import os
+import base64
+import cv2
+import numpy as np
 from datetime import date, datetime, timedelta, timezone
 from time import strftime
 from django import template
@@ -21,6 +24,7 @@ import qrcode.image.svg
 from io import BytesIO
 from PIL import Image, ImageDraw
 
+from luzern_vms.settings import BASE_DIR
 from accounts.models import Device, SecurityOption, Tenant
 from self_registration.utils import generate_ref_code
 from .models import Visitor
@@ -542,3 +546,48 @@ def validate_nric(request):
             else:
                 return JsonResponse({'valid': True,'message': 'Ok'})
     return HttpResponse("nric validation")
+
+def validate_photo(request):
+    appPath = os.path.join(BASE_DIR, 'self_registration')
+    cascadePath = os.path.join(f'{appPath}/haarcascade/haarcascade_frontalface_default.xml')
+
+    photo_base64 = request.POST.get('photo')
+
+    format, imgstr = photo_base64.split(';base64,') 
+    ext = format.split('/')[-1]
+    data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
+    image = Image.open(data)
+    image.save(f"{appPath}/temp/temp.jpg")
+
+    with open(f"{appPath}/temp/temp.jpg", "wb") as f:
+        f.write(base64.b64decode(imgstr))
+
+    faceCascade = cv2.CascadeClassifier(cascadePath)
+    img = cv2.imread(os.path.join(f'{appPath}/temp/temp.jpg'))
+    grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    detect_face = faceCascade.detectMultiScale(
+        grayscale,
+        scaleFactor = 1.3,
+        minNeighbors = 5,
+        minSize = (30,30),
+    )
+
+    print("Found %s faces!" % len(detect_face))
+
+    if len(detect_face) == 1:
+        return JsonResponse({
+            'error': False,
+            'msg': 'Face validated ✅'
+        })
+    elif len(detect_face) > 1:
+        return JsonResponse({
+            'error': True,
+            'msg': 'Face verification failed. Try upload new selfies.'
+        })
+
+    return JsonResponse({
+        'error': True,
+        'msg': 'Face verification failed. Try upload new selfies.'
+    })

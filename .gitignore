@@ -4,3 +4,4 @@ media/
 act.bat
 run.bat
 db.sqlite3
+temp/

@@ -32,6 +32,13 @@
             <p><span id="valid-nric" class="hide small text-success py-1"></span></p>
             <p><span id="error-nric" class="hide small text-danger py-1"></span></p>
           </div> 
+        {% elif field.id_for_label == 'id_photo' %}
+          <label for="id_photo">Face Picture. Take your best possible selfie: </label></br>
+          {{ form.photo }}
+          <div>
+            <p><span id="valid-photo" class="hide small text-success py-1"></span></p>
+            <p><span id="error-photo" class="hide small text-danger py-1"></span></p>
+          </div> 
         {% else %}
         <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
         {{field}}
@@ -153,9 +160,33 @@
     input.addEventListener('change', resetMobile);
     input.addEventListener('keyup', resetMobile);
 
+    var errorPhoto = document.querySelector("#error-photo");
+    var validPhoto = document.querySelector("#valid-photo");
+    var name_input = document.getElementById('id_name');
+    var identification_no_input = document.getElementById('id_identification_no');
+    var contact_no_input = document.getElementById('phone');
+    var start_date_input = document.getElementById('id_start_date');
+    var end_date_input = document.getElementById('id_end_date');
+    var remarks_input = document.getElementById('id_remarks');
+
+    var resetPhotoValidation = function() {
+        errorPhoto.innerHTML = "";
+        validPhoto.innerHTML = "";
+        errorPhoto.classList.add("hide");
+        validPhoto.classList.add("hide");
+
+        name_input.setAttribute("readonly", "true");
+        identification_no_input.setAttribute("readonly", "true");
+        contact_no_input.setAttribute("readonly", "true");
+        start_date_input.setAttribute("readonly", "true");
+        end_date_input.setAttribute("readonly", "true");
+        remarks_input.setAttribute("readonly", "true");
+    };
+
     $(document).ready(function () { //document ready call
       $("#id_photo").change(function(){
           console.log('photo uploaded');
+          resetPhotoValidation();
           preview_image(this);
       });
     });
@@ -167,6 +198,42 @@
             reader.onload = function(e) {
                 // console.log(e.target.result);
                 $('#visitor-photo').attr('src', e.target.result);
+
+                var photo_input = e.target.result;
+
+                // run check face with fra main
+                $.ajax({
+                    headers: { "X-CSRFToken": getCookie('csrftoken') },
+                    url : '/self-register/validate-photo/',
+                    method : "POST",
+                    data: {'photo': photo_input},
+                    success : function(response) {
+                        var btn = document.getElementById('submit');
+
+                        if (response.error) {
+                            errorPhoto.innerHTML = response.msg;
+                            name_input.setAttribute("readonly", "true");
+                            identification_no_input.setAttribute("readonly", "true");
+                            contact_no_input.setAttribute("readonly", "true");
+                            start_date_input.setAttribute("readonly", "true");
+                            end_date_input.setAttribute("readonly", "true");
+                            remarks_input.setAttribute("readonly", "true");
+                            btn.setAttribute("disabled", true);
+                        } else {
+                            validPhoto.innerHTML = response.msg;
+                            name_input.removeAttribute("readonly", "false");
+                            identification_no_input.removeAttribute("readonly", "false");
+                            contact_no_input.removeAttribute("readonly", "false");
+                            start_date_input.removeAttribute("readonly", "false");
+                            end_date_input.removeAttribute("readonly", "false");
+                            remarks_input.removeAttribute("readonly", "false");
+                            btn.removeAttribute("disabled", false);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        swal.fire("!Opps ", "Something went wrong. Try Again. Thank you.", "error");
+                    }
+                })
             }
             var photoData = reader.readAsDataURL(input.files[0]); // convert to base64 string
         }
