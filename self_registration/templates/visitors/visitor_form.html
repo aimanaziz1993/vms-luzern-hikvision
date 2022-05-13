@@ -170,6 +170,7 @@
     var remarks_input = document.getElementById('id_remarks');
 
     var resetPhotoValidation = function() {
+        $('#visitor-photo').attr('src', "/static/icon/avatar.png");
         errorPhoto.innerHTML = "";
         validPhoto.innerHTML = "";
         errorPhoto.classList.add("hide");
