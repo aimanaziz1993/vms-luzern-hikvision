@@ -53,6 +53,8 @@
                 <p><strong>Contact No.: </strong> {{ visitor.contact_no|default_if_none:"-" }}</p>
             </div>
         </div>
+        <p id="replace-photo-valid" class="hide text-success small" style="margin-left: 5%;"></p>
+        <p id="replace-photo-error" class="hide text-danger small" style="margin-left: 5%;"></p>
         {% comment %} <div id="errorDiv" class="col-md alert alert-warning alert-dismissible fade hide" id="update_alert" role="alert">
             <span id="error-span" class="error-all hide"></span>
         </div> {% endcomment %}
@@ -154,111 +156,22 @@
         resetDateError();
     })
 
-    // var input = document.querySelector("#phone2");
-    // var country = document.querySelector("#country2");
-    // var errorMsg = document.querySelector("#detail-error-msg");
-    // var validMsg = document.querySelector("#detail-valid-msg");
+    var errorPhoto = document.querySelector("#replace-photo-error");
+    var validPhoto = document.querySelector("#replace-photo-valid");
 
-    // var errorDiv = document.getElementById('errorDiv');
-    // var errorSpan = document.getElementById('error-span');
-
-    // var mobile = document.getElementById('id_contact_no');
-    // input.value = mobile.value;
-  
-    // phone number validation
-    // var errorMap = ["Invalid number", "Invalid country code", "Phone no. is too short", "Phone no. is too long", "Invalid number", "Invalid"];
-  
-    // Initialise phone number
-    // window.intlTelInput(input, {
-    //     preferredCountries: ["sg", "my"],
-    //     separateDialCode: true,
-    //     formatOnDisplay: false,
-    //     utilsScript: "/static/js/vendor/intl-tel-input-17.0.0/build/js/utils.js"
-    // });
-  
-    // var iti = window.intlTelInputGlobals.getInstance(input);
-  
-    // var reset = function() {
-    //     input.classList.remove("error");
-    //     errorMsg.innerHTML = "";
-    //     validMsg.innerHTML = "";
-    //     errorMsg.classList.add("hide");
-    //     validMsg.classList.add("hide");
-    // };
-
-    // set it's initial value
-    // country.value = iti.getSelectedCountryData().dialCode;
-
-    // input.addEventListener("countrychange", function(e) {
-    //     var code = iti.getSelectedCountryData().dialCode;
-    //     country.value = code;
-    // });
-
-    // on blur: validate
-    // input.addEventListener('blur', function() {
-    //     reset();
-
-    //     let code_len = country.value.length;
-    //     let subst = input.value.trim().substring(0,1);
-
-    //     if (subst == '0') {
-    //         let update_input = input.value.trim().split(input.value.trim().substring(0,1));
-    //         input.value = update_input[1];
-    //         $('input[name=contact_no]').val('+' + country.value + input.value);
-
-    //     } else if ( subst == '+') {
-
-    //         if (code_len == 2) {
-    //             let update_input = input.value.trim().split(input.value.trim().substring(0,3));
-    //             input.value = update_input[1];
-    //             $('input[name=contact_no]').val('+' + country.value + this.value);
-
-    //         } else if ( code_len == 3) {
-    //             let update_input = input.value.trim().split(input.value.trim().substring(0,4));
-    //             input.value = update_input[1];
-    //             $('input[name=contact_no]').val('+' + country.value + input.value);
-
-    //         }else {
-    //             $('input[name=contact_no]').val('+' + country.value + input.value);
-    //         }
-    //     } else {
-    //         $('input[name=contact_no]').val('+' + country.value + input.value.trim());
-    //     }
-
-    //     if (input.value.trim()) {
-    //         if (iti.isValidNumber()) {
-    //             validMsg.classList.remove("hide");
-    //             $('#submit2').show('slow');
-    //         } else {
-    //             input.classList.add("error");
-    //             var errorCode = iti.getValidationError();
-
-    //             if (errorCode == -99) {
-    //                 errorMsg.innerHTML = errorMap[5];
-    //                 errorMsg.classList.remove("hide");
-    //                 $('#submit2').hide('slow');
-    //             } else {
-    //                 errorMsg.innerHTML = errorMap[errorCode];
-    //                 errorMsg.classList.remove("hide");
-    //                 $('#submit2').hide('slow');
-    //             }
-    //         }
-    //     }
-    // });
-
-    // on keyup / change flag: reset
-    // input.addEventListener('change', reset);
-    // input.addEventListener('keyup', reset);
+    var resetPhotoValidation = function() {
+        $('#visitor-photo2').attr('src', "/static{{ visitor.photo.url }}");
+        errorPhoto.innerHTML = "";
+        validPhoto.innerHTML = "";
+        errorPhoto.classList.add("hide");
+        validPhoto.classList.add("hide");
+    };
 
     $('input[type=file]').change(function(e){
         console.log('photo updated');
+        resetPhotoValidation();
         preview_image(this);
     })
-
-    // $('input[type=tel]').change(function () {
-    //     // mobile.value = '+' + country.value + this.value;
-    //     $('input[name=contact_no]').val('+' + country.value + this.value);
-    // });
 
     function preview_image(input) 
     {
@@ -268,6 +181,30 @@
             var reader = new FileReader();
             reader.onload = function(e) {
                 $('#visitor-photo2').attr('src', e.target.result);
+
+                var photo_input = e.target.result;
+
+                // run check face with fra main
+                $.ajax({
+                    headers: { "X-CSRFToken": getCookie('csrftoken') },
+                    url : '/self-register/validate-photo/',
+                    method : "POST",
+                    data: {'photo': photo_input},
+                    success : function(response) {
+                        var btn = document.getElementById('submit2');
+
+                        if (response.error) {
+                            errorPhoto.innerHTML = response.msg;
+                            btn.setAttribute("disabled", true);
+                        } else {
+                            validPhoto.innerHTML = response.msg;
+                            btn.removeAttribute("disabled", false);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        swal.fire("!Opps ", "Something went wrong. Try Again. Thank you.", "error");
+                    }
+                })
             }
             
             var photoData = reader.readAsDataURL(input.files[0]); // convert to base64 string

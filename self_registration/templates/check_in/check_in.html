@@ -1,6 +1,7 @@
 {% extends 'base-guest.html' %}
 
 {% block extrastyles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3/animate.min.css">
 
 <style>
     #checkin-box {
@@ -26,6 +27,29 @@
 
     #submit:hover {
         transform: scale(1.1);
+    }
+
+    .swal2-html-container {
+        overflow: hidden !important;
+        background-color: transparent !important;
+    }
+
+    .loader span {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 3px solid #f3f3f3;
+        border-radius: 50%;
+        border-top-color: #3498db;
+        animation: spin 1s ease-in-out infinite;
+        -webkit-animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { -webkit-transform: rotate(360deg); }
+    }
+    @-webkit-keyframes spin {
+        to { -webkit-transform: rotate(360deg); }
     }
 </style>
 
@@ -212,7 +236,12 @@
     }
 
     function checkedin_update(url, modal) {
-        console.log('post started...')
+        console.log('post started...');
+
+        var err = document.querySelector('.checkin-err');
+        err.classList.add("hide");
+        err.innerHTML = "";
+
         var form = modal.find('.modal-body form');
         formData = new FormData(form[0]);
 
@@ -223,44 +252,66 @@
             // data: $(form).serialize(),
             data: formData,
             contentType: 'multipart/form-data',
-
+            beforeSend: function(){
+                // swal.showLoading();
+                swal.fire({
+                    html: '<div id="loader" class="loader"><span></span> <p>Please wait while we are processing...</p> </div>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false,
+                })
+            },
+            complete: function() {
+                swal.hideLoading();
+            },
             success : function(data) {
-                console.log('success');
-                console.log(data);
-                if (data.error) {
-                    
-                    if (data.message) {
-                        var err = document.querySelector('.checkin-err');
-                        err.classList.remove("hide");
-                        err.classList.add("show");
-                        err.innerHTML = data.message.__all__[0];
-                        // errorDiv.classList.remove("hide");
-                        // errorDiv.classList.add("show");
-                        // errorSpan.innerHTML = data.message.__all__[0];
+                setTimeout(function(){
+                    if (data.error) {
+                        var swal_err = document.querySelector('.swal2-container');
+                        swal_err.classList.remove("swal2-backdrop-show");
+                        swal_err.classList.add("swal2-backdrop-hide");
+                        $('.swal2-container').hide('slow');
+                        if (data.message) {
+                            var err = document.querySelector('.checkin-err');
+                            err.classList.remove("hide");
+                            err.classList.add("show");
+                            err.innerHTML = data.message.__all__[0];
+                            // errorDiv.classList.remove("hide");
+                            // errorDiv.classList.add("show");
+                            // errorSpan.innerHTML = data.message.__all__[0];
+                        } else {
+                            var err = document.querySelector('.checkin-err');
+                            err.classList.remove("hide");
+                            err.classList.add("show");
+                            err.innerHTML = data.data;
+                            // errorDiv.classList.remove("hide");
+                            // errorDiv.classList.add("show");
+                            // errorSpan.innerHTML = data.data;
+                        }
                     } else {
-                        var err = document.querySelector('.checkin-err');
-                        err.classList.remove("hide");
-                        err.classList.add("show");
-                        err.innerHTML = data.data;
-                        // errorDiv.classList.remove("hide");
-                        // errorDiv.classList.add("show");
-                        // errorSpan.innerHTML = data.data;
-                    }
-                } else {
-                    swal.fire({
-                        'title': "Status: DONE",
-                        'text': "Checked In Successful. You can proceed to scan face now. Thank you.",
-                        'timer': 2500
-                    });
+                        var swal_err = document.querySelector('.swal2-container');
+                        swal_err.classList.remove("swal2-backdrop-show");
+                        swal_err.classList.add("swal2-backdrop-hide");
+                        $('.swal2-container').hide('slow');
+                        swal.fire({
+                            'title': "Status: DONE",
+                            'text': "Checked In Successful. You can proceed to scan face now. Thank you.",
+                            'timer': 2500
+                        });
 
-                    setTimeout(function(){
-                        window.location.reload();
-                    }, 2500);
-                }
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 2500);
+                    }
+                }, 1000);
+                
             },
             error : function(xhr, ajaxOptions, thrownError) {
                 // modal.modal('hide');
-                swal.fire("!Opps ", "Something went wrong, try again later", "error");
+                setTimeout(function(){
+                    swal.fire("!Opps ", "Something went wrong, try again later", "error");
+                }, 1000);
             },
             cache: false,
             contentType: false,
