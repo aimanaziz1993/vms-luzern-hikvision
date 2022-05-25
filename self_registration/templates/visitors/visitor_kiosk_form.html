@@ -9,10 +9,10 @@
           {% endfor %}
       {% endif %}
     </div>
-    <div class="img-responsive row d-flex justify-content-center">
+    {% comment %} <div class="img-responsive row d-flex justify-content-center">
       <img id='visitor-photo' src="/static/icon/avatar.png" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
       <br/>
-    </div>
+    </div> {% endcomment %}
     {% for field in form %}
       <div class="form-group{% if field.errors or field.non_field_errors %} has-error{% endif %}">
         {% if field.id_for_label == 'id_contact_no' %}
@@ -31,13 +31,13 @@
             <p><span id="kiosk-valid-nric" class="hide small text-success py-1"></span></p>
             <p><span id="kiosk-error-nric" class="hide small text-danger py-1"></span></p>
           </div>
-        {% elif field.id_for_label == 'id_photo' %}
+        {% comment %} {% elif field.id_for_label == 'id_photo' %}
           <label for="id_photo">Face Picture. Take your best possible selfie: </label></br>
           {{ form.photo }}
           <div>
             <p><span id="kiosk-valid-photo" class="hide small text-success py-1"></span></p>
             <p><span id="kiosk-error-photo" class="hide small text-danger py-1"></span></p>
-          </div> 
+          </div>  {% endcomment %}
         {% else %}
           <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
         {{field}}

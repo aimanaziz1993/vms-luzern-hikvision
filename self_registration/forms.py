@@ -19,16 +19,17 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
     class Meta:
         model = Visitor
-        fields = ('photo', 'name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
+        fields = ('name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
+        # fields = ('photo', 'name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
 
         labels = {
-            'photo': 'Face Picture. Take your best possible selfie.',
+            # 'photo': 'Face Picture. Take your best possible selfie.',
             'identification_no': 'NRIC',
             'remarks': 'Remarks [ Optional ]'
         }
 
         widgets = {
-            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
+            # 'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
             'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),

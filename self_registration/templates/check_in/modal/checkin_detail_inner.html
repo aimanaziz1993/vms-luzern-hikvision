@@ -34,7 +34,7 @@
         <hr>
         <div class="row mb-3 d-flex align-items-center justify-content-center">
             <div class="col-md-4" style="display: flex;align-items: center;justify-content: center;">
-                {% if visitor.photo %}
+                {% if visitor.photo != '' %}
                 <img id="visitor-photo2" src="/static{{ visitor.photo.url }}" width="150px">
                 {% else %}
                 <img src="/static/img/profile.png" width="150px">
@@ -42,11 +42,11 @@
             </div>
             <div class="col-md-8">
                 <p> <strong>Visiting Company:</strong> {{ visitor.tenant }} </p>
-                <label for="id_photo">Replace photo: &nbsp;
+                <!-- <label for="id_photo">Replace photo: &nbsp;
                     {% comment %} <input type="hidden" name="photo" id="id_photo" accept="image/*" capture="camera" /> {% endcomment %}
                     <i id="icon" class="fas fa-upload fa-sm text-gray-500" aria-hidden="true"></i>
-                </label>
-                {{ form.photo }}
+                </label> -->
+                {% comment %} {{ form.photo }} {% endcomment %}
                 <p><strong>Entries Code : </strong> {{ visitor.code|default_if_none:"-" }}</p>
                 <p><strong>Name : </strong> {{ visitor.name|default_if_none:"-" }}</p>
                 <p><strong>Identification No. : </strong> *****{{ visitor.identification_no|default_if_none:"-" }}</p>
@@ -160,7 +160,9 @@
     var validPhoto = document.querySelector("#replace-photo-valid");
 
     var resetPhotoValidation = function() {
+        {% if visitor.photo %}
         $('#visitor-photo2').attr('src', "/static{{ visitor.photo.url }}");
+        {% endif %}
         errorPhoto.innerHTML = "";
         validPhoto.innerHTML = "";
         errorPhoto.classList.add("hide");
