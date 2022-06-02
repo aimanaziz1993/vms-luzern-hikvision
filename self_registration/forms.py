@@ -19,13 +19,14 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
     class Meta:
         model = Visitor
-        fields = ('name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
+        fields = ('name', 'identification_no', 'contact_no', 'email', 'tenant', 'start_date', 'end_date', 'remarks',)
         # fields = ('photo', 'name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
 
         labels = {
             # 'photo': 'Face Picture. Take your best possible selfie.',
             'identification_no': 'NRIC',
-            'remarks': 'Remarks [ Optional ]'
+            'remarks': 'Remarks [ Optional ]',
+            'email': 'Email (Optional if you want to be notified status & details)'
         }
 
         widgets = {
@@ -34,6 +35,7 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
             'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': forms.HiddenInput(),
+            'email': EmailInput(attrs={'class': 'form-control form_input'}),
             'start_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
             'end_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
             'remarks': Textarea( attrs={'class': 'form-control form_input mb-4', 'rows':6, 'cols':15} ),
@@ -84,12 +86,13 @@ class VisitorRegistrationForm(BootstrapHelperForm, forms.ModelForm):
 
     class Meta:
         model = Visitor
-        fields = ('photo', 'name', 'identification_no', 'contact_no', 'start_date', 'end_date', 'remarks', )
+        fields = ('photo', 'name', 'identification_no', 'contact_no', 'email', 'start_date', 'end_date', 'remarks', )
 
         labels = {
             'photo': 'Face Picture. Take your best possible selfie.',
             'identification_no': 'NRIC (e.g: last 3 digits and an alphabet)',
-            'remarks': 'Remarks [ Optional ]'
+            'remarks': 'Remarks [ Optional ]',
+            'email': 'Email (Optional if you want to be notified status & details)'
         }
 
         widgets = {
@@ -98,6 +101,7 @@ class VisitorRegistrationForm(BootstrapHelperForm, forms.ModelForm):
             'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': forms.HiddenInput(),
+            'email': EmailInput(attrs={'class': 'form-control form_input'}),
             'start_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
             'end_date': DateInput(attrs={'class': 'form-control form_input', 'type': 'datetime-local' }, format='%Y-%m-%dT%H:%M'),
             'remarks': Textarea( attrs={'class': 'form-control form_input mb-4', 'rows':6, 'cols':15} ),

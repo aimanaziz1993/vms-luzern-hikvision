@@ -47,29 +47,19 @@
 
         {% comment %} <a class="navbar-brand text-gray-900 mx-4" href="{% url 'home' %}">VMS-Luzern</a> {% endcomment %}
         {% comment %} <a class="navbar-brand text-gray-900 mx-4" href="{% url 'check-in' %}">Check In</a> {% endcomment %}
-        {% if request.path == '/self-register/check-in/' %}
-        <a href="{% url 'check-in' %}" class="btn btn-success btn-icon-split mr-3">
-            <span class="icon text-white-300">
-            <i class="fas fa-sign-in-alt"></i>
-            </span>
-            <span class="text">Check In</span>
-        </a>
-        {% endif %}
-
-        {% if request.path == '/self-register/visitor/' %}
+        {% if request.path == '/self-register/check-in/' or request.path == '/self-register/visitor/' %}
         <a href="/self-register/visitor/" class="btn btn-primary btn-icon-split mr-3">
             <span class="icon text-white-300">
             <i class="fas fa-registered"></i>
             </span>
             <span class="text">Self Register as Visitor</span>
         </a>
-
-        {% comment %} <a href="" class="btn btn-secondary btn-icon-split mr-3 disabled">
+        <a href="{% url 'check-in' %}" class="btn btn-success btn-icon-split mr-3">
             <span class="icon text-white-300">
-            <i class="fas fa-registered"></i>
+            <i class="fas fa-sign-in-alt"></i>
             </span>
-            <span class="text">Courier/Delivery</span>
-        </a> {% endcomment %}
+            <span class="text">Check In</span>
+        </a>
 
         {% else %}
         <span class="text-primary">Self Register Entries</span>

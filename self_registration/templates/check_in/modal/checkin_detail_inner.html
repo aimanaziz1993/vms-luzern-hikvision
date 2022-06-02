@@ -41,6 +41,12 @@
                 {% endif %}
             </div>
             <div class="col-md-8">
+                <p>
+                    <img src="/static{{ visitor.qr_image.url }}" alt="visitor QR" width="280px">
+                </p>
+                <p class="small text">
+                    Scan check-in via face or scan the QR code when entering premises/floor here after check in at the kiosk
+                </p>
                 <p> <strong>Visiting Company:</strong> {{ visitor.tenant }} </p>
                 <!-- <label for="id_photo">Replace photo: &nbsp;
                     {% comment %} <input type="hidden" name="photo" id="id_photo" accept="image/*" capture="camera" /> {% endcomment %}

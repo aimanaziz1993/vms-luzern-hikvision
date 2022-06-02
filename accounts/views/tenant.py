@@ -233,9 +233,9 @@ def staff_approval(request, pk):
     if request.POST:
         # Cleanup string ID
         employeeNo = str(request.POST.get('employeeNo'))
-        for ch in ['\\','`','*','_','{','}','[',']','(',')','>', '@', '#','+', ' ','-','.','!','$','\'']:
-            if ch in employeeNo:
-                employeeNo = employeeNo.replace(ch, "")
+        # for ch in ['\\','`','*','_','{','}','[',']','(',')','>', '@', '#','+', ' ','-','.','!','$','\'']:
+        #     if ch in employeeNo:
+        #         employeeNo = employeeNo.replace(ch, "")
 
         if request.POST.get('pk') == '3':
             staff.is_active = False
@@ -259,7 +259,7 @@ def staff_approval(request, pk):
         else:
             email_template = 'emailnew/staff_approve.html'
             staff.is_approved = request.POST.get('pk')
-            staff.code = employeeNo.upper()
+            staff.employee_no = employeeNo.upper()
             # generate QR code image for unique card ID
             qr_image = qrcode.make(staff.code)
             qr_offset = Image.new('RGB', (280,280), 'white')
@@ -410,6 +410,7 @@ def staff_approval(request, pk):
         data = dict()
         data['updated'] = True
         return JsonResponse(data)
+    # return HttpResponse()
 
 @login_required
 @tenant_required
@@ -483,11 +484,32 @@ def home(request):
 
     for item in visitor:
         date = item['month']
-        get_month = datetime.strftime(date, '%B')
-        labels.append(get_month)
-        data.append(item['total'])
+
+        if (datetime.strftime(date, '%Y') == datetime.strftime(datetime.now(), '%Y')):
+            get_month = datetime.strftime(item['month'], '%B')
+            labels.append(get_month)
+            data.append(item['total'])
 
     context["labels"] = json.dumps(labels)
     context["data"] = json.dumps(data)
+
+    print(context['labels'])
+    print(context['data'])
+
+    # Staffs Monthly Chart
+    # staff = staffs.annotate(month=TruncMonth('start_date')).values('month').annotate(total=Count('id'))
+    # labelsS = []
+    # dataS = []
+
+    # for item in staff:
+    #     date = item['month']
+
+    #     if (datetime.strftime(date, '%Y') == datetime.strftime(datetime.now(), '%Y')):
+    #         get_month = datetime.strftime(item['month'], '%B')
+    #         labelsS.append(get_month)
+    #         dataS.append(item['total'])
+
+    # context["labelsS"] = json.dumps(labelsS)
+    # context["dataS"] = json.dumps(dataS)
 
     return render(request, 'dashboard/home2.html', context)

@@ -84,22 +84,24 @@ def visitor_reg(request, *args, **kwargs):
                 email_context = { 'visitor': visitor }
 
                 try:
+                    if visitor.email:
+                        to = [ visitor.email, tenant.user.email ]
+                    else:
+                        to = [ tenant.user.email ]
                     html_email = render_to_string(email_template, email_context)
                     email = EmailMultiAlternatives(
                         subject='VMS-Luzerne: Visitor Appointment Registration',
                         body='mail testing',
                         from_email='notification.vms@blivracle.com',
-                        to = [tenant.user.email]
+                        to = to
                     )
+                    from email.mime.image import MIMEImage
+                    if visitor.qr_image:
+                        mime_img = MIMEImage(visitor.qr_image.read())
+                        mime_img.add_header('Content-ID', '<image>')
+                    email.attach(mime_img)
                     email.attach_alternative(html_email, "text/html")
                     email.send(fail_silently=False)
-                    # email = send_mail(
-                    #     'VMS-Luzern: Visitor Appointment Registration',
-                    #     html_email,
-                    #     'webmaster@localhost',
-                    #     [ tenant.user.email ],
-                    #     fail_silently=False
-                    # )
                 except Exception as e:
                     raise e
 
@@ -162,19 +164,21 @@ def visitor_reg(request, *args, **kwargs):
 
                 try:
                     html_email = render_to_string(email_template, email_context)
-                    # email = send_mail(
-                    #     'VMS-Luzern: Visitor Appointment Registration',
-                    #     html_email,
-                    #     'webmaster@localhost',
-                    #     [ tenant.user.email ],
-                    #     fail_silently=False
-                    # )
+                    if visitor.email:
+                        to = [ visitor.email, tenant.user.email ]
+                    else:
+                        to = [ tenant.user.email ]
                     email = EmailMultiAlternatives(
                         subject='VMS-Luzerne: Visitor Appointment Registration',
                         body='mail testing',
                         from_email='notification.vms@blivracle.com',
-                        to = [ tenant.user.email ]
+                        to = to
                     )
+                    from email.mime.image import MIMEImage
+                    if visitor.qr_image:
+                        mime_img = MIMEImage(visitor.qr_image.read())
+                        mime_img.add_header('Content-ID', '<image>')
+                    email.attach(mime_img)
                     email.attach_alternative(html_email, "text/html")
                     email.send(fail_silently=False)
                 except Exception as e:

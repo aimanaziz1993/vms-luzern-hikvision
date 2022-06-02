@@ -85,7 +85,7 @@
       <tr>
         {% comment %} <td style="text-align: center;">{{ obj.pk }}</td> {% endcomment %}
         <td style="text-align: center;">{{ forloop.counter }}</td>
-        <td>{{ staff.code }}</td>
+        <td>{{ staff.employee_no|default_if_none:"-" }}</td>
         <td>{{ staff.name }}</td>
         <td>{{ staff.contact_no }}</td>
         <td>{{ staff.email }}</td>
@@ -152,82 +152,103 @@
 
 <script>
   {% if staff_list %}
-  async function handleApproval(e, id, obj) {
+  function handleApproval(e, id, obj) {
     e.preventDefault();
 
-    const { value: employeeNo } = await Swal.fire({
-      title: 'Selection: '+ obj +'?',
-      input: 'text',
-      inputLabel: 'Employee No. (must be unique)',
-      showCancelButton: true,
-      // inputPlaceholder: 'Enter the Employee No.',
-      inputValidator: (value) => {
-        if (!value || value == '') {
-          return 'Employee No is required!'
-        }
+    // const { value: employeeNo } = await Swal.fire({
+    //   title: 'Selection: '+ obj +'?',
+    //   input: 'text',
+    //   inputLabel: 'Update Employee No. (must be unique)',
+    //   showCancelButton: true,
+    //   // inputPlaceholder: 'Enter the Employee No.',
+    //   inputValidator: (value) => {
+    //     if (!value || value == '') {
+    //       return 'Kindly update the employee no.'
+    //     }
 
-        var invalid = ['%', '&', '<', '>', '[', ']', '{', '}', '!', '@', '#', '$', '^', '*', '(', ')', '?'],
-        validate = value;
-        if (/[%&<>\[\]{}!@#$^*()?]/.test(validate)) {
-            console.log("Yeah, these characters ('" + invalid.join(', ') + "') aren't allowed. So stop it.");
-            return "Illegal character input. You may only use digits & alphabet only."
-        }
-      }
-    })
+    //     var invalid = ['%', '&', '<', '>', '[', ']', '{', '}', '!', '@', '#', '$', '^', '*', '(', ')', '?'],
+    //     validate = value;
+    //     if (/[%&<>\[\]{}!@#$^*()?]/.test(validate)) {
+    //         console.log("Yeah, these characters ('" + invalid.join(', ') + "') aren't allowed. So stop it.");
+    //         return "Illegal character input. You may only use digits & alphabet only."
+    //     }
+    //   }
+    // })
     
-    if (employeeNo) {
+    // if (employeeNo) {
       Swal.fire({  
-        title: `Employee No.: ${employeeNo} - Name: ${obj}`, 
+        title: `Name: ${obj}`, 
+        input: 'text',
+        inputLabel: 'Update Employee No. (must be unique)',
         text: `Confirmed staff approval?`, 
         showDenyButton: true,  
-        showCancelButton: true,  
+        showCancelButton: true,
         confirmButtonText: `Approve`,  
         denyButtonText: `Not Approved`,
-      }).then((result) => {  
+      },
+        function(inputValue) {
+          throw alert(inputValue);
+          if (inputValue === null) return false;
+  
+          if (inputValue === "") {
+            swal.showInputError("You need to write something!");
+            return false;
+          }
+          console.log(inputValue);
+        }
+      ).then((result) => {  
         /* Read more about isConfirmed, isDenied below */  
           if (result.isConfirmed) {
-            url = $('.approval').attr("href");
-            var csrf_token = getCookie('csrftoken')
-            $.ajax({
-              headers: { "X-CSRFToken": csrf_token },
-              url : url,
-              type: 'POST',
-              data: {pk: 2, employeeNo: employeeNo}, // Approve
-              beforeSend: function() {
-                swal.fire({
-                    title: 'Please Wait..!',
-                    text: 'Email on progress..',
-                    onOpen: function() {
-                        swal.showLoading()
-                    }
-                })
-              },
-              success : function(data) { 
-                  const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2500,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                      toast.addEventListener('mouseenter', Swal.stopTimer)
-                      toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    }
+            if (result.value) {
+              const employeeNo = result.value;
+            
+              url = $('.approval').attr("href");
+              var csrf_token = getCookie('csrftoken')
+              $.ajax({
+                headers: { "X-CSRFToken": csrf_token },
+                url : url,
+                type: 'POST',
+                data: {pk: 2, employeeNo: employeeNo}, // Approve
+                beforeSend: function() {
+                  swal.fire({
+                      title: 'Please Wait..!',
+                      text: 'Email on progress..',
+                      onOpen: function() {
+                          swal.showLoading()
+                      }
                   })
-                  
-                  Toast.fire({
-                    icon: 'success',
-                    title: 'Approval Status Change'
-                  })
-                  
-                  setTimeout(() => {
-                    location.reload();
-                  }, 2300)
-              },
-              error: function(jqXHR, textStatus, errorThrown) {
-                  swal.fire("!Opps ", "Something went wrong, try again later", "error");
-              }
-            })
+                },
+                success : function(data) { 
+                    const Toast = Swal.mixin({
+                      toast: true,
+                      position: 'top-end',
+                      showConfirmButton: false,
+                      timer: 2500,
+                      timerProgressBar: true,
+                      didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                      }
+                    })
+                    
+                    Toast.fire({
+                      icon: 'success',
+                      title: 'Approval Status Change'
+                    })
+                    
+                    setTimeout(() => {
+                      location.reload();
+                    }, 2300)
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    swal.fire("!Opps ", "Something went wrong, try again later", "error");
+                }
+              });
+              
+            } else {
+              alert("Kindly provide update for employee no if you want to approve the registration");
+            }
+            
           } else if (result.isDenied) {  
             url = $('.approval').attr("href");
             var csrf_token = getCookie('csrftoken')
@@ -273,7 +294,7 @@
             })
           }
       });
-    }
+    // }
   }
   {% elif visitor_list %}
   function handleApproval(e, id, obj) {

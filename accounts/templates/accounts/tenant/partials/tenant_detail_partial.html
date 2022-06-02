@@ -55,6 +55,7 @@
 <div class="modal-body">
     <div class="container-fluid">
         <p><strong> Registered At:</strong> {{ staff.created_at|default_if_none:"-" }}</p>
+        <p><strong> Status:</strong> {% if staff.is_approved == 2 %}Approved {% elif staff.is_approved == 1 %}Pending {% elif staff.is_approved == 3 %}Rejected {% else %}- {% endif %}</p>
         <hr>
         <div class="row mb-3">
             <div class="col-md-4">
@@ -65,6 +66,7 @@
                 {% endif %}
             </div>
             <div class="col-md-8">
+                <p><strong>Employee No. : </strong> {{ staff.employee_no|default_if_none:"-" }}</p>
                 <p><strong>Name : </strong> {{ staff.name|title|default_if_none:"-" }}</p>
                 <p><strong>Identification No. : </strong> {{ staff.identification_no|default_if_none:"-" }}</p>
                 <p><strong>Contact : </strong> {{ staff.contact_no|default_if_none:"-" }}</p>
