@@ -219,6 +219,18 @@
                             remarks_input.setAttribute("readonly", "true");
                             btn.setAttribute("disabled", true);
                         } else {
+                            let imgSource = `file:///${response.imgSrc}`;
+                            var newImage = response.photo;
+                            $('#visitor-photo').attr('src', newImage);
+                            
+                            // Append new image to file input
+                            var new_photo_input = document.getElementById('id_photo');
+                            const dataTransfer = new DataTransfer()
+                            const file = new File([imgSource], response.filename, { type: 'image/jpg' })
+                            dataTransfer.items.add(file);
+
+                            new_photo_input.files = dataTransfer.files;
+
                             validPhoto.innerHTML = response.msg;
                             name_input.removeAttribute("readonly", "false");
                             identification_no_input.removeAttribute("readonly", "false");

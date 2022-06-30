@@ -1,1 +1,27 @@
-<h1>Done Check In</h1>
+{% extends 'base-guest.html' %}
+
+{% block content_guest %}
+
+<div class="row">
+    <div class="col-12 d-flex align-items-center justify-content-center">
+        <div class="card">
+            <div class="card-header">
+                <div class="row d-flex align-items-center justify-content-between">
+                    <h4 class="m-0 font-weight-bold text-primary">Visitor Check In - Done</h4>
+                    {% comment %} <span><button class="btn btn-primary btn-circle btn-sm" onclick="window.print()">
+                        <i class="fas fa-print"></i>
+                    </button></span> {% endcomment %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p>
+                    <span class="text-success font-weight-bold">You can proceed to entry!</span>
+                </p>
+                
+                <p>Thank you.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content_guest %}

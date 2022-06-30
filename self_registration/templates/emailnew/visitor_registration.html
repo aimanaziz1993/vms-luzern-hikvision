@@ -88,7 +88,15 @@
                                                                         </strong>
                                                                         </span>
                                                                         <br />
-                                                                        <span style="font-size:28px;">Status: {% if visitor.is_approved == 1 %}{{'Pending Host Approval'}}{% elif visitor.is_approved == 2 %}{{'Approved'}} {% else %}{{'Not Approved'}}{% endif %}</span>
+                                                                        <span style="font-size:28px;">Status:
+                                                                            {% if visitor.is_approved == 1 %}
+                                                                                {{'Pending Host Approval'}}
+                                                                            {% elif visitor.is_approved == '2' %}
+                                                                                {{'Approved'}} 
+                                                                            {% elif visitor.is_approved == '3' %}
+                                                                                {{'Not Approved'}}
+                                                                            {% endif %}
+                                                                        </span>
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -129,7 +137,12 @@
                                                         <td>
                                                             <div style="font-family: sans-serif">
                                                                 <div class="txtTinyMce-wrapper" style="font-size: 12px; mso-line-height-alt: 18px; color: #555555; line-height: 1.5; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;">
-                                                                    <p style="margin: 0; font-size: 14px; margin-left: 40px;">You can use attached QR after completioqn of check-in at the kiosk.</p>
+                                                                    <p style="margin: 0; font-size: 14px; margin-left: 40px;">You can use attached QR after completion of check-in at the kiosk.</p>
+                                                                    {% if visitor.is_approved == '2' %}
+                                                                    {% comment %} <p>
+                                                                        <img src="/static{{ visitor.qr_image.url }}" alt="visitor QR" width="300px">
+                                                                    </p> {% endcomment %}
+                                                                    {% endif %}
                                                                 </div>
                                                             </div>
                                                         </td>

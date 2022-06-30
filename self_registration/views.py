@@ -18,6 +18,7 @@ from django.core.serializers import serialize
 from django.template.loader import render_to_string, get_template
 from django.db import transaction
 from django.core.files.base import ContentFile
+from django.core.files import File
 
 import qrcode
 import qrcode.image.svg
@@ -54,7 +55,8 @@ def visitor_reg(request, *args, **kwargs):
         tenant = Tenant.objects.get(code=code)
 
         if request.method == 'POST':
-            form = VisitorRegistrationForm(request.POST, request.FILES)
+            form = VisitorRegistrationForm(request.POST)
+            
             if form.is_valid():
                 form.clean()
                 visitor = form.save(commit=True)
@@ -69,6 +71,16 @@ def visitor_reg(request, *args, **kwargs):
                 visitor.qr_image.save(filename+'.png', ContentFile(thumb_io.getvalue()), save=False)
                 qr_offset.close()
                 visitor.tenant = tenant
+
+                photoTemp = request.FILES["photo"].name
+                photoTemp = str(photoTemp)
+
+                tempPath = os.path.join(BASE_DIR, 'static', 'media')
+
+                with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
+                    data = File(f)
+                    filename = f'{visitor.code}_{visitor.identification_no}.jpg'
+                    visitor.photo.save(filename, data, True)
 
                 if security:
                     visitor.is_approved = 1
@@ -185,7 +197,7 @@ def visitor_reg(request, *args, **kwargs):
                     raise e
 
                 messages.success(request, 'Visitor Registration Success. Thank you.')
-                return render(request, 'visitors/success.html', { 'code': visitor.code, 'visitor': visitor })
+                return render(request, 'visitors/success_kiosk.html', { 'code': visitor.code, 'visitor': visitor })
 
         context = { 'segment': 'visitors kiosk', 'form': form }
 
@@ -199,11 +211,22 @@ def staff_reg(request, *args, **kwargs):
         tenant = Tenant.objects.get(code=code)
 
         if request.method == 'POST':
-            form = StaffRegistrationForm(request.POST, request.FILES)
+            form = StaffRegistrationForm(request.POST)
             if form.is_valid():
                 staff = form.save(commit=False)
                 staff.tenant = tenant
                 staff.is_approved = 1
+
+                photoTemp = request.FILES["photo"].name
+                photoTemp = str(photoTemp)
+
+                tempPath = os.path.join(BASE_DIR, 'static', 'media')
+
+                with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
+                    data = File(f)
+                    filename = f'{staff.code}_{staff.identification_no}.jpg'
+                    staff.photo.save(filename, data, True)
+
                 staff.save()
 
                 email_template = 'emailnew/staff_pending.html'
@@ -293,21 +316,32 @@ def check_in(request):
                         'error': True,
                         'data': "You have checked in before. Kindly register for a new appointment to obtain new code for check in.",
                     }) 
+                elif visitor.is_approved == 3:
+                    return JsonResponse({
+                        'error': True,
+                        'data': "Your entries has been denied by Host. Kindly contact Host for further information.",
+                    }) 
                 else:
                     return JsonResponse({
                         'error': False,
                     })
             elif request.POST.get('cond') == 'phone':
                 # Filter list queryset of visitor with same phone no
-                print(request.POST.get('phone'))
                 phone = request.POST.get('phone')
-                visitor = Visitor.objects.filter(contact_no__icontains = phone, is_checkin=False)
-                # visitor = Visitor.objects.all()
-                print(visitor)
+
+                visitor = Visitor.objects.filter(contact_no__icontains = phone, is_checkin=False, is_active=True)
                 if visitor:
-                    return JsonResponse({
-                        'error': False,
-                    })
+                    for v in visitor:
+                        if v.is_approved == 2 and v.is_active == True:
+                            return JsonResponse({
+                                'error': False,
+                            })
+                        else:
+                            return JsonResponse({
+                                'error': True,
+                                'data': "Your entries has been denied by Host. Kindly contact Host for further information.",
+                            })
+                    
                 else:
                     return JsonResponse({
                     'error': True,
@@ -339,7 +373,7 @@ def details_checkin(request, *args, **kwargs):
     if request.GET.get('condition') == 'search':
         visitor = get_object_or_404(Visitor, code__exact=search)
     elif request.GET.get('condition') == 'phone':
-        visitor = Visitor.objects.filter(contact_no__icontains=phone, is_checkin=False)
+        visitor = Visitor.objects.filter(contact_no__icontains=phone, is_checkin=False, is_active=True, is_approved=2)
 
         # find closest date to visitor list
         if visitor:
@@ -556,35 +590,79 @@ def validate_photo(request):
     cascadePath = os.path.join(f'{appPath}/haarcascade/haarcascade_frontalface_default.xml')
 
     photo_base64 = request.POST.get('photo')
-
     format, imgstr = photo_base64.split(';base64,') 
     ext = format.split('/')[-1]
-    data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+    # data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+    
+    # image = Image.open(data)
 
-    image = Image.open(data)
-    image.save(f"{appPath}/temp/temp.jpg")
+    # image.save(f"{appPath}/temp/temp.jpg")
 
-    with open(f"{appPath}/temp/temp.jpg", "wb") as f:
+    with open(f"{appPath}/temp/temp." + ext, "wb") as f:
         f.write(base64.b64decode(imgstr))
 
     faceCascade = cv2.CascadeClassifier(cascadePath)
-    img = cv2.imread(os.path.join(f'{appPath}/temp/temp.jpg'))
+    img = cv2.imread(os.path.join(f'{appPath}/temp/temp.' + ext))
     grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
+    
     detect_face = faceCascade.detectMultiScale(
         grayscale,
         scaleFactor = 1.3,
         minNeighbors = 5,
         minSize = (30,30),
     )
-
+    
     print("Found %s faces!" % len(detect_face))
 
     if len(detect_face) == 1:
-        return JsonResponse({
-            'error': False,
-            'msg': 'Face validated ✅'
-        })
+
+        # Handle face photo manipulation for optimized zoom-in view
+        dt = datetime.now()
+        dt = dt.replace(tzinfo=timezone.utc).timestamp() * 1000
+        dt = int(dt)
+
+        for (x, y, w, h) in detect_face:
+            new_x = int( x - (0.1 * x) )
+            new_y = int( y - (0.1 * y) )
+            w = int( w + (0.7 * w) )
+            h = int( h + (0.8 * h) )
+            cv2.rectangle(img, (new_x,new_y), (new_x+w, new_y+h), (0, 255, 0), 1)
+            faces = img[new_y:new_y+h, new_x:new_x+w]
+            # faces = img[y:y+h, x:x+w]
+
+            tempPath = os.path.join(BASE_DIR, 'static', 'media')
+            filename = str(dt) + '_' + str(w) + str(h) + '_face.' + ext
+            cv2.imwrite(os.path.join( tempPath, filename ), faces)
+
+            # return Json Response of image
+            try:
+                with open(f"{tempPath}\\{dt}_{w}{h}_face." + ext, "rb") as f:
+                    # return HttpResponse(f.read(), content_type="image/jpeg")
+
+                    # Handle image encoding to pass through json response
+                    absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+
+                    return JsonResponse({
+                        'error': False,
+                        'msg': 'Face validated ✅',
+                        'photo': str( f"{absolute_uri}/media/{filename}" ),
+                        'imgSrc': str( f"{tempPath}\\{filename}" ),
+                        'filename': filename
+                    })
+            except IOError as ioerr:
+                # return HttpResponse(IOError)
+                return JsonResponse({
+                    'error': True,
+                    'msg': 'Face verification failed. Try again.'
+                })
+
+        # cv2.imshow("faces found", img)
+        # cv2.waitKey(0)
+
+        # return JsonResponse({
+        #     'error': False,
+        #     'msg': 'Face validated ✅'
+        # })
     elif len(detect_face) > 1:
         return JsonResponse({
             'error': True,

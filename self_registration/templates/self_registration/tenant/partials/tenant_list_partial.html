@@ -322,7 +322,7 @@
                   title: 'Please Wait..!',
                   text: 'Email on progress..',
                   onOpen: function() {
-                      swal.showLoading()
+                    swal.showLoading()
                   }
               })
             },
@@ -342,36 +342,17 @@
             url : url,
             type: 'POST',
             data: {pk: 3}, // Rejected
-            // beforeSend: function() {
-            //   swal.fire({
-            //       title: 'Please Wait..!',
-            //       text: 'Email on progress..',
-            //       onOpen: function() {
-            //         swal.showLoading();
-            //       }
-            //   })
-            // },
-            success : function(data) { 
-              const Toast = Swal.mixin({
-                  toast: true,
-                  position: 'top-end',
-                  showConfirmButton: false,
-                  timer: 2500,
-                  timerProgressBar: true,
-                  didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+            beforeSend: function() {
+              swal.fire({
+                  title: 'Please Wait..!',
+                  text: 'Email on progress..',
+                  onOpen: function() {
+                    swal.showLoading()
                   }
-                })
-                
-                Toast.fire({
-                  icon: 'success',
-                  title: 'Approval Status Change'
-                })
-                
-                setTimeout(() => {
-                  location.reload();
-                }, 2300)
+              })
+            },
+            success : function(data) { 
+                location.reload();
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 swal.fire("!Opps ", "Something went wrong, try again later", "error");

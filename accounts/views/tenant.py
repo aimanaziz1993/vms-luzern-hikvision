@@ -81,7 +81,7 @@ class TenantVisitorListFilter(ListView):
     def get_queryset(self, *args, **kwargs):
         qs = self.kwargs['status']
         tenant = Tenant.objects.get(user=self.request.user)
-        visitor = tenant.refs_tenant_visitor.all()
+        visitor = tenant.refs_tenant_visitor.all().order_by('-created_at')
 
         if qs == 'pending':
             query_id = 1
@@ -130,7 +130,7 @@ class TenantStaffListFilter(ListView):
     def get_queryset(self, *args, **kwargs):
         qs = self.kwargs['status']
         tenant = Tenant.objects.get(user=self.request.user)
-        staff = tenant.refs_tenant_staff.all()
+        staff = tenant.refs_tenant_staff.all().order_by('-created_at')
 
         if qs == 'pending':
             query_id = 1
@@ -420,11 +420,38 @@ def visitor_approval(request, pk):
     if request.POST:
         if request.POST.get('pk') == '3':
             visitor.is_active = False
+            visitor.is_approved = request.POST.get('pk')
             # email_template = 'emailnew/staff_rejected.html'
         else:
             # email_template = 'emailnew/staff_approve.html'
             visitor.is_approved = request.POST.get('pk')
         visitor.save()
+
+        email_template = 'emailnew/visitor_registration.html'
+
+        email_context = { 'visitor': visitor }
+
+        try:
+            if visitor.email:
+                to = [ visitor.email, visitor.tenant.user.email ]
+            else:
+                to = [ visitor.tenant.user.email ]
+            html_email = render_to_string(email_template, email_context)
+            email = EmailMultiAlternatives(
+                subject='VMS-Luzerne: Visitor Appointment Registration',
+                body='mail testing',
+                from_email='notification.vms@blivracle.com',
+                to = to
+            )
+            from email.mime.image import MIMEImage
+            if visitor.qr_image:
+                mime_img = MIMEImage(visitor.qr_image.read())
+                mime_img.add_header('Content-ID', '<image>')
+            email.attach(mime_img)
+            email.attach_alternative(html_email, "text/html")
+            email.send(fail_silently=False)
+        except Exception as e:
+            raise e
 
         # email_context = {
         #     'code': visitor.code
@@ -441,6 +468,8 @@ def visitor_approval(request, pk):
         #     )
         # except Exception as e:
         #     raise e
+
+
 
         data = dict()
         data['updated'] = True
@@ -492,9 +521,6 @@ def home(request):
 
     context["labels"] = json.dumps(labels)
     context["data"] = json.dumps(data)
-
-    print(context['labels'])
-    print(context['data'])
 
     # Staffs Monthly Chart
     # staff = staffs.annotate(month=TruncMonth('start_date')).values('month').annotate(total=Count('id'))

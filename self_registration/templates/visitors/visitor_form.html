@@ -185,11 +185,11 @@
     };
 
     $(document).ready(function () { //document ready call
-      $("#id_photo").change(function(){
-          console.log('photo uploaded');
-          resetPhotoValidation();
-          preview_image(this);
-      });
+        $("#id_photo").change(function(){
+            console.log('photo uploaded');
+            resetPhotoValidation();
+            preview_image(this);
+        });
     });
 
     function preview_image(input) 
@@ -199,9 +199,9 @@
             reader.onload = function(e) {
                 // console.log(e.target.result);
                 $('#visitor-photo').attr('src', e.target.result);
-
+                
                 var photo_input = e.target.result;
-
+                
                 // run check face with fra main
                 $.ajax({
                     headers: { "X-CSRFToken": getCookie('csrftoken') },
@@ -209,6 +209,7 @@
                     method : "POST",
                     data: {'photo': photo_input},
                     success : function(response) {
+                        
                         var btn = document.getElementById('submit');
 
                         if (response.error) {
@@ -221,6 +222,18 @@
                             remarks_input.setAttribute("readonly", "true");
                             btn.setAttribute("disabled", true);
                         } else {
+                            let imgSource = `file:///${response.imgSrc}`;
+                            var newImage = response.photo;
+                            $('#visitor-photo').attr('src', newImage);
+                            
+                            // Append new image to file input
+                            var new_photo_input = document.getElementById('id_photo');
+                            const dataTransfer = new DataTransfer()
+                            const file = new File([imgSource], response.filename, { type: 'image/jpg' })
+                            dataTransfer.items.add(file);
+
+                            new_photo_input.files = dataTransfer.files;
+
                             validPhoto.innerHTML = response.msg;
                             name_input.removeAttribute("readonly", "false");
                             identification_no_input.removeAttribute("readonly", "false");
