@@ -107,9 +107,7 @@
                     q: input
                 }
             }).done(function(data, textStatus, jqXHR) {
-                console.log(data);
                 search.removeAttribute('disabled')
-
                 if (data.error) {
                     modal.find('.detailBody');
 
@@ -121,9 +119,8 @@
                     modal.find('.detailBody');
 
                     var visitorData = JSON.parse(data.data);
-                    console.log(visitorData);
 
-                    if (visitorData.length === 0 || visitorData == undefined) {
+                    if (visitorData) {
                         successMsg.classList.add("hide");
                         errorMsg.classList.remove("hide");
                         errorMsg.innerHTML = 'We have not found a match to your current check-in details. Kindly re-enter your search code or mobile no.';
@@ -162,7 +159,6 @@
 
                         $('#submit').on('click', function(event) {
                             event.preventDefault();
-                            console.log("check out!")
                             checkoutSubmit(visitorData.code);
                         });
                     }
@@ -186,9 +182,7 @@
             data: {
                 'code': code,
             },
-            // contentType: 'multipart/form-data',
             beforeSend: function(){
-                // swal.showLoading();
                 swal.fire({
                     html: '<div id="loader" class="loader"><span></span> <p>Please wait while we are processing...</p> </div>',
                     showConfirmButton: false,
