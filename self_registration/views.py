@@ -568,7 +568,7 @@ def details_checkin(request, *args, **kwargs):
 
 def checkout(request):
     context = {}
-    visitor = {}
+    visitor = []
 
     if request.is_ajax() and request.method == 'GET':
         query = request.GET.get('q')
@@ -596,7 +596,7 @@ def checkout(request):
                             photo = v.photo.url
                         else:
                             photo = ""
-                        visitor = {
+                        data = {
                             'tenant': v.tenant.company_name,
                             'code': v.code,
                             'name': v.name,
@@ -606,6 +606,8 @@ def checkout(request):
                             'start_date': v.start_date,
                             'end_date': v.end_date,
                         }
+                        visitor.append(data)
+            
             return JsonResponse({
                 'error': False,
                 'data': json.dumps(visitor, cls=DjangoJSONEncoder)
@@ -615,6 +617,7 @@ def checkout(request):
                 'error': True,
                 'data': []
             })
+
     if request.is_ajax() and request.method == 'POST':
         
         code = request.POST.get('code')

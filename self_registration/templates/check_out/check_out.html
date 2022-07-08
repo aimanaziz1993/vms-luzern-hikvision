@@ -119,8 +119,9 @@
                     modal.find('.detailBody');
 
                     var visitorData = JSON.parse(data.data);
+                    console.log(visitorData)
 
-                    if (visitorData) {
+                    if (visitorData.length === 0) {
                         successMsg.classList.add("hide");
                         errorMsg.classList.remove("hide");
                         errorMsg.innerHTML = 'We have not found a match to your current check-in details. Kindly re-enter your search code or mobile no.';
@@ -134,19 +135,19 @@
 
                         x = `
                             <div class="col-md-4" style="display: flex;align-items: center;justify-content: center;">
-                            ${visitorData.photo ? `<img id="visitor-photo2" src="/static{{ visitor.photo.url }}" width="150px">` : `<img src="/static/img/profile.png" width="150px">`}
+                            ${visitorData[0].photo ? `<img id="visitor-photo2" src="/static${visitorData[0].photo}" width="150px">` : `<img src="/static/img/profile.png" width="150px">`}
                             </div>
                             `
 
                         y = `
                             <div class="col">
-                                <p> <strong>Visiting Company:</strong> ${visitorData.tenant} </p>
-                                <p> <strong>Start Date:</strong> ${visitorData.start_date} </p>
-                                <p> <strong>End Date:</strong> ${visitorData.end_date} </p>
-                                <p><strong>Entries Code : </strong> ${visitorData.code ? visitorData.code : '-'}</p>
-                                <p><strong>Name : </strong> ${visitorData.name ? visitorData.name : '-'}</p>
-                                <p><strong>Identification No. : </strong> *****${visitorData.identification_no ? visitorData.identification_no : '-'}</p>
-                                <p><strong>Contact No.: </strong> ${visitorData.contact_no ? visitorData.contact_no : '-'}</p>
+                                <p> <strong>Visiting Company:</strong> ${visitorData[0].tenant} </p>
+                                <p> <strong>Start Date:</strong> ${visitorData[0].start_date} </p>
+                                <p> <strong>End Date:</strong> ${visitorData[0].end_date} </p>
+                                <p><strong>Entries Code : </strong> ${visitorData[0].code ? visitorData[0].code : '-'}</p>
+                                <p><strong>Name : </strong> ${visitorData[0].name ? visitorData[0].name : '-'}</p>
+                                <p><strong>Identification No. : </strong> *****${visitorData[0].identification_no ? visitorData[0].identification_no : '-'}</p>
+                                <p><strong>Contact No.: </strong> ${visitorData[0].contact_no ? visitorData[0].contact_no : '-'}</p>
                             </div>
                             `
                         var one = document.querySelector('div .one');
@@ -159,7 +160,7 @@
 
                         $('#submit').on('click', function(event) {
                             event.preventDefault();
-                            checkoutSubmit(visitorData.code);
+                            checkoutSubmit(visitorData[0].code);
                         });
                     }
                 }
