@@ -1,0 +1,232 @@
+{% extends 'base-guest.html' %}
+
+{% block extrastyles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3/animate.min.css">
+
+<style>
+    .icon-search {
+        cursor: pointer;
+    }
+</style>
+
+{% endblock extrastyles %}
+
+{% block content_guest %}
+
+<div class="row">
+    <div class="col-12 d-flex align-items-center justify-content-center">
+        
+    </div>
+</div>
+
+<div class="modal fade" id="checkout_modal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="checkout_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="h6 modal-title">Confirm Checkout</h2>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Search by mobile or 6 digits code:
+                </p>
+                <div class="input-group">
+                    <input type="text" id="search" type="search" name="search">
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary icon-search" type="button">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <div class="detailBody">
+                            <div>
+                                <span id="error-not-found" class="hide text-danger small"></span>
+                                <span id="found" class="hide text-success small"></span>
+                            </div>
+                            <div id="detail-body" class="row mb-3 d-flex align-items-center justify-content-center detail-body hide">
+                                <div class="one"></div>
+                                <div class="two"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex align-items-center justify-content-center">
+                    <input id="submit" class="btn btn-primary btn-sm mt-3" value="Check Out"></input>
+                </div>
+                <div class="row d-flex align-items-center justify-content-center mt-2">
+                    <p class="checkin-err hide text-danger small"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'check_out/modal/checkout_detail.html' %}
+{% endblock content_guest %}
+
+{% block javascripts %}
+
+<script>
+    $(window).on('load', function() {
+        $('#submit').hide();
+        document.querySelector('div .detail-body').classList.add("hide");
+        $('#checkout_modal').modal('show');
+    });
+
+    var errorMsg = document.querySelector("#error-not-found");
+    var successMsg = document.querySelector("#found");
+
+    var resetSearch = function() {
+        successMsg.innerHTML = "";
+        errorMsg.innerHTML = "";
+        successMsg.classList.add("hide");
+        errorMsg.classList.add("hide");
+    }
+
+    var search = document.querySelector('.icon-search');
+    var searchInput = document.getElementById('search');
+    searchInput.addEventListener('focus', function() {
+        search.removeAttribute('disabled')
+    });
+    
+    search.addEventListener('click', function() {
+        var modal = $('#checkout_modal');
+        var input = $('input[name=search]').val();
+
+        if (input == '' || input == undefined) {
+
+        } else {
+            search.setAttribute('disabled', true);
+            resetSearch();
+            $.ajax({
+                type: "GET",
+                url: '/self-register/check-out/',
+                data: {
+                    q: input
+                }
+            }).done(function(data, textStatus, jqXHR) {
+                console.log(data);
+                search.removeAttribute('disabled')
+
+                if (data.error) {
+                    modal.find('.detailBody');
+
+                    // successMsg.classList.add("hide");
+                    errorMsg.classList.remove("hide");
+                    errorMsg.innerHTML = 'We have not found your last checked-in detail. Kindly try again using either your check-in code or your mobile no. Thank you.';
+
+                } else {
+                    modal.find('.detailBody');
+
+                    var visitorData = JSON.parse(data.data);
+                    console.log(visitorData);
+
+                    if (visitorData.length === 0 || visitorData == undefined) {
+                        successMsg.classList.add("hide");
+                        errorMsg.classList.remove("hide");
+                        errorMsg.innerHTML = 'We have not found a match to your current check-in details. Kindly re-enter your search code or mobile no.';
+                    } else {
+                        errorMsg.classList.add("hide");
+                        successMsg.classList.remove("hide");
+                        successMsg.innerHTML = 'We have found your last checked-in detail. You can proceed to checkout now.';
+
+                        var detailBody = document.querySelector('.detail-body');
+                        detailBody.classList.remove("hide");
+
+                        x = `
+                            <div class="col-md-4" style="display: flex;align-items: center;justify-content: center;">
+                            ${visitorData.photo ? `<img id="visitor-photo2" src="/static{{ visitor.photo.url }}" width="150px">` : `<img src="/static/img/profile.png" width="150px">`}
+                            </div>
+                            `
+
+                        y = `
+                            <div class="col">
+                                <p> <strong>Visiting Company:</strong> ${visitorData.tenant} </p>
+                                <p> <strong>Start Date:</strong> ${visitorData.start_date} </p>
+                                <p> <strong>End Date:</strong> ${visitorData.end_date} </p>
+                                <p><strong>Entries Code : </strong> ${visitorData.code ? visitorData.code : '-'}</p>
+                                <p><strong>Name : </strong> ${visitorData.name ? visitorData.name : '-'}</p>
+                                <p><strong>Identification No. : </strong> *****${visitorData.identification_no ? visitorData.identification_no : '-'}</p>
+                                <p><strong>Contact No.: </strong> ${visitorData.contact_no ? visitorData.contact_no : '-'}</p>
+                            </div>
+                            `
+                        var one = document.querySelector('div .one');
+                        var two = document.querySelector('div .two');
+
+                        one.innerHTML = x;
+                        two.innerHTML = y;
+
+                        $('#submit').show();
+
+                        $('#submit').on('click', function(event) {
+                            event.preventDefault();
+                            console.log("check out!")
+                            checkoutSubmit(visitorData.code);
+                        });
+                    }
+                }
+
+            }).fail(function(jqXHR, textStatus, data, errorThrown) {
+                console.log(data);
+            });
+        }
+    });
+
+    function checkoutSubmit(code) {
+        var err = document.querySelector('.checkin-err');
+        err.classList.add("hide");
+        err.innerHTML = "";
+
+        $.ajax({
+            headers: { "X-CSRFToken":  getCookie('csrftoken') },
+            url : "/self-register/check-out/",
+            method : "POST",
+            data: {
+                'code': code,
+            },
+            // contentType: 'multipart/form-data',
+            beforeSend: function(){
+                // swal.showLoading();
+                swal.fire({
+                    html: '<div id="loader" class="loader"><span></span> <p>Please wait while we are processing...</p> </div>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false,
+                })
+            },
+            complete: function() {
+                swal.hideLoading();
+            },
+            success : function(data) {
+                setTimeout(function(){
+                     if (!data.error) {
+                        var swal_err = document.querySelector('.swal2-container');
+                        swal_err.classList.remove("swal2-backdrop-show");
+                        swal_err.classList.add("swal2-backdrop-hide");
+                        $('.swal2-container').hide('slow');
+                        swal.fire({
+                            'title': "Status: DONE",
+                            'text': "You have checkout successfully. Thank you.",
+                            'timer': 2500
+                        });
+
+                        setTimeout(function(){
+                            window.location.reload();
+                        }, 2500);
+                    }
+                }, 1000);
+                
+            },
+            error : function(xhr, ajaxOptions, thrownError) {
+                setTimeout(function(){
+                    swal.fire("!Opps ", "Something went wrong, try again later", "error");
+                }, 1000);
+            },
+        });
+    }
+</script>
+
+{% endblock javascripts %}

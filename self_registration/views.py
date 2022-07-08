@@ -1,3 +1,4 @@
+import json
 import re
 import os
 import base64
@@ -19,6 +20,9 @@ from django.template.loader import render_to_string, get_template
 from django.db import transaction
 from django.core.files.base import ContentFile
 from django.core.files import File
+from django.db.models import Q
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 
 import qrcode
 import qrcode.image.svg
@@ -561,6 +565,87 @@ def details_checkin(request, *args, **kwargs):
         'visitor': visitor,
         # 'message': message
     })
+
+def checkout(request):
+    context = {}
+    visitor = {}
+
+    if request.is_ajax() and request.method == 'GET':
+        query = request.GET.get('q')
+        visitors = Visitor.objects.filter( Q( code__exact=query ) | Q( contact_no__icontains=query ), is_checkin=True )
+        
+        if visitors:
+            for v in visitors:
+                device = Device.objects.get(pk = v.tenant.device.pk)
+                host = str( str(request.scheme) + '://' + str(device.ip_addr) )
+                absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+
+                # loop through API FRA search Person
+                initialize = initiate(device.device_username, device.device_password)
+                auth = initialize['auth']
+
+                if initialize['client'] and auth:
+
+                    # Search Person to FRA until found
+                    person_instance = Person()
+                    search_res = person_instance.search(v.code, host, auth)
+                    print(search_res)
+
+                    if search_res['UserInfoSearch']['responseStatusStrg'] == 'OK':
+                        if v.photo:
+                            photo = v.photo.url
+                        else:
+                            photo = ""
+                        visitor = {
+                            'tenant': v.tenant.company_name,
+                            'code': v.code,
+                            'name': v.name,
+                            'identification_no': v.identification_no,
+                            'photo': photo,
+                            'contact_no': v.contact_no,
+                            'start_date': v.start_date,
+                            'end_date': v.end_date,
+                        }
+            return JsonResponse({
+                'error': False,
+                'data': json.dumps(visitor, cls=DjangoJSONEncoder)
+            }, safe=False)
+        else:
+            return JsonResponse({
+                'error': True,
+                'data': []
+            })
+    if request.is_ajax() and request.method == 'POST':
+        
+        code = request.POST.get('code')
+
+        # update visitor current checkout time, active to False
+        visitor = Visitor.objects.get(code=code)
+
+        device = Device.objects.get(pk = visitor.tenant.device.pk)
+        host = str( str(request.scheme) + '://' + str(device.ip_addr) )
+        absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+
+        initialize = initiate(device.device_username, device.device_password)
+        auth = initialize['auth']
+
+        if initialize['client'] and auth:
+
+            # Delete Person from FRA
+            person_instance = Person()
+            del_res = person_instance.delete(visitor.code, host, auth)
+            print(del_res)
+
+            visitor.is_active = False
+            visitor.end_date = datetime.now()
+            visitor.save()
+
+            return JsonResponse({
+                'error': False
+            })
+
+    return render(request, 'check_out/check_out.html', { 'visitor': json.dumps(visitor) } )
+
 
 def validate_nric(request):
     if request.method == 'POST':

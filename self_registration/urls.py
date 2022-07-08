@@ -16,6 +16,9 @@ urlpatterns = [
     path('check-in/', views.check_in, name='check-in'),
     path('check-in/details/', views.details_checkin, name="details-checkin"),
 
+    # CHECK OUT
+    path('check-out/', views.checkout, name='check-out'),
+
     # Validate NRIC
     path('validate-nric/', views.validate_nric, name='validate-nric'),
 
