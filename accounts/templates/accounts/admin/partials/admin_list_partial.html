@@ -13,7 +13,6 @@
         <td>{{ visitor.start_date|date:"d-M-y, h:i:s a" }}</td>
         <td>{{ visitor.end_date|date:"d-M-y, h:i:s a" }}</td>
       {% endif %}
-
       
 
       {% if visitor_list %}
@@ -24,10 +23,12 @@
         {% endif %}
       {% endif %}
 
-      {% if visitor.is_checkin %}
+      {% if visitor_list %}
+        {% if visitor.is_checkin %}
           <td>{{ visitor.updated_at | date:"d-M-y, h:i:s a" }}</td>
         {% else %}
           <td>-</td>
+        {% endif %}
       {% endif %}
 
       <td style="text-align: center;">
@@ -92,11 +93,12 @@
       <tr>
         {% comment %} <td style="text-align: center;">{{ obj.pk }}</td> {% endcomment %}
         <td style="text-align: center;">{{ forloop.counter }}</td>
+        <td>{{ staff.tenant.company_name }}</td>
         <td>{{ staff.employee_no|default_if_none:"-" }}</td>
         <td>{{ staff.name }}</td>
         <td>{{ staff.contact_no }}</td>
         <td>{{ staff.email }}</td>
-        <td>{{ staff.remarks|default_if_none:"-" }}</td>
+        {% comment %} <td>{{ staff.remarks|default_if_none:"-" }}</td> {% endcomment %}
         <td>{{ staff.created_at|date:"d-M-y, h:i:s a" }}</td>
         <td style="text-align: center;">
           {% if staff.is_approved == 1 %}

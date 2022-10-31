@@ -41,6 +41,18 @@ urlpatterns = [
 
         path('change-security/', administrator.change_security, name='change-security'),
 
+        # ALL VISITORS
+        path('all-visitors/', administrator.VisitorList.as_view(), name='admin-visitor-list'),
+        path('visitor/<int:pk>/detail', administrator.AdminVisitorDetail.as_view(), name='visitor-detail'),
+        path('visitor/<int:pk>/delete', administrator.AdminVisitorDelete.as_view(), name='visitor-delete'),
+        path('visitor/<int:pk>/approval/', administrator.visitor_approval, name='visitor-approval'),
+
+        # ALL STAFFS
+        path('all-staffs/', administrator.AdminStaffList.as_view(), name='admin-staff-list'),
+        path('staff/<int:pk>/detail', administrator.AdminStaffDetail.as_view(), name='staff-detail'),
+        path('staff/<int:pk>/delete', administrator.AdminStaffDelete.as_view(), name='staff-delete'),
+        path('staff/<int:pk>/approval/', administrator.staff_approval, name='staff-approval'),
+
     ], 'accounts'), namespace='administrators')),
 
 

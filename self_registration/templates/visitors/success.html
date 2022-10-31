@@ -18,6 +18,9 @@
                     <span class="text-success font-weight-bold">Self Register Entries Success!</span>
                 </p>
                 <p>
+                    <span class="text-danger">Be reminded that this page will automatically reset after 10 seconds.</span>
+                </p>
+                <p>
                     Kindly key-in the provided code: <strong>{{ code }}</strong> or your mobile no during check in.
                 </p>
                 <p>
@@ -47,5 +50,11 @@
         </div>
     </div>
 </div>
+
+<script>
+    setTimeout(() => {
+        window.location.href = window.location.href
+    }, 10000)
+</script>
 
 {% endblock content_guest %}

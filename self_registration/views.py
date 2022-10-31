@@ -24,6 +24,7 @@ from django.db.models import Q
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 
+import sys
 import qrcode
 import qrcode.image.svg
 from io import BytesIO
@@ -40,8 +41,9 @@ from hikvision_api.api import initiate, Card, FaceData, Person
 from sorl.thumbnail import get_thumbnail
 
 def option_page(request):
-
-    return render (request, 'options.html', {})
+    import sys
+    base_url = str( str(request.scheme) + '://' + sys.argv[-1] )
+    return render (request, 'options.html', {'base_url': base_url})
 
 
 def visitor_reg(request, *args, **kwargs):
@@ -76,53 +78,91 @@ def visitor_reg(request, *args, **kwargs):
                 qr_offset.close()
                 visitor.tenant = tenant
 
-                photoTemp = request.FILES["photo"].name
-                photoTemp = str(photoTemp)
-
-                tempPath = os.path.join(BASE_DIR, 'static', 'media')
-
-                with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
-                    data = File(f)
-                    filename = f'{visitor.code}_{visitor.identification_no}.jpg'
-                    visitor.photo.save(filename, data, True)
-
-                if security:
-                    visitor.is_approved = 1
-                else:
-                    visitor.is_approved = 2
-                visitor.save()
-
-                if visitor.photo:
-                    im = get_thumbnail(visitor.photo, '300x300', crop='center', quality=99)
-
-                email_template = 'emailnew/visitor_registration.html'
-
-                email_context = { 'visitor': visitor }
-
                 try:
-                    if visitor.email:
-                        to = [ visitor.email, tenant.user.email ]
-                    else:
-                        to = [ tenant.user.email ]
-                    html_email = render_to_string(email_template, email_context)
-                    email = EmailMultiAlternatives(
-                        subject='VMS-Luzerne: Visitor Appointment Registration',
-                        body='mail testing',
-                        from_email='notification.vms@blivracle.com',
-                        to = to
-                    )
-                    from email.mime.image import MIMEImage
-                    if visitor.qr_image:
-                        mime_img = MIMEImage(visitor.qr_image.read())
-                        mime_img.add_header('Content-ID', '<image>')
-                    email.attach(mime_img)
-                    email.attach_alternative(html_email, "text/html")
-                    email.send(fail_silently=False)
-                except Exception as e:
-                    raise e
+                    photoTemp = request.FILES["photo"].name
+                    photoTemp = str(photoTemp)
 
-                messages.success(request, 'Success')
-                return render(request, 'visitors/success.html', { 'code': visitor.code, 'visitor': visitor })
+                    tempPath = os.path.join(BASE_DIR, 'static', 'media')
+
+                    with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
+                        data = File(f)
+                        filename = f'{visitor.code}_{visitor.identification_no}.jpg'
+                        visitor.photo.save(filename, data, True)
+
+                    if security:
+                        visitor.is_approved = 1
+                    else:
+                        visitor.is_approved = 2
+                    visitor.save()
+
+                    if visitor.photo:
+                        im = get_thumbnail(visitor.photo, '300x300', crop='center', quality=99)
+
+                    email_template = 'emailnew/visitor_registration.html'
+                    email_context = { 'visitor': visitor }
+
+                    try:
+                        if visitor.email:
+                            to = [ visitor.email, tenant.user.email ]
+                        else:
+                            to = [ tenant.user.email ]
+                        html_email = render_to_string(email_template, email_context)
+                        email = EmailMultiAlternatives(
+                            subject='VMS-Luzerne: Visitor Appointment Registration',
+                            body='mail testing',
+                            from_email='ifa@concorde.com.sg',
+                            to = to
+                        )
+                        from email.mime.image import MIMEImage
+                        if visitor.qr_image:
+                            mime_img = MIMEImage(visitor.qr_image.read())
+                            mime_img.add_header('Content-ID', '<image>')
+                        email.attach(mime_img)
+                        email.attach_alternative(html_email, "text/html")
+                        email.send(fail_silently=False)
+                    except Exception as e:
+                        raise e
+
+                    messages.success(request, 'Success')
+                    return render(request, 'visitors/success.html', { 'code': visitor.code, 'visitor': visitor })
+
+                except:
+                    if security:
+                        visitor.is_approved = 1
+                    else:
+                        visitor.is_approved = 2
+                    visitor.save()
+
+                    if visitor.photo:
+                        im = get_thumbnail(visitor.photo, '300x300', crop='center', quality=99)
+
+                    email_template = 'emailnew/visitor_registration.html'
+                    email_context = { 'visitor': visitor }
+
+                    try:
+                        if visitor.email:
+                            to = [ visitor.email, tenant.user.email ]
+                        else:
+                            to = [ tenant.user.email ]
+                        html_email = render_to_string(email_template, email_context)
+                        email = EmailMultiAlternatives(
+                            subject='VMS-Luzerne: Visitor Appointment Registration',
+                            body='mail testing',
+                            from_email='ifa@concorde.com.sg',
+                            to = to
+                        )
+                        from email.mime.image import MIMEImage
+                        if visitor.qr_image:
+                            mime_img = MIMEImage(visitor.qr_image.read())
+                            mime_img.add_header('Content-ID', '<image>')
+                        email.attach(mime_img)
+                        email.attach_alternative(html_email, "text/html")
+                        email.send(fail_silently=False)
+                    except Exception as e:
+                        raise e
+
+                    messages.success(request, 'Success')
+                    return render(request, 'visitors/success.html', { 'code': visitor.code, 'visitor': visitor })
             else:
                 print('form_invalid')
 
@@ -145,7 +185,7 @@ def visitor_reg(request, *args, **kwargs):
         if request.method == 'POST':
             tenant_id = request.POST.get('tenant')
             tenant = Tenant.objects.get(user_id=tenant_id)
-
+            
             if form.is_valid():
                 form.clean()
                 visitor = form.save(commit=True)
@@ -187,7 +227,7 @@ def visitor_reg(request, *args, **kwargs):
                     email = EmailMultiAlternatives(
                         subject='VMS-Luzerne: Visitor Appointment Registration',
                         body='mail testing',
-                        from_email='notification.vms@blivracle.com',
+                        from_email='ifa@concorde.com.sg',
                         to = to
                     )
                     from email.mime.image import MIMEImage
@@ -221,43 +261,58 @@ def staff_reg(request, *args, **kwargs):
                 staff.tenant = tenant
                 staff.is_approved = 1
 
-                photoTemp = request.FILES["photo"].name
-                photoTemp = str(photoTemp)
-
-                tempPath = os.path.join(BASE_DIR, 'static', 'media')
-
-                with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
-                    data = File(f)
-                    filename = f'{staff.code}_{staff.identification_no}.jpg'
-                    staff.photo.save(filename, data, True)
-
-                staff.save()
-
-                email_template = 'emailnew/staff_pending.html'
-                email_context = { 'code': staff.code, 'approval_status': staff.is_approved }
-
                 try:
-                    html_email = render_to_string(email_template, email_context)
-                    # email = send_mail(
-                    #     'VMS-Luzern: Staff Registration',
-                    #     html_email,
-                    #     'webmaster@localhost',
-                    #     [ staff.email ],
-                    #     fail_silently=False
-                    # )
-                    email = EmailMultiAlternatives(
-                        subject='VMS-Luzerne: Staff Registration',
-                        body='mail testing',
-                        from_email='notification.vms@blivracle.com',
-                        to = [ staff.email, tenant.user.email ]
-                    )
-                    email.attach_alternative(html_email, "text/html")
-                    email.send(fail_silently=False)
-                except Exception as e:
-                    raise e
+                    photoTemp = request.FILES["photo"].name
+                    photoTemp = str(photoTemp)
 
-                messages.success(request, 'Staff Registration Success. Thank you.')
-                return render(request, 'staffs/success.html', { 'code': staff.code, 'staff': staff })
+                    tempPath = os.path.join(BASE_DIR, 'static', 'media')
+
+                    with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
+                        data = File(f)
+                        filename = f'{code}_{staff.identification_no}.jpg'
+                        staff.photo.save(filename, data, True)
+
+                    staff.save()
+
+                    email_template = 'emailnew/staff_pending.html'
+                    email_context = { 'code': staff.code, 'approval_status': staff.is_approved }
+
+                    try:
+                        html_email = render_to_string(email_template, email_context)
+                        email = EmailMultiAlternatives(
+                            subject='VMS-Luzerne: Staff Registration',
+                            body='mail testing',
+                            from_email='ifa@concorde.com.sg',
+                            to = [ staff.email, tenant.user.email ]
+                        )
+                        email.attach_alternative(html_email, "text/html")
+                        email.send(fail_silently=False)
+                    except Exception as e:
+                        raise e
+
+                    messages.success(request, 'Staff Registration Success. Thank you.')
+                    return render(request, 'staffs/success.html', { 'code': staff.code, 'staff': staff })
+                except:
+                    staff.save()
+
+                    email_template = 'emailnew/staff_pending.html'
+                    email_context = { 'code': staff.code, 'approval_status': staff.is_approved }
+
+                    try:
+                        html_email = render_to_string(email_template, email_context)
+                        email = EmailMultiAlternatives(
+                            subject='VMS-Luzerne: Staff Registration',
+                            body='mail testing',
+                            from_email='ifa@concorde.com.sg',
+                            to = [ staff.email, tenant.user.email ]
+                        )
+                        email.attach_alternative(html_email, "text/html")
+                        email.send(fail_silently=False)
+                    except Exception as e:
+                        raise e
+
+                    messages.success(request, 'Staff Registration Success. Thank you.')
+                    return render(request, 'staffs/success.html', { 'code': staff.code, 'staff': staff })
 
         context = { 'segment': 'staffs', 'tenant': tenant, 'form': form, 'code': code }
         return render(request, 'staffs/staff_self_register.html', context)
@@ -409,7 +464,8 @@ def details_checkin(request, *args, **kwargs):
                 # Try Except push to FRA Logic with the updated info
                 device = Device.objects.get(pk=visitor_update.tenant.device.pk)
                 host = str( str(request.scheme) + '://' + str(device.ip_addr) )
-                absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+                # absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+                absolute_uri = sys.argv[-1]
 
                 try:
                     initialize = initiate(device.device_username, device.device_password)
@@ -508,13 +564,13 @@ def details_checkin(request, *args, **kwargs):
                                         search_res = person_instance.search(visitor_update.code, host, auth)
                                         print(search_res)
 
-                                        delete_res = person_instance.delete(visitor_update.code, host, auth)
-                                        print(delete_res)
+                                        # delete_res = person_instance.delete(visitor_update.code, host, auth)
+                                        # print(delete_res)
 
-                                        return JsonResponse({
-                                            'error': True,
-                                            'data': f"Check in failed during face validation. Please try again by updating your face photo here. Thank you.",
-                                        })
+                                        # return JsonResponse({
+                                        #     'error': True,
+                                        #     'data': f"Check in failed during face validation. Please try again by updating your face photo here. Thank you.",
+                                        # })
 
                             # Step 4: Get All past checked in visitor with status True 
                             get_checked_in_visitor = Visitor.objects.filter(is_checkin = True)
@@ -578,7 +634,8 @@ def checkout(request):
             for v in visitors:
                 device = Device.objects.get(pk = v.tenant.device.pk)
                 host = str( str(request.scheme) + '://' + str(device.ip_addr) )
-                absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+                # absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+                # absolute_uri = sys.argv[-1]
 
                 # loop through API FRA search Person
                 initialize = initiate(device.device_username, device.device_password)
@@ -627,7 +684,8 @@ def checkout(request):
 
         device = Device.objects.get(pk = visitor.tenant.device.pk)
         host = str( str(request.scheme) + '://' + str(device.ip_addr) )
-        absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+        # absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+        # absolute_uri = sys.argv[-1]
 
         initialize = initiate(device.device_username, device.device_password)
         auth = initialize['auth']
@@ -680,11 +738,6 @@ def validate_photo(request):
     photo_base64 = request.POST.get('photo')
     format, imgstr = photo_base64.split(';base64,') 
     ext = format.split('/')[-1]
-    # data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-    
-    # image = Image.open(data)
-
-    # image.save(f"{appPath}/temp/temp.jpg")
 
     with open(f"{appPath}/temp/temp." + ext, "wb") as f:
         f.write(base64.b64decode(imgstr))
@@ -710,13 +763,16 @@ def validate_photo(request):
         dt = int(dt)
 
         for (x, y, w, h) in detect_face:
-            new_x = int( x - (0.1 * x) )
-            new_y = int( y - (0.1 * y) )
-            w = int( w + (0.7 * w) )
-            h = int( h + (0.8 * h) )
-            cv2.rectangle(img, (new_x,new_y), (new_x+w, new_y+h), (0, 255, 0), 1)
-            faces = img[new_y:new_y+h, new_x:new_x+w]
-            # faces = img[y:y+h, x:x+w]
+            # new_x = int( x - (0.1 * x) )
+            # new_x = 0.5*new_x
+            
+            # new_y = int( y - (0.1 * y) )
+            # new_y = 0.5*new_y
+            # w = int( w + (0.7 * w) )
+            # h = int( h + (0.8 * h) )
+            # cv2.rectangle(img, (new_x,new_y), (new_x+w, new_y+h), (0, 255, 0), 1)
+            # faces = img[new_y:new_y+h, new_x:new_x+w]
+            faces = img[y:y+h, x:x+w]
 
             tempPath = os.path.join(BASE_DIR, 'static', 'media')
             filename = str(dt) + '_' + str(w) + str(h) + '_face.' + ext
@@ -761,3 +817,6 @@ def validate_photo(request):
         'error': True,
         'msg': 'Face verification failed. Try upload new selfies.'
     })
+
+def server_error(request, exception):
+    return render(request, '500.html')

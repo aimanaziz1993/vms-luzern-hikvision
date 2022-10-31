@@ -8,6 +8,7 @@ from django.core.files import File
 from django.core.files.base import ContentFile
 from django.views.generic import CreateView, TemplateView, ListView, DetailView, UpdateView
 
+import sys
 import json
 import qrcode
 import qrcode.image.svg
@@ -160,7 +161,6 @@ class TenantStaffDelete(AjaxDeleteView):
             # search FRA for user
             device = Device.objects.get(pk=self.object.tenant.device.pk)
             host = str( str(self.request.scheme) + '://' + str(device.ip_addr) )
-            # absolute_uri = self.request.build_absolute_uri('/')[:-1].strip("/")
             
             initialize = initiate(device.device_username, device.device_password)
             auth = initialize['auth']
@@ -249,7 +249,7 @@ def staff_approval(request, pk):
                 email = EmailMultiAlternatives(
                     subject='VMS-Luzerne: Staff Registration',
                     body='mail testing',
-                    from_email='notification.vms@blivracle.com',
+                    from_email='ifa@concorde.com.sg',
                     to = [ staff.email, staff.tenant.user.email ]
                 )
                 email.attach_alternative(html_email, "text/html")
@@ -281,7 +281,8 @@ def staff_approval(request, pk):
             # Try Except push to FRA Logic with the updated info
             device = Device.objects.get(pk=staff.tenant.device.pk)
             host = str( str(request.scheme) + '://' + str(device.ip_addr) )
-            absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+            # absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+            absolute_uri = sys.argv[-1]
             
             initialize = initiate(device.device_username, device.device_password)
             auth = initialize['auth']
@@ -387,14 +388,19 @@ def staff_approval(request, pk):
 
                     try:
                         # Sent Email - Approval Status
-                        email_context = { 'code': staff.code }
+                        email_context = { 'code': staff.code, 'staff': staff }
                         html_email = render_to_string(email_template, email_context)
                         email = EmailMultiAlternatives(
                             subject='VMS-Luzerne: Staff Registration',
                             body='mail testing',
-                            from_email='notification.vms@blivracle.com',
+                            from_email='ifa@concorde.com.sg',
                             to = [ staff.email, staff.tenant.user.email ]
                         )
+                        from email.mime.image import MIMEImage
+                        if staff.qr_image:
+                            mime_img = MIMEImage(staff.qr_image.read())
+                            mime_img.add_header('Content-ID', '<image>')
+                        email.attach(mime_img)
                         email.attach_alternative(html_email, "text/html")
                         email.send(fail_silently=False)
                     except Exception as e:
@@ -440,7 +446,7 @@ def visitor_approval(request, pk):
             email = EmailMultiAlternatives(
                 subject='VMS-Luzerne: Visitor Appointment Registration',
                 body='mail testing',
-                from_email='notification.vms@blivracle.com',
+                from_email='ifa@concorde.com.sg',
                 to = to
             )
             from email.mime.image import MIMEImage
@@ -460,7 +466,7 @@ def visitor_approval(request, pk):
         # try:
         #     html_email = render_to_string(email_template, email_context)
         #     email = send_mail(
-        #         'VMS-Luzern: Staff Registration',
+        #         'VMS-Luzerne: Staff Registration',
         #         html_email,
         #         'webmaster@localhost',
         #         [ visitor.email ],

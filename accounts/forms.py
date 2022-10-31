@@ -141,10 +141,11 @@ class DeviceForm(BootstrapHelperForm, forms.ModelForm):
 
     class Meta:
         model = Device
-        fields = ('floor', 'name', 'ip_addr', 'device_username', 'device_password',)
+        fields = ('floor', 'device_id', 'name', 'ip_addr', 'device_username', 'device_password',)
 
         labels = {
-            'ip_addr': 'IP Address (e.g 192.168.x.x)'
+            'ip_addr': 'IP Address (e.g 192.168.x.x)',
+            'device_id': 'Device ID (Optional)'
         }
 
     def __init__(self, *args, **kwargs):

@@ -28,7 +28,7 @@ PUBLIC_DIR = os.path.abspath(os.path.join(
 SECRET_KEY = 'django-insecure-=vc)#zpcz*zluqv5byt=4v@fxvx@v4b40$0&9z^=6-yiw1kt-#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -140,7 +140,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PUBLIC_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
@@ -179,12 +179,19 @@ LOGOUT_REDIRECT_URL = 'home'
 # EMAIL_HOST_PASSWORD = '061a6746ef796c'
 # EMAIL_PORT = '2525'
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'mail.blivracle.com'
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'notification.vms@blivracle.com'
+# EMAIL_HOST_PASSWORD = 'Notificationvms1234'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mail.blivracle.com'
+EMAIL_HOST = 'smtp.office365.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'notification.vms@blivracle.com'
-EMAIL_HOST_PASSWORD = 'Notificationvms1234'
+EMAIL_HOST_USER = 'ifa@concorde.com.sg'
+EMAIL_HOST_PASSWORD = 'P@55w0rd'
 
 # Messages built-in framework
 
@@ -197,5 +204,19 @@ MESSAGE_TAGS = {
 }
 
 APPEND_SLASH = True
+"""
+Same as FileField, but you can specify:
+    * content_types - list containing allowed content_types. Example: ['application/pdf', 'image/jpeg']
+    * max_upload_size - a number indicating the maximum file size allowed for upload.
+        2.5MB - 2621440
+        5MB - 5242880
+        10MB - 10485760
+        20MB - 20971520
+        50MB - 5242880
+        100MB - 104857600
+        250MB - 214958080
+        500MB - 429916160
+"""
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520

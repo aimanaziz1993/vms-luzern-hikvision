@@ -1,0 +1,210 @@
+<div class="modal-header">
+    {% if visitor %}
+    <h4 class="modal-title">{{ page_title }} - Appointment Details</h4>
+    {% elif staff %}
+    <h4 class="modal-title">{{ page_title }} - Details</h4>
+    {% else %}
+    <h4 class="modal-title">{{ page_title }} Details</h4>
+    {% endif %}
+      {% comment %} <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> {% endcomment %}
+</div>
+
+<!-- Modal body -->
+{% if visitor %}
+<div class="modal-body">
+    <div class="container-fluid">
+        <p><strong>Registered At:</strong> {{ visitor.created_at|default_if_none:"-" }}</p>
+        <p><strong>Visiting Place:</strong> {{ visitor.tenant }}</p>
+        <p><strong>Start Date/Time:</strong> {{ visitor.start_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
+        <p><strong>End Date/Time:</strong> {{ visitor.end_date|date:"d M Y g:i a (D)"|default_if_none:"-" }}</p>
+        <hr>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                {% if visitor.photo %}
+                <img src="/static{{ visitor.photo.url }}" width="150px">
+                {% else %}
+                <img src="/static/img/profile.png" width="150px">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <p><strong>Entries Code : </strong> {{ visitor.code|default_if_none:"-" }}</p>
+                <p><strong>Name : </strong> {{ visitor.name|title|default_if_none:"-" }}</p>
+                <p><strong>Identification No. : </strong> {{ visitor.identification_no|default_if_none:"-" }}</p>
+                <p><strong>Contact : </strong> {{ visitor.contact_no|default_if_none:"-" }}</p>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <span>QR Image: </span>
+                {% if visitor.qr_image %}
+                <img id="qr-download" src="/static{{ visitor.qr_image.url }}" alt="visitor__qrcode" width="150px">
+                <span class="text-sm">
+                    <a href="/static{{ visitor.qr_image.url }}" title="download image" download>
+                        <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>&nbsp; .png
+                    </a>
+                    
+                </span>
+                {% else %}
+                -
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% elif staff %}
+<div class="modal-body">
+    <div class="container-fluid">
+        <p><strong> Registered At:</strong> {{ staff.created_at|default_if_none:"-" }}</p>
+        <p><strong> Status:</strong> {% if staff.is_approved == 2 %}Approved {% elif staff.is_approved == 1 %}Pending {% elif staff.is_approved == 3 %}Rejected {% else %}- {% endif %}</p>
+        <hr>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                {% if staff.photo %}
+                <img src="/static{{ staff.photo.url }}" width="150px">
+                {% else %}
+                <img src="/static/img/profile.png" width="150px">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <p><strong>Employee No. : </strong> {{ staff.employee_no|default_if_none:"-" }}</p>
+                <p><strong>Name : </strong> {{ staff.name|title|default_if_none:"-" }}</p>
+                <p><strong>Identification No. : </strong> {{ staff.identification_no|default_if_none:"-" }}</p>
+                <p><strong>Contact : </strong> {{ staff.contact_no|default_if_none:"-" }}</p>
+                <p><strong>Email : </strong> {{ staff.email|default_if_none:"-" }}</p>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <span>QR Image: </span>
+                {% if staff.qr_image %}
+                <img id="qr-download" src="/static{{ staff.qr_image.url }}" alt="staff__qrcode" width="150px">
+                <span class="text-sm">
+                    <a href="/static{{ staff.qr_image.url }}" title="download image" download>
+                        <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>
+                    </a>
+                    &nbsp; .png
+                </span>
+                {% else %}
+                -
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <span>Remarks: </span>
+                <textarea id="remarks" name="remarks" rows="2" cols="45" readonly style="border-color: gray; color:#858796;">
+                    {{ staff.remarks|default_if_none:"-" }}
+                </textarea>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="modal-body">
+    <div class="container-fluid">
+        <p><strong>Last Login: </strong> {{ tenant.user.last_login|default_if_none:"-" }}</p>
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm">
+                <strong>Location : </strong>Blk. {{ tenant.building|default_if_none:"-" }}, {{ tenant.floor|default_if_none:"-" }}-{{ tenant.unit_no|default_if_none:"-" }}
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm-6">
+               <strong>Email : </strong> {{ tenant.user.email|default_if_none:"-" }}
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm-6">
+                <strong>Company : </strong> {{ tenant.company_name|default_if_none:"-" }}
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <strong>Registered Address : </strong> {{ tenant.registered_address|default_if_none:"-" }}
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 col-sm-6">
+                <strong>Contact Person : </strong> {{ tenant.contact_person|default_if_none:"-" }}
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <strong>Contact No. : </strong> {{ tenant.contact_no|default_if_none:"-" }}
+            </div>
+        </div>
+        <!-- <hr>
+        <h5 class="text-primary font-weight-blod">Visitor Entries</h5>
+        <div class="wrapper" >
+           <div class="panel-body table-responsive">
+                <table id="table__vms_modal" class="table table-bordered" style="width: 100% !important;">
+                    <thead>
+                        <tr>
+                            <th>Entry Code</th>
+                            <th>Name</th>
+                            <th>NRIC</th>
+                            <th>Contact</th>
+                            <th>head</th>
+                            <th>head</th>
+                        </tr>
+                    </thead>
+                    {% if visitors %}
+                        {% for visitor in visitors %}
+                        <tbody>
+                            <tr>
+                                <td>{{ visitor.code }}</td>
+                                <td>{{ visitor.name }}</td>
+                                <td>{{ visitor.identification_no }}</td>
+                                <td>{{ visitor.contact_no }}</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                        {% endfor %}
+                    {% else %}
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align: center;">No entries</td>
+                            </tr>
+                        </tbody>
+                    {% endif %}
+                </table>
+           </div>
+       </div> -->
+    </div>
+</div>
+
+<!-- <script>
+    // generic settings
+var table = $('#table__vms_modal').DataTable( {
+    responsive: true,
+    orderCellsTop: true,
+    fixedHeader: false,
+    searching: false,
+    // lengthChange: false,
+    // lengthMenu: [5],
+    buttons: [
+        // {
+        //     extend: 'pdf',
+        //     text: '<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.6 11.85H0v3.999h.791v-1.342h.803c.287 0 .531-.057.732-.173.203-.117.358-.275.463-.474a1.42 1.42 0 0 0 .161-.677c0-.25-.053-.476-.158-.677a1.176 1.176 0 0 0-.46-.477c-.2-.12-.443-.179-.732-.179Zm.545 1.333a.795.795 0 0 1-.085.38.574.574 0 0 1-.238.241.794.794 0 0 1-.375.082H.788V12.48h.66c.218 0 .389.06.512.181.123.122.185.296.185.522Zm1.217-1.333v3.999h1.46c.401 0 .734-.08.998-.237a1.45 1.45 0 0 0 .595-.689c.13-.3.196-.662.196-1.084 0-.42-.065-.778-.196-1.075a1.426 1.426 0 0 0-.589-.68c-.264-.156-.599-.234-1.005-.234H3.362Zm.791.645h.563c.248 0 .45.05.609.152a.89.89 0 0 1 .354.454c.079.201.118.452.118.753a2.3 2.3 0 0 1-.068.592 1.14 1.14 0 0 1-.196.422.8.8 0 0 1-.334.252 1.298 1.298 0 0 1-.483.082h-.563v-2.707Zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638H7.896Z"/></svg>',
+        // },
+        // {
+        //     extend: 'csv',
+        //     text: '<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-filetype-csv" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM3.517 14.841a1.13 1.13 0 0 0 .401.823c.13.108.289.192.478.252.19.061.411.091.665.091.338 0 .624-.053.859-.158.236-.105.416-.252.539-.44.125-.189.187-.408.187-.656 0-.224-.045-.41-.134-.56a1.001 1.001 0 0 0-.375-.357 2.027 2.027 0 0 0-.566-.21l-.621-.144a.97.97 0 0 1-.404-.176.37.37 0 0 1-.144-.299c0-.156.062-.284.185-.384.125-.101.296-.152.512-.152.143 0 .266.023.37.068a.624.624 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.092 1.092 0 0 0-.2-.566 1.21 1.21 0 0 0-.5-.41 1.813 1.813 0 0 0-.78-.152c-.293 0-.551.05-.776.15-.225.099-.4.24-.527.421-.127.182-.19.395-.19.639 0 .201.04.376.122.524.082.149.2.27.352.367.152.095.332.167.539.213l.618.144c.207.049.361.113.463.193a.387.387 0 0 1 .152.326.505.505 0 0 1-.085.29.559.559 0 0 1-.255.193c-.111.047-.249.07-.413.07-.117 0-.223-.013-.32-.04a.838.838 0 0 1-.248-.115.578.578 0 0 1-.255-.384h-.765ZM.806 13.693c0-.248.034-.46.102-.633a.868.868 0 0 1 .302-.399.814.814 0 0 1 .475-.137c.15 0 .283.032.398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.441 1.441 0 0 0-.489-.272 1.838 1.838 0 0 0-.606-.097c-.356 0-.66.074-.911.223-.25.148-.44.359-.572.632-.13.274-.196.6-.196.979v.498c0 .379.064.704.193.976.131.271.322.48.572.626.25.145.554.217.914.217.293 0 .554-.055.785-.164.23-.11.414-.26.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.799.799 0 0 1-.118.363.7.7 0 0 1-.272.25.874.874 0 0 1-.401.087.845.845 0 0 1-.478-.132.833.833 0 0 1-.299-.392 1.699 1.699 0 0 1-.102-.627v-.495Zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879l-1.327 4Z"/></svg>',
+        // },
+        {
+            extend: 'print',
+            // text: '<i class="fa fa-print fa-sm"></i>',
+            text: '<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/></svg>',
+        },
+    ],
+});
+
+table.buttons().container()
+    .appendTo( '#table__vms_modal_wrapper .col-md-6:eq(0)' );
+</script> -->
+
+{% endif %}
+
+<!-- Modal footer -->
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    {% comment %} <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> {% endcomment %}
+</div>
+  

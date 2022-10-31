@@ -33,7 +33,7 @@
             <p><span id="error-nric" class="hide small text-danger py-1"></span></p>
           </div> 
         {% elif field.id_for_label == 'id_photo' %}
-          <label for="id_photo">Face Picture. Take your best possible selfie: </label></br>
+          <label for="id_photo">Face Picture. Take your best possible selfie [Optional]: </label></br>
           {{ form.photo }}
           <div>
             <p><span id="valid-photo" class="hide small text-success py-1"></span></p>
@@ -59,6 +59,7 @@
 {% block javascripts %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/static/js/vendor/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
+<script src="/static/js/heic2any.js"></script>
 <script>
 
     $.fn.noMask = function(regex) { 
@@ -169,6 +170,16 @@
     var end_date_input = document.getElementById('id_end_date');
     var remarks_input = document.getElementById('id_remarks');
 
+    function forceInputUppercase(e)
+    {
+        var start = e.target.selectionStart;
+        var end = e.target.selectionEnd;
+        e.target.value = e.target.value.toUpperCase();
+        e.target.setSelectionRange(start, end);
+    }
+
+    identification_no_input.addEventListener('keyup', forceInputUppercase, false);
+
     var resetPhotoValidation = function() {
         $('#visitor-photo').attr('src', "/static/icon/avatar.png");
         errorPhoto.innerHTML = "";
@@ -188,7 +199,9 @@
         $("#id_photo").change(function(){
             console.log('photo uploaded');
             resetPhotoValidation();
-            preview_image(this);
+            convertHeicToJpg(this);
+            // resetPhotoValidation();
+            // preview_image(this);
         });
     });
 
@@ -201,6 +214,7 @@
                 $('#visitor-photo').attr('src', e.target.result);
                 
                 var photo_input = e.target.result;
+                var btn = document.getElementById('submit');
                 
                 // run check face with fra main
                 $.ajax({
@@ -250,6 +264,44 @@
                 })
             }
             var photoData = reader.readAsDataURL(input.files[0]); // convert to base64 string
+        }
+    }
+
+    function convertHeicToJpg(input)
+    {
+        var fileName = $(input).val();
+        var fileNameExt = fileName.substr(fileName.lastIndexOf('.') + 1);
+        console.log(fileName);
+        console.log(fileNameExt);
+        if(fileNameExt == "HEIC") {
+            console.log('heic detected');
+            var blob = $(input)[0].files[0]; //ev.target.files[0];
+            heic2any({
+                blob: blob,
+                toType: "image/jpg",
+            })
+            .then(function (resultBlob) {
+
+                var url = URL.createObjectURL(resultBlob);
+                $('#visitor-photo').attr('src', url);
+                //adding converted picture to the original <input type="file">
+                let fileInputElement = $(input)[0];
+                let container = new DataTransfer();
+                let file = new File([resultBlob], "heic"+".jpg",{type:"image/jpeg", lastModified:new Date().getTime()});
+                container.items.add(file);
+
+                fileInputElement.files = container.files;
+                console.log("added");
+
+                var photoInput = document.getElementById('id_photo');
+                preview_image(photoInput);
+            })
+            .catch(function (x) {
+                console.log(x.code);
+                console.log(x.message);
+            });
+        } else {
+            preview_image(input);
         }
     }
 

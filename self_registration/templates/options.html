@@ -1,8 +1,19 @@
 {% extends 'base-guest.html' %}
-
+{% load static %}
 {% block extrastyles %}
 
 <style>
+    body {
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        background-image: url("../../static/img/bg-luzerne.jpeg");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        color: #FFFFFF;
+    }
+
     @media only screen and (max-width: 768px) {
       /* For mobile phones: */
       [class*="col-"] {
@@ -25,6 +36,11 @@
       font-family: "Helvetica";
     }
 
+    #option-box {
+        display: flex;
+        align-items: center;
+    }
+
     /* div #option-box {
 
     } */
@@ -37,29 +53,29 @@
 {% endblock extrastyles %}
 
 {% block content_guest %}
-
+<!-- <img src="../../static/img/bg-luzerne.jpeg" alt=""> -->
 <div class="container" style="transform: translate(-3px, 13px);">
-    <div class="row d-flex align-items-center justify-content-around">
+    <div class="row d-flex align-items-center justify-content-around" style="margin-top: 25%;">
         <div class="col-4 col-md-4">
             <a href="/self-register/visitor/" style="text-decoration: none">
                 <div id="option-box" class="card text-center bg-primary text-white">
                     <div class="card-block" >             
-                        <h2><i class="fa fa-street-view fa-sm"style="padding-top: 20px"></i></h2>
+                        <h2><i class="fa fa-street-view fa-xl"style="padding-top: 20px"></i></h2>
                     </div>
                     <div class="row px-2 no-gutters">
-                    <h4 class="card-title">Entries as Guest</h4>
+                        <h4 class="card-title">VISITOR SELF REGISTER</h4>
                     </div>
                 </div>
             </a>
         </div>
         <div class="col-4 col-md-4">
-            <a href="/self-register/visitor/" style="text-decoration: none" class="disabled">
+            <a href="/self-register/check-in/" style="text-decoration: none" class="disabled">
                 <div id="option-box" class="card text-center bg-info text-white">
                     <div class="card-block" >             
-                        <h2><i class="fa fa-paper-plane fa-sm"style="padding-top: 20px"></i></h2>
+                        <h2><i class="fa fa-paper-plane fa-xl"style="padding-top: 20px"></i></h2>
                     </div>
                     <div class="row px-2 no-gutters">
-                        <h4 class="card-title">Courier/Delivery</h4>
+                        <h4 class="card-title">VISITOR CHECK IN</h4>
                     </div>
                 </div>
             </a>

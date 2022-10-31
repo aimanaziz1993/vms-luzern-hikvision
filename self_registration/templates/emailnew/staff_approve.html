@@ -69,11 +69,30 @@
                           </table>
                           <table border="0" cellpadding="10" cellspacing="0" class="text_block" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
                             <tr>
-                              <td><div style="font-family: sans-serif">
+                              <td>
+                                <div style="font-family: sans-serif">
                                   <div class="txtTinyMce-wrapper" style="font-size: 12px; mso-line-height-alt: 18px; color: #555555; line-height: 1.5; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;">
                                     <p style="margin: 0; font-size: 14px; text-align: center;">You can proceed to check in now.</p>
                                   </div>
-                                </div></td>
+                                </div>
+                              </td>
+                            </tr>
+                          </table>
+                          <table border="0" cellpadding="10" cellspacing="0" class="text_block" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">
+                            <tr>
+                                <td>
+                                    <div style="font-family: sans-serif">
+                                        <div class="txtTinyMce-wrapper" style="font-size: 12px; mso-line-height-alt: 18px; color: #555555; line-height: 1.5; font-family: Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;">
+                                            <p style="margin: 0; font-size: 14px; margin-left: 40px;">You can use attached QR after completion of check-in at the kiosk.</p>
+                                            {% if staff.is_approved == '2' %}
+                                            {% comment %} <p>
+                                                <img src="/static{{ staff.qr_image.url }}" alt="staff QR" width="300px">
+                                            </p> {% endcomment %}
+                                            <img src="cid:image" alt="staff QR" width="300px" style="margin: 0; font-size: 14px; margin-left: 40px;">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                           </table>
                           <table border="0" cellpadding="0" cellspacing="0" class="text_block" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;" width="100%">

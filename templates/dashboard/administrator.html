@@ -8,12 +8,18 @@
             You can get started by adding a new tenant access account. Go to: 
             <a href="{% url 'administrators:tenant-list' %}" class="btn btn-primary btn-sm" role="button">Create Tenant | Host Access Account</a> . <!-- You can add new tenant here, get started by creating a <a href="{% url 'create_tenant' %}">Tenant account</a>. -->
         </p>
+
+        <p class="mb-4">
+            <span><strong>System Local IP: </strong>{{ local_ip }}</span>
+        </p>
     
         {% if security.security %}
-            <span> <strong>Enabled</strong>/Disabled High Security: </span> <input type="checkbox" name="toggleSecurity" onchange="toggleAction(this)" checked data-toggle="toggle" data-on="Enabled" data-off="Disabled" data-onstyle="success" data-offstyle="secondary" value={{ security.pk }}>
+            <span>Enabled/Disabled High Security: </span> <input type="checkbox" name="toggleSecurity" onchange="toggleAction(this)" checked data-toggle="toggle" data-on="Enabled" data-off="Disabled" data-onstyle="success" data-offstyle="secondary" value={{ security.pk }}>
         {% else %}
-            <span>Enabled/<strong>Disabled</strong> High Security: </span> <input type="checkbox" name="toggleSecurity" onchange="toggleAction(this)" data-toggle="toggle" data-on="Enabled" data-off="Disabled" data-onstyle="success" data-offstyle="secondary" value={{ security.pk }}>
+            <span>Enabled/Disabled High Security: </span> <input type="checkbox" name="toggleSecurity" onchange="toggleAction(this)" data-toggle="toggle" data-on="Enabled" data-off="Disabled" data-onstyle="success" data-offstyle="secondary" value={{ security.pk }}>
         {% endif %}
+        
+        
     </div>
 </div>
 <div class="row py-3">

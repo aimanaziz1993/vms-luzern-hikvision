@@ -167,7 +167,7 @@ class StaffRegistrationForm(forms.ModelForm):
         fields = ('photo', 'name', 'identification_no', 'contact_no', 'email', 'remarks', )
 
         labels = {
-            'photo': 'Face Picture. Take your best possible selfie',
+            'photo': 'Face Picture. Take your best possible selfie [ Optional ]',
             'identification_no': 'NRIC (e.g: last 3 digits and an alphabet)',
             'remarks': 'Remarks [ Optional ]'
         }

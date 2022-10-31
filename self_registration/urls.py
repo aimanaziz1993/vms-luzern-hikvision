@@ -2,11 +2,10 @@ from django.urls import path, include
 
 from . import views
 
-
 urlpatterns = [
 
     # Deliveries or Guest
-    # path('', views.option_page, name='option-page'),
+    path('', views.option_page, name='option-page'),
 
     # Search Registration
     path('search-mobile/', views.search_registration, name='search-mobile'),

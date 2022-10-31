@@ -54,6 +54,26 @@
             {% endif %}
             <span>Device Management</span></a>
     </li>
+    <li class="nav-item {% if request.path == '/administrator/all-visitors/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'administrators:admin-visitor-list' %}">
+            <!-- <i class="fas fa-fw fa-tachometer-alt"></i> -->
+            {% if request.path == '/administrator/all-visitors/' %}
+                <img src="/static/icon/visitor-active.png" alt="visitors">
+            {% else %}
+                <img src="/static/icon/visitor-no-active.png" alt="visitors">
+            {% endif %}
+            <span>All Visitors</span></a>
+    </li>
+    <li class="nav-item {% if request.path == '/administrator/all-staffs/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'administrators:admin-staff-list' %}">
+            <!-- <i class="fas fa-fw fa-tachometer-alt"></i> -->
+            {% if request.path == '/administrator/all-staffs/' %}
+                <img src="/static/icon/staff-active.png" alt="staffs">
+            {% else %}
+                <img src="/static/icon/staff-no-active.png" alt="staffs">
+            {% endif %}
+            <span>All Staffs</span></a>
+    </li>
 
     {% elif user.is_tenant %}
     <li class="nav-item {% if request.path == '/tenant/' %}active{% endif %}">

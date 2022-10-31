@@ -1,7 +1,31 @@
-<footer class="sticky-footer bg-white">
-    <div class="container my-auto">
-        <div class="copyright text-center my-auto">
-            <span><a href="https://concordesecurity.com/">2022 © Concorde Security Pte Ltd. All right reserved. </a></span>
+    <style>
+    .sticky-footer2 {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background-color: red;
+      color: white;
+      text-align: center;
+    }
+    </style>
+
+    {% if request.path == '/self-register/' %}
+    <footer class="sticky-footer2" style="opacity: 0.5; background: none;">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span class="text-dark text-bold"><a href="https://concordesecurity.com/" style="color: white !important;">© 2022 Concorde Security Pte Ltd | All right reserved. </a></span>
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
+    {% else %}
+    <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span><a href="https://concordesecurity.com/">© 2022 Concorde Security Pte Ltd | All right reserved. </a></span>
+            </div>
+        </div>
+    </footer>
+
+    {% endif %}
+
