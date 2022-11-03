@@ -63,12 +63,12 @@
             </span>
             <span class="text">Self Register as Visitor</span>
         </a>
-        <a href="{% url 'check-in' %}" class="btn btn-success btn-icon-split mr-3">
+        {% comment %}<a href="{% url 'check-in' %}" class="btn btn-success btn-icon-split mr-3">
             <span class="icon text-white-300">
             <i class="fas fa-sign-in-alt"></i>
             </span>
             <span class="text">Check In</span>
-        </a>
+        </a>{% endcomment %}
 
         {% else %}
         <div class="d-flex align-items-center justify-content-between w-100">

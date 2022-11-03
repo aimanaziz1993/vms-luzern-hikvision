@@ -13,49 +13,60 @@
                     </button></span>
                 </div>
             </div>
+
+            {% if visitor.is_approved == 1 %}
             <div class="card-body">
-                <p>
-                    <span class="text-success font-weight-bold">Self Register Entries Success!</span>
-                </p>
-                <p>
-                    Kindly key-in the provided code: <strong>{{ code }}</strong> or your mobile no during check in.
-                    <input type="hidden" type="text" id="search" name="search" value="{{code}}">
-                    <br>
-                    <!-- <p style="color: red;">
-                        You can click 'Check In' below to continue
+                <h4 class="text-warning font-weight-bold">Thank you. Your registration has been submitted.</h4>
+                <p>Current status: Pending for host approval.</p>
+                <p>You can check in after your host has approved your visit.</p>
+            </div>
+            {% else %}
+                <div class="card-body">
+                    <p>
+                        <span class="text-success font-weight-bold">Self Register Entries Success!</span>
+                    </p>
+                    <p>
+                        Kindly key-in the provided code: <strong>{{ code }}</strong> or your mobile no during check in.
+                        <input type="hidden" type="text" id="search" name="search" value="{{code}}">
+                        <br>
+                        <!-- <p style="color: red;">
+                            You can click 'Check In' below to continue
+                        </p>
+                        <br>
+                        <p>
+                            <a id="updateDetails" class="btn btn-sm btn-warning" href="{% url 'details-checkin' %}" onclick="getDetail(event); return false;">
+                                Check In
+                            </a>
+                        </p> -->
                     </p>
                     <br>
                     <p>
-                        <a id="updateDetails" class="btn btn-sm btn-warning" href="{% url 'details-checkin' %}" onclick="getDetail(event); return false;">
-                            Check In
+                        You can also snapshot provided QR code below after you complete check-in: 
+                    </p>
+                    <p>
+                        <img src="/static{{ visitor.qr_image.url }}" alt="visitor QR" width="300px">
+                    </p>
+                    <p>
+                        Download & scan the QR code when entering premises/floor here after check in at the kiosk:
+                        <a href="/static{{ visitor.qr_image.url }}" title="download QR" download>
+                            <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>
                         </a>
-                    </p> -->
-                </p>
-                <br>
-                <p>
-                    You can also snapshot provided QR code below after you complete check-in: 
-                </p>
-                <p>
-                    <img src="/static{{ visitor.qr_image.url }}" alt="visitor QR" width="300px">
-                </p>
-                <p>
-                    Download & scan the QR code when entering premises/floor here after check in at the kiosk:
-                    <a href="/static{{ visitor.qr_image.url }}" title="download QR" download>
-                        <i class="fas fa-download fa-sm text-primary-100" aria-hidden="true"></i>
-                    </a>
-                </p>
-                <p>
-                    <strong>Reminder:</strong>
-                </p>
-                <p>
-                    <ul>
-                        <li>Do not lose your registration code.</li>
-                        <li>Note that this is only a one way entry. You may do a self register for another entry.</li>
-                        <li>If you loss your check in privilege, you can always search your registered details using you unique code or mobile numbers.</li>
-                    </ul>
-                </p>
-                <p>Thank you.</p>
-            </div>
+                    </p>
+                    <p>
+                        <strong>Reminder:</strong>
+                    </p>
+                    <p>
+                        <ul>
+                            <li>Do not lose your registration code.</li>
+                            <li>Note that this is only a one way entry. You may do a self register for another entry.</li>
+                            <li>If you loss your check in privilege, you can always search your registered details using you unique code or mobile numbers.</li>
+                        </ul>
+                    </p>
+                    <p>Thank you.</p>
+                </div>
+            {% endif %}
+            
+           
         </div>
     </div>
 </div>
