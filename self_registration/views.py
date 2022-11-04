@@ -37,7 +37,7 @@ from .models import Visitor
 from .forms import VisitorCheckInForm, VisitorKioskRegistrationForm, VisitorRegistrationForm, StaffRegistrationForm, VisitorUpdateRegistrationForm
 
 from hikvision_api.api import initiate, Card, FaceData, Person
-
+from hikvision_api.cron import clear_redundant_visitor
 from sorl.thumbnail import get_thumbnail
 
 def option_page(request):
@@ -455,7 +455,6 @@ def visitor_reg(request, *args, **kwargs):
         if request.method == 'POST':
             tenant_id = request.POST.get('tenant')
             tenant = Tenant.objects.get(user_id=tenant_id)
-
             
             if form.is_valid():
                 form.clean()
@@ -480,6 +479,13 @@ def visitor_reg(request, *args, **kwargs):
                     visitor.is_approved = 2
                 
                 visitor.save()
+
+                # pass visitor to check their past data from FRA
+                try:
+                    get_all_possible_same_visitor_by_phone_no = Visitor.objects.filter(contact_no__icontains = visitor.contact_no)
+                    clear_redundant_visitor(get_all_possible_same_visitor_by_phone_no, request.scheme)
+                except:
+                    print('deleting past data not available at the moment')
                 
                 # Store thumbnail picture version
                 if visitor.photo:
@@ -624,21 +630,22 @@ def visitor_reg(request, *args, **kwargs):
                                             # })
 
                                 # Step 4: Get All past checked in visitor with status True 
-                                get_checked_in_visitor = Visitor.objects.filter(is_checkin = True)
+                                # get_checked_in_visitor = Visitor.objects.filter(contact_no = visitor.contact_no)
+
                                 # Get & loop all past visitor code - compare code to FRA & delete all visitor from FRA
-                                for visitor in get_checked_in_visitor:
-                                    # delete every code if exist in FRA
-                                    if visitor.end_date <= datetime.now() or visitor.contact_no == visitor.contact_no:
-                                        print("deleting all end date visitor")
-                                        del_res = person_instance.delete(visitor.code, host, auth)
-                                        print(del_res)
+                                # for visitor in get_checked_in_visitor:
+                                #     # delete every code if exist in FRA
+                                #     if visitor.end_date <= datetime.now():
+                                #         print("deleting all end date visitor")
+                                #         del_res = person_instance.delete(visitor.code, host, auth)
+                                #         print(del_res)
 
-                                visitor.is_checkin = True
-                                visitor.save()
+                                # visitor.is_checkin = True
+                                # visitor.save()
 
-                                return JsonResponse({
-                                    'error': False
-                                })
+                                # return JsonResponse({
+                                #     'error': False
+                                # })
 
                             except:
                                 # t = loader.get_template('templates/500.html')
