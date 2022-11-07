@@ -27,7 +27,7 @@ def clear_redundant_visitor(visitors, request):
             except:
                 pass
 
-def push_to_fra(device, host, absolute_uri, visitor, modalvisitor):
+def push_to_fra(device, host, absolute_uri, visitor):
     try:
         initialize = initiate(device.device_username, device.device_password)
         auth = initialize['auth']
@@ -134,21 +134,21 @@ def push_to_fra(device, host, absolute_uri, visitor, modalvisitor):
                             # })
 
                 # Step 4: Get All past checked in visitor with status True 
-                get_checked_in_visitor = modalvisitor
-                # Get & loop all past visitor code - compare code to FRA & delete all visitor from FRA
-                for visitor in get_checked_in_visitor:
-                    # delete every code if exist in FRA
-                    if visitor.end_date <= datetime.now() or visitor.contact_no == visitor.contact_no:
-                        print("deleting all end date visitor")
-                        del_res = person_instance.delete(visitor.code, host, auth)
-                        print(del_res)
+                # get_checked_in_visitor = modalvisitor
+                # # Get & loop all past visitor code - compare code to FRA & delete all visitor from FRA
+                # for visitor in get_checked_in_visitor:
+                #     # delete every code if exist in FRA
+                #     if visitor.end_date <= datetime.now() or visitor.contact_no == visitor.contact_no:
+                #         print("deleting all end date visitor")
+                #         del_res = person_instance.delete(visitor.code, host, auth)
+                #         print(del_res)
 
-                visitor.is_checkin = True
-                visitor.save()
+                # visitor.is_checkin = True
+                # visitor.save()
 
-                return JsonResponse({
-                    'error': False
-                })
+                # return JsonResponse({
+                #     'error': False
+                # })
 
             except:
                 # t = loader.get_template('templates/500.html')
