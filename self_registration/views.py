@@ -40,6 +40,8 @@ from hikvision_api.api import initiate, Card, FaceData, Person
 from hikvision_api.cron import clear_redundant_visitor
 from hikvision_api.cron import push_to_fra
 from sorl.thumbnail import get_thumbnail
+from hashlib import md5
+from time import localtime
 
 def option_page(request):
     import sys
@@ -79,7 +81,7 @@ def visitor_reg(request, *args, **kwargs):
                 qr_offset.close()
                 visitor.tenant = tenant
 
-                try:
+                try:                   
                     photoTemp = request.FILES["photo"].name
                     photoTemp = str(photoTemp)
 
@@ -343,10 +345,12 @@ def visitor_reg(request, *args, **kwargs):
         
         form = VisitorKioskRegistrationForm(request.POST or None, request.FILES or None)
 
+        
+
         if request.method == 'POST':
             tenant_id = request.POST.get('tenant')
             tenant = Tenant.objects.get(user_id=tenant_id)
-            
+
             if form.is_valid():
                 form.clean()
                 visitor = form.save(commit=True)
@@ -363,6 +367,23 @@ def visitor_reg(request, *args, **kwargs):
                 visitor.qr_image.save(filename+'.png', ContentFile(thumb_io.getvalue()), save=False)
                 qr_offset.close()
                 visitor.tenant = tenant
+
+                if request.POST['id_photo'] != '':
+                    photoTemp = request.POST['id_photo']
+                    trimmed_base64_string = photoTemp.replace('data:image/jpeg;base64,', '')
+                    imgdata = base64.b64decode(trimmed_base64_string)
+                    filePrefix = md5(str(localtime()).encode('utf-8')).hexdigest()
+                    filename = filePrefix+'_tempImg.jpg'
+
+                    visitor.photo = ContentFile(imgdata, filename)
+                # photoTemp = str(photoTemp)
+
+                # tempPath = os.path.join(BASE_DIR, 'static', 'media')
+
+                # with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
+                #     data = File(f)
+                #     filename = f'{visitor.code}_{visitor.identification_no}.jpg'
+                #     visitor.photo.save(filename, data, True)
 
                 if security:
                     visitor.is_approved = 1

@@ -26,6 +26,24 @@
       <img id='visitor-photo' src="/static/icon/avatar.png" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
       <br/>
     </div> {% endcomment %}
+   
+    <div class="img-responsive mb-2 offset-4" id="results" style="margin-left: 15%"></div>
+    <!-- hidden input to contain files -->
+    <input type="hidden" id="id_photo" name="id_photo" value="" >  
+
+    <label for="photo">Capture:</label>
+    <a class="btn btn-sm btn-secondary" onclick="openWebcam(event)" style="color: #fff;">Start Webcam</a>
+
+    <div id="main_camera">
+        <div id="my_camera" class="webcam mb-2 offset-4" style="width:320px; height:240px; margin-left: 12%;"></div>
+    </div>
+    
+    <a class="btn btn-sm btn-primary mb-2 offset-5" href="javascript:void(take_snapshot())" id="capture_button">Take Snapshot</a>
+
+    <div>
+    <p><span id="kiosk-valid-photo" class="hide small text-success py-1"></span></p>
+    <p><span id="kiosk-error-photo" class="hide small text-danger py-1"></span></p>
+    </div> 
     {% for field in form %}
       <div class="form-group{% if field.errors or field.non_field_errors %} has-error{% endif %}">
         {% if field.id_for_label == 'id_contact_no' %}
@@ -44,13 +62,7 @@
             <p><span id="kiosk-valid-nric" class="hide small text-success py-1"></span></p>
             <p><span id="kiosk-error-nric" class="hide small text-danger py-1"></span></p>
           </div>
-        {% comment %} {% elif field.id_for_label == 'id_photo' %}
-          <label for="id_photo">Face Picture. Take your best possible selfie: </label></br>
-          {{ form.photo }}
-          <div>
-            <p><span id="kiosk-valid-photo" class="hide small text-success py-1"></span></p>
-            <p><span id="kiosk-error-photo" class="hide small text-danger py-1"></span></p>
-          </div>  {% endcomment %}
+        
         {% else %}
           <label for="{{ field.id_for_label }}">{{ field.label }}: </label>
         {{field}}
@@ -75,8 +87,12 @@
 {% block javascripts %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/static/js/vendor/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
+<script src="/static/js/webcam.js"></script>
 <script>
     $('#submit-disabled').hide();
+    var webDiv = $("#main_camera")
+    webDiv.attr("style", "display:none")
+    
 
     $.fn.noMask = function(regex) { 
         this.on("keypress", function(e) {
@@ -225,7 +241,191 @@
       });
     });
 
+    $(document).ready(function () { //document ready call
+        $('#capture_button').hide()
+
+        Webcam.on( 'error', function(err) {
+
+            $('#capture_button').hide('slow')
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+                icon: 'error',
+                title: err.name,
+                text: err.message
+            });
+            
+            setTimeout(function(){
+                $('#webcam_modal').hide('slow')
+
+                window.location.reload()
+            }, 2500);
+
+        });
+    });
+
+    function openWebcam() {
+        $('#capture_button').hide();
+        webDiv.attr("style", "display:block")
+        Webcam.set({
+            width: 320,
+            height: 240
+        });
+        Webcam.attach( '#my_camera' );
+
+        $('#capture_button').show('slow');
+
+        Webcam.on( 'load', function() {
+            // library is loaded
+            console.log('webcam sucessfully loaded.');
+            
+        } );
+        
+        Webcam.on( 'live', function() {
+            // camera is live, showing preview image
+            // (and user has allowed access)
+            console.log('webcam is live now.');
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+                })
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Webcam is live now'
+            })
+            
+        } );
+        
+        Webcam.on( 'error', function(err) {
+            // an error occurred (see 'err')
+            // swal.fire("!Opps Webcam error occurs", "Something went wrong, try again later", "error");
+            console.log('webcam error occurs!');
+            console.log(err);
+            $('#capture_button').hide('slow');
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+                })
+
+            Toast.fire({
+                icon: 'error',
+                title: 'Webcam errors! try again or check device connection'
+            });
+
+            Webcam.off();
+        });
+    }
     
+
+    function take_snapshot() {
+        Webcam.snap( function(data_uri) {
+
+            document.getElementById('results').innerHTML =
+                    '<img style="border-radius: 50%; width: 300px; padding-bottom: 20px;" class="img-responsive" alt="avatar" src="' + data_uri + '"/>';
+		
+		    var photo = document.getElementById('id_photo').value = data_uri;
+            resetPhotoValidation();
+
+            $('#id_photo').change(function() {
+                resetPhotoValidation();
+            })
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+                })
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Snapshot taken'
+            })
+
+            $.ajax({
+                headers: { "X-CSRFToken": getCookie('csrftoken') },
+                    url : '/self-register/validate-photo/',
+                    method : "POST",
+                    data: {'photo': data_uri},
+                    success : function(response) {
+                        var btn = document.getElementById('submit2');
+
+                        if (response.error) {
+                            errorPhoto.innerHTML = response.msg;
+                            name_input.setAttribute("readonly", "true");
+                            identification_no_input.setAttribute("readonly", "true");
+                            contact_no_input.setAttribute("readonly", "true");
+                            tenant_input.setAttribute("readonly", "true");
+                            start_date_input.setAttribute("readonly", "true");
+                            end_date_input.setAttribute("readonly", "true");
+                            remarks_input.setAttribute("readonly", "true");
+                            btn.setAttribute("disabled", true);
+                        } else {
+                            console.log('lalu sini')
+                            let imgSource = `file:///${response.imgSrc}`;
+                            var newImage = response.photo;
+                            $('#results').attr('src', newImage);
+                            
+                            // Append new image to file input
+                            var new_photo_input = document.getElementById('id_photo');
+                            const dataTransfer = new DataTransfer()
+                            const file = new File([imgSource], response.filename, { type: 'image/jpg' })
+                            dataTransfer.items.add(file);
+
+                            new_photo_input.files = dataTransfer.files;
+
+                            validPhoto.innerHTML = response.msg;
+                            name_input.removeAttribute("readonly", "false");
+                            identification_no_input.removeAttribute("readonly", "false");
+                            contact_no_input.removeAttribute("readonly", "false");
+                            tenant_input.removeAttribute("readonly", "false");
+                            start_date_input.removeAttribute("readonly", "false");
+                            end_date_input.removeAttribute("readonly", "false");
+                            remarks_input.removeAttribute("readonly", "false");
+                            btn.removeAttribute("disabled", false);
+                        }
+
+                        $('#id_photo').val()
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        swal.fire("!Opps ", "Something went wrong. Try Again. Thank you.", "error");
+                    }
+            })
+        });
+    }
 
     function preview_image(input) 
     {
