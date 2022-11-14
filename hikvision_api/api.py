@@ -98,7 +98,8 @@ class Person(object):
                             ]
                         }
                     }
-            response = requests.post(path, data=json.dumps(body), auth=auth)
+            response = requests.post(path, data=json.dumps(body), auth=auth, timeout=5)
+
             # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
             result = json.loads( json.dumps( response.json() ) )
             return result

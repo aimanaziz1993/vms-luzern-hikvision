@@ -191,25 +191,27 @@ class AdminStaffDelete(AjaxDeleteView):
                     person_instance = Person()
                     search_res = person_instance.search(self.object.code, host, auth)
                     print(search_res)
-                    s_status = search_res['UserInfoSearch']['responseStatusStrg']
 
-                    # if s_status == 'NO MATCH':
-                    #     messages.error(self.request, "Object Not Deleted")
-                    #     self.object.delete()
-                    #     return HttpResponseBadRequest()
+                    if search_res.status_code != 400:
+                        s_status = search_res['UserInfoSearch']['responseStatusStrg']
 
-                    if s_status == 'OK':
-                        # proceed delete
-                        del_res = person_instance.delete(self.object.code, host, auth)
-                        print(del_res)
-                        d_status = del_res['statusCode']
+                        # if s_status == 'NO MATCH':
+                        #     messages.error(self.request, "Object Not Deleted")
+                        #     self.object.delete()
+                        #     return HttpResponseBadRequest()
 
-                        if d_status != 1:
-                            print(self)
-                            data = dict()
-                            data['form_is_valid'] = False
-                            messages.error(self.request, "Object not deleted")
-                            return JsonResponse(data)
+                        if s_status == 'OK':
+                            # proceed delete
+                            del_res = person_instance.delete(self.object.code, host, auth)
+                            print(del_res)
+                            d_status = del_res['statusCode']
+
+                            if d_status != 1:
+                                print(self)
+                                data = dict()
+                                data['form_is_valid'] = False
+                                messages.error(self.request, "Object not deleted")
+                                return JsonResponse(data)
                         
                     self.object.delete()
                     data = dict()
