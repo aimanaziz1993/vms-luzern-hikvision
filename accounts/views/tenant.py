@@ -304,8 +304,14 @@ def staff_approval(request, pk):
                     # Person Add - Step 2: Manipulating date to match time local format --> "endTime":"2023-02-09T17:30:08",
                     df = datetime.now()
                     valid_begin = df.strftime("%Y-%m-%dT%H:%M:00")
+
+                    # 1. get current year
+                    from datetime import date
+                    date_today = date.today()
+                    years_left = 2037 - int( date_today.year )
+
                     df_end = datetime.now()
-                    df_end = df_end + relativedelta(years=1)
+                    df_end = df_end + relativedelta(years=years_left)
                     valid_end = df_end.strftime("%Y-%m-%dT%H:%M:00")
 
                     add_res = person_instance.add(staff, user_type, valid_begin, valid_end, host, auth)

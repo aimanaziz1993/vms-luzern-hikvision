@@ -30,7 +30,7 @@ class Visitor(models.Model):
     }
 
     name = models.CharField(max_length=120)
-    identification_no = models.CharField(max_length=100)
+    identification_no = models.CharField(max_length=100, null=True)
     contact_no = models.CharField(max_length=20, null=True, blank=True)
     # photo  = models.ImageField(default="", blank=True, null=True, validators=[image_max_size(300,300)])
     photo  = models.ImageField(default="", upload_to='visitors', blank=True, null=True)
@@ -82,10 +82,10 @@ class Staff(models.Model):
     }
     
     name = models.CharField(max_length=120)
-    identification_no = models.CharField(max_length=100)
+    identification_no = models.CharField(max_length=100, null=True)
     contact_no = models.CharField(max_length=20, null=True)
     photo  = models.ImageField(default="", upload_to='staffs', blank=True, null=True)
-    email = models.EmailField(max_length=50, unique=True, null=True)
+    email = models.EmailField(max_length=50, null=True)
     remarks = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=12, blank=True, unique=True)
     employee_no = models.CharField(max_length=12, blank=True, null=True)

@@ -12,7 +12,7 @@ class VisitorMobileRegistrationForm(BootstrapHelperForm, forms.ModelForm):
     tenant = forms.ModelChoiceField(
         label=u'Select Host (Visiting Company)',
         empty_label=u'Select Visiting Company:',
-        queryset=Tenant.objects.all(),
+        queryset=Tenant.objects.all().order_by('company_name'),
         widget=forms.Select,
         required=True
     )
@@ -50,19 +50,19 @@ class VisitorKioskRegistrationForm(BootstrapHelperForm, forms.ModelForm):
     tenant = forms.ModelChoiceField(
         label=u'Select Host (Visiting Company)',
         empty_label=u'Select Visiting Company:',
-        queryset=Tenant.objects.all(),
+        queryset=Tenant.objects.all().order_by('company_name'),
         widget=forms.Select,
         required=True
     )
 
     class Meta:
         model = Visitor
-        fields = ('name', 'identification_no', 'contact_no', 'email', 'tenant', 'start_date', 'end_date', 'remarks',)
+        fields = ('name', 'contact_no', 'email', 'tenant', 'start_date', 'end_date', 'remarks',)
         # fields = ('photo', 'name', 'identification_no', 'contact_no', 'tenant', 'start_date', 'end_date', 'remarks',)
 
         labels = {
             # 'photo': 'Face Picture. Take your best possible selfie.',
-            'identification_no': 'NRIC',
+            # 'identification_no': 'NRIC',
             'remarks': 'Remarks [ Optional ]',
             'email': 'Email (Optional if you want to be notified status & details)'
         }
@@ -89,8 +89,9 @@ class VisitorUpdateRegistrationForm(BootstrapHelperForm, forms.ModelForm):
     tenant = forms.ModelChoiceField(
         label=u'Select Host (Visiting Company)',
         empty_label=u'Select Visiting Company:',
-        queryset=Tenant.objects.all(),
-        widget=forms.Select
+        queryset=Tenant.objects.all().order_by('company_name'),
+        widget=forms.Select,
+        required=True
     )
 
     class Meta:

@@ -200,7 +200,7 @@
     var errorPhoto = document.querySelector("#kiosk-error-photo");
     var validPhoto = document.querySelector("#kiosk-valid-photo");
     var name_input = document.getElementById('id_name');
-    var identification_no_input = document.getElementById('id_identification_no');
+    // var identification_no_input = document.getElementById('id_identification_no');
     var contact_no_input = document.getElementById('phone_kiosk');
     var tenant_input = document.getElementById('id_tenant');
     var start_date_input = document.getElementById('id_start_date');
@@ -215,7 +215,7 @@
         e.target.setSelectionRange(start, end);
     }
 
-    identification_no_input.addEventListener('keyup', forceInputUppercase, false);
+    // identification_no_input.addEventListener('keyup', forceInputUppercase, false);
 
     var resetPhotoValidation = function() {
         $('#visitor-photo').attr('src', "/static/icon/avatar.png");
@@ -225,7 +225,7 @@
         validPhoto.classList.add("hide");
 
         name_input.setAttribute("readonly", "true");
-        identification_no_input.setAttribute("readonly", "true");
+        // identification_no_input.setAttribute("readonly", "true");
         contact_no_input.setAttribute("readonly", "true");
         tenant_input.setAttribute("readonly", "true");
         start_date_input.setAttribute("readonly", "true");
@@ -386,7 +386,7 @@
                         if (response.error) {
                             errorPhoto.innerHTML = response.msg;
                             name_input.setAttribute("readonly", "true");
-                            identification_no_input.setAttribute("readonly", "true");
+                            // identification_no_input.setAttribute("readonly", "true");
                             contact_no_input.setAttribute("readonly", "true");
                             tenant_input.setAttribute("readonly", "true");
                             start_date_input.setAttribute("readonly", "true");
@@ -409,7 +409,7 @@
 
                             validPhoto.innerHTML = response.msg;
                             name_input.removeAttribute("readonly", "false");
-                            identification_no_input.removeAttribute("readonly", "false");
+                            // identification_no_input.removeAttribute("readonly", "false");
                             contact_no_input.removeAttribute("readonly", "false");
                             tenant_input.removeAttribute("readonly", "false");
                             start_date_input.removeAttribute("readonly", "false");
@@ -449,7 +449,7 @@
                         if (response.error) {
                             errorPhoto.innerHTML = response.msg;
                             name_input.setAttribute("readonly", "true");
-                            identification_no_input.setAttribute("readonly", "true");
+                            // identification_no_input.setAttribute("readonly", "true");
                             contact_no_input.setAttribute("readonly", "true");
                             tenant_input.setAttribute("readonly", "true");
                             start_date_input.setAttribute("readonly", "true");
@@ -459,7 +459,7 @@
                         } else {
                             validPhoto.innerHTML = response.msg;
                             name_input.removeAttribute("readonly", "false");
-                            identification_no_input.removeAttribute("readonly", "false");
+                            // identification_no_input.removeAttribute("readonly", "false");
                             contact_no_input.removeAttribute("readonly", "false");
                             tenant_input.removeAttribute("readonly", "false");
                             start_date_input.removeAttribute("readonly", "false");
