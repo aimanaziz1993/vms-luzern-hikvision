@@ -32,9 +32,16 @@
                 <h6 class="m-0 font-weight-bold text-dark">Have you registered before?</h6>
                 <a id="search-mobile" href="{% url 'search-mobile' %}" class="text-primary">Search your registration details via mobile number</a>
             </div> {% endcomment %}
-            <div class="card-header">
-                <h4 class="m-0 font-weight-bold text-primary">Visitor Self Register Entries</h4>
-            </div>
+            {% if code %}
+                <div class="card-header">
+                    <h4 class="m-0 font-weight-bold text-primary">Invited Visitor Registration</h4>
+                </div>
+            {% else %}
+                <div class="card-header">
+                    <h4 class="m-0 font-weight-bold text-primary">Public Visitor Registration</h4>
+                </div>
+            {% endif %}
+            
             <div class="card-body">
                 {% if code %}
                     {% include 'visitors/visitor_form.html' %}

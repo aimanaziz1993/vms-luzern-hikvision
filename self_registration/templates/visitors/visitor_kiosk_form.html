@@ -32,13 +32,13 @@
     <input type="hidden" id="id_photo" name="id_photo" value="" >  
 
     <label for="photo">Capture:</label>
-    <a class="btn btn-sm btn-secondary" onclick="openWebcam(event)" style="color: #fff;">Start Webcam</a>
+    <a class="btn btn-sm btn-secondary" onclick="openWebcam(event)" style="color: #fff;">Start Camera</a>
 
     <div id="main_camera">
         <div id="my_camera" class="webcam mb-2 offset-4" style="width:320px; height:240px; margin-left: 12%;"></div>
     </div>
     
-    <a class="btn btn-sm btn-primary mb-2 offset-5" href="javascript:void(take_snapshot())" id="capture_button">Take Snapshot</a>
+    <a class="btn btn-sm btn-primary mb-2 offset-5" href="javascript:void(take_snapshot())" id="capture_button">Capture</a>
 
     <div>
     <p><span id="kiosk-valid-photo" class="hide small text-success py-1"></span></p>
@@ -171,7 +171,7 @@
         } else {
             $('input[name=contact_no]').val('+' + country.value + input.value.trim());
         }
-        console.log(iti.isValidNumber());
+        
         if (input.value.trim()) {
             if (iti.isValidNumber()) {
                 validMsg.classList.remove("hide");
@@ -288,7 +288,7 @@
 
         Webcam.on( 'load', function() {
             // library is loaded
-            console.log('webcam sucessfully loaded.');
+            console.log('webcam successfully loaded.');
             
         } );
         

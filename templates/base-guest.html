@@ -11,7 +11,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>{% block title %}Visitor Self Register{% endblock %}</title>
+    <title>{% block title %}Self Registration{% endblock %}</title>
 
     <!-- Custom fonts for this template-->
     <link href="{% static 'js/vendor/fontawesome-free/css/all.css' %}" rel="stylesheet" type="text/css">
@@ -51,17 +51,22 @@
     <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
     {% endif %}
 
+        {% comment %} <a href="/self-register/" class="btn btn-warning btn-icon-split mr-3">
+            <span class="icon text-white-300">
+            <i class="fas fa-home"></i>
+            </span>
+        </a> {% endcomment %}
+        {% if request.path == '/self-register/check-in/' or request.path == '/self-register/' or request.path == '/self-register/visitor/' or request.path == 'self-register/check-in/details/' %}
         <a href="/self-register/" class="btn btn-warning btn-icon-split mr-3">
             <span class="icon text-white-300">
             <i class="fas fa-home"></i>
             </span>
         </a>
-        {% if request.path == '/self-register/check-in/' or request.path == '/self-register/visitor/' or request.path == 'self-register/check-in/details/' %}
         <a href="/self-register/visitor/" class="btn btn-primary btn-icon-split mr-3">
             <span class="icon text-white-300">
             <i class="fas fa-registered"></i>
             </span>
-            <span class="text">Self Register as Visitor</span>
+            <span class="text">Kiosk Registration</span>
         </a>
         {% comment %}<a href="{% url 'check-in' %}" class="btn btn-success btn-icon-split mr-3">
             <span class="icon text-white-300">
@@ -72,8 +77,21 @@
 
         {% else %}
         <div class="d-flex align-items-center justify-content-between w-100">
-        <span class="text-primary">Kiosk - Visitor Self Register</span>
-        <a type="button" data-toggle="modal" data-target="#myModal"><span><i class="fa fa-sm fa-info-circle text-primary" style="font-size:2.5em"></i></span></a>
+            {% comment %} <span class="text-primary">Mobile Self Registration</span>
+            <a type="button" data-toggle="modal" data-target="#myModal"><span><i class="fa fa-sm fa-info-circle text-primary" style="font-size:2.5em"></i></span></a> {% endcomment %}
+
+            <style>
+                .customBtn:hover {
+                    transform: none
+                }
+            </style>
+
+            <a href="javascript:void" class="btn btn-primary btn-icon-split mr-3 customBtn">
+                <span class="icon text-white-300">
+                <i class="fas fa-registered"></i>
+                </span>
+                <span class="text">Mobile Self Registration</span>
+            </a>
         </div>
 
         {% endif %}

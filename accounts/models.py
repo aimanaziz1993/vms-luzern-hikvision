@@ -56,7 +56,7 @@ class Device(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return '{}'.format(self.floor)
+        return '{}, ({})'.format(self.floor, self.name)
 
 class Tenant(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

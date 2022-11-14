@@ -26,8 +26,10 @@ urlpatterns = [
 
     # Visitor Registration Path
     path('visitor/', include(([
+        path('mobile/', views.visitor_reg_mobile, name='visitors_reg_mobile'),
         path('', views.visitor_reg, name='visitors_reg'),
         path('<str:refs_tenant>/', views.visitor_reg, name='visitors_reg'),
+        
         # path('store/', views.visitor_reg_store, name='visitor-store')
         
     ], 'self_registration'), namespace='visitors')),
