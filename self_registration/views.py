@@ -236,15 +236,23 @@ def visitor_reg(request, *args, **kwargs):
                 visitor.tenant = tenant
 
                 try:                   
-                    photoTemp = request.FILES["photo"].name
-                    photoTemp = str(photoTemp)
+                    # photoTemp = request.FILES["photo"].name
+                    # photoTemp = str(photoTemp)
 
-                    tempPath = os.path.join(BASE_DIR, 'static', 'media')
+                    # tempPath = os.path.join(BASE_DIR, 'static', 'media')
 
-                    with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
-                        data = File(f)
-                        filename = f'{visitor.code}_{visitor.identification_no}.jpg'
-                        visitor.photo.save(filename, data, True)
+                    # with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
+                    #     data = File(f)
+                    #     filename = f'{visitor.code}_{visitor.identification_no}.jpg'
+                    #     visitor.photo.save(filename, data, True)
+
+                    if request.POST['photo2'] != '':
+                        photoTemp = request.POST['photo2']
+                        trimmed_base64_string = photoTemp.replace('data:image/jpeg;base64,', '')
+                        imgdata = base64.b64decode(trimmed_base64_string)
+                        filePrefix = md5(str(localtime()).encode('utf-8')).hexdigest()
+                        filename = filePrefix+'_visitors.jpg'
+                        visitor.photo = ContentFile(imgdata, filename)
 
                     if security:
                         visitor.is_approved = 1
@@ -479,15 +487,22 @@ def staff_reg(request, *args, **kwargs):
                 staff.is_approved = 1
 
                 try:
-                    photoTemp = request.FILES["photo"].name
-                    photoTemp = str(photoTemp)
+                    # photoTemp = request.FILES["photo"].name
+                    # photoTemp = str(photoTemp)
 
-                    tempPath = os.path.join(BASE_DIR, 'static', 'media')
+                    # tempPath = os.path.join(BASE_DIR, 'static', 'media')
 
-                    with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
-                        data = File(f)
-                        filename = f'{code}_{staff.identification_no}.jpg'
-                        staff.photo.save(filename, data, True)
+                    # with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
+                    #     data = File(f)
+                    #     filename = f'{code}_{staff.identification_no}.jpg'
+                    #     staff.photo.save(filename, data, True)
+                    if request.POST['photo2'] != '':
+                        photoTemp = request.POST['photo2']
+                        trimmed_base64_string = photoTemp.replace('data:image/jpeg;base64,', '')
+                        imgdata = base64.b64decode(trimmed_base64_string)
+                        filePrefix = md5(str(localtime()).encode('utf-8')).hexdigest()
+                        filename = filePrefix+'_staffs.jpg'
+                        staff.photo = ContentFile(imgdata, filename)
 
                     staff.save()
 
@@ -1066,9 +1081,13 @@ def fra_validation(request):
                     faceURL = str( str(request.scheme) + '://' + str(absolute_uri) + '/static' + str(img.url) )
                     
                     print('push face url', faceURL)
-
+                   
                 if request.POST['tenant_id']:
-                    tenant = Tenant.objects.get(pk=request.POST['tenant_id'])
+                    if request.POST['isStaffReg'] == True:
+                        tenant = Tenant.objects.get(code=request.POST['tenant_id'])
+                    else:
+                        tenant = Tenant.objects.get(pk=request.POST['tenant_id'])
+                    print('request--->>', tenant)    
                     device = Device.objects.get(pk=tenant.device.id)
                     host = str( str(request.scheme) + '://' + str(device.ip_addr) )
                     # absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
@@ -1135,7 +1154,9 @@ def fra_validation(request):
                                 'error': True,
                                 'msg': 'Face verification failed. Try again.'
                             })
-                        
+                else:
+                    print('tenant_id->', request.POST['tenant_id'])  
+                    exit()
             except:
                 return JsonResponse({
                     'error': True,

@@ -34,6 +34,7 @@
           </div>
         {% elif field.id_for_label == 'id_photo' %}
           <label for="id_photo">Face Picture. Take your best possible selfie [Optional]: </label></br>
+          <input type="hidden" id="photo2" name="photo2" value="" >
           {{ form.photo }}
           <div>
             <p><span id="staff-valid-photo" class="hide small text-success py-1"></span></p>
@@ -165,7 +166,7 @@
     var errorPhoto = document.querySelector("#staff-error-photo");
     var validPhoto = document.querySelector("#staff-valid-photo");
     var name_input = document.getElementById('id_name');
-    var identification_no_input = document.getElementById('id_identification_no');
+    // var identification_no_input = document.getElementById('id_identification_no');
     var contact_no_input = document.getElementById('phone');
     var email_input = document.getElementById('id_email');
     var remarks_input = document.getElementById('id_remarks');
@@ -178,7 +179,7 @@
         e.target.setSelectionRange(start, end);
     }
 
-    identification_no_input.addEventListener('keyup', forceInputUppercase, false);
+    // identification_no_input.addEventListener('keyup', forceInputUppercase, false);
 
     var resetPhotoValidation = function() {
         $('#visitor-photo').attr('src', "/static/icon/avatar.png");
@@ -188,7 +189,7 @@
         validPhoto.classList.add("hide");
 
         name_input.setAttribute("readonly", "true");
-        identification_no_input.setAttribute("readonly", "true");
+        // identification_no_input.setAttribute("readonly", "true");
         contact_no_input.setAttribute("readonly", "true");
         email_input.setAttribute("readonly", "true");
         remarks_input.setAttribute("readonly", "true");
@@ -204,6 +205,12 @@
       });
     });
 
+    var tenant_id;
+    var pathArray = window.location.pathname.split('/');
+
+    console.log(pathArray)
+    tenant_id = pathArray[3] ? pathArray[3] : null
+
     function preview_image(input) 
     {
         if (input.files && input.files[0]) {
@@ -217,36 +224,36 @@
                 // run check face with fra main
                 $.ajax({
                     headers: { "X-CSRFToken": getCookie('csrftoken') },
-                    url : '/self-register/validate-photo/',
+                    url : '/self-register/fra-photo-validation/',
                     method : "POST",
-                    data: {'photo': photo_input},
+                    data: { 'isStaffReg': true, 'type': 'webcam', 'tenant_id': tenant_id,'photo': photo_input},
                     success : function(response) {
                         var btn = document.getElementById('submit');
 
                         if (response.error) {
                             errorPhoto.innerHTML = response.msg;
                             name_input.setAttribute("readonly", "true");
-                            identification_no_input.setAttribute("readonly", "true");
+                            // identification_no_input.setAttribute("readonly", "true");
                             contact_no_input.setAttribute("readonly", "true");
                             email_input.setAttribute("readonly", "true");
                             remarks_input.setAttribute("readonly", "true");
                             btn.setAttribute("disabled", true);
                         } else {
                             let imgSource = `file:///${response.imgSrc}`;
-                            var newImage = response.photo;
-                            $('#visitor-photo').attr('src', newImage);
+                            // var newImage = response.photo;
+                            // $('#visitor-photo').attr('src', newImage);
                             
                             // Append new image to file input
-                            var new_photo_input = document.getElementById('id_photo');
-                            const dataTransfer = new DataTransfer()
-                            const file = new File([imgSource], response.filename, { type: 'image/jpg' })
-                            dataTransfer.items.add(file);
-
-                            new_photo_input.files = dataTransfer.files;
-
+                            // var new_photo_input = document.getElementById('id_photo');
+                            // const dataTransfer = new DataTransfer()
+                            // const file = new File([imgSource], response.filename, { type: 'image/jpg' })
+                            // dataTransfer.items.add(file// 
+                            // new_photo_input.files = dataTransfer.files;
+                            $('#photo2').val(e.target.result);
+                            
                             validPhoto.innerHTML = response.msg;
                             name_input.removeAttribute("readonly", "false");
-                            identification_no_input.removeAttribute("readonly", "false");
+                            // identification_no_input.removeAttribute("readonly", "false");
                             contact_no_input.removeAttribute("readonly", "false");
                             email_input.removeAttribute("readonly", "false");
                             remarks_input.removeAttribute("readonly", "false");
