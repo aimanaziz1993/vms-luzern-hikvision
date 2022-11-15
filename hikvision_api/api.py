@@ -106,6 +106,39 @@ class Person(object):
         except:
             return HttpResponseBadRequest()
 
+    def add_for_validation_purpose(self, data, user_type, valid_begin, valid_end, host, auth):
+        
+        path = host+'/ISAPI/AccessControl/UserInfo/Record?format=json'
+        body =  {
+            "UserInfo": {
+                "employeeNo": str(data.code),
+                "name": data.code,
+                "userType": user_type,
+                "Valid":{
+                    "enable": True,
+                    "beginTime": str(valid_begin),
+                    "endTime": str(valid_end),
+                    "timeType":"local"
+                },
+                "userVerifyMode": "cardOrFace",
+                "floorNumber": 1,
+                "password": "",
+                "doorRight": "1",
+                "RightPlan": [
+                    {
+                        "doorNo": 1,
+                        "planTemplateNo": "1"
+                    }
+                ],
+                "checkUser": True
+            }
+        }
+        response = requests.post(path, data=json.dumps(body), auth=auth)
+        
+        # result = json.loads(json.dumps(response.json()), object_hook=lambda d: SimpleNamespace(**d))
+        result = json.loads( json.dumps( response.json() ) )
+        return result
+
     def add(self, data, user_type, valid_begin, valid_end, host, auth):
         
         path = host+'/ISAPI/AccessControl/UserInfo/Record?format=json'

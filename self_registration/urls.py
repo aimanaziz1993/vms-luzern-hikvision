@@ -24,6 +24,8 @@ urlpatterns = [
     # Face Verification
     path('validate-photo/', views.validate_photo, name='validate-photo'),
 
+    path('fra-photo-validation/', views.fra_validation, name='fra_photo_validation'),
+
     # Visitor Registration Path
     path('visitor/', include(([
         path('mobile/', views.visitor_reg_mobile, name='visitors_reg_mobile'),

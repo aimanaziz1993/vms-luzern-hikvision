@@ -5,6 +5,7 @@ import base64
 import cv2
 import numpy as np
 from datetime import date, datetime, timedelta, timezone
+from dateutil.relativedelta import relativedelta
 from time import strftime
 from django import template
 from django.template import loader
@@ -33,8 +34,8 @@ from PIL import Image, ImageDraw
 from luzern_vms.settings import BASE_DIR
 from accounts.models import Device, SecurityOption, Tenant
 from self_registration.utils import generate_ref_code
-from .models import Visitor
-from .forms import VisitorCheckInForm, VisitorMobileRegistrationForm, VisitorKioskRegistrationForm, VisitorRegistrationForm, StaffRegistrationForm, VisitorUpdateRegistrationForm
+from .models import Visitor, PhotoValidation
+from .forms import VisitorCheckInForm, VisitorMobileRegistrationForm, VisitorKioskRegistrationForm, VisitorRegistrationForm, StaffRegistrationForm, VisitorUpdateRegistrationForm, HostForm
 
 from hikvision_api.api import initiate, Card, FaceData, Person
 from hikvision_api.cron import clear_redundant_visitor
@@ -52,6 +53,7 @@ def option_page(request):
 def visitor_reg_mobile(request, *args, **kwargs):
     context = {}
     context['code'] = None
+    context['isMobile'] = True
     security = False
     try:
         security = SecurityOption.objects.first()
@@ -60,6 +62,7 @@ def visitor_reg_mobile(request, *args, **kwargs):
         pass
     
     form = VisitorMobileRegistrationForm(request.POST or None)
+    hosts = HostForm(request.POST or None)
 
     if request.method == 'POST':
         tenant_id = request.POST.get('tenant')
@@ -79,16 +82,14 @@ def visitor_reg_mobile(request, *args, **kwargs):
             qr_offset.close()
             visitor.tenant = tenant
 
-            try:                   
-                photoTemp = request.FILES["photo"].name
-                photoTemp = str(photoTemp)
-
-                tempPath = os.path.join(BASE_DIR, 'static', 'media')
-
-                with open(f"{tempPath}/{photoTemp}", 'rb') as f:   # use 'rb' mode for python3
-                    data = File(f)
-                    filename = f'{visitor.code}_{visitor.identification_no}.jpg'
-                    visitor.photo.save(filename, data, True)
+            try:
+                if request.POST['photo2'] != '':
+                    photoTemp = request.POST['photo2']
+                    trimmed_base64_string = photoTemp.replace('data:image/jpeg;base64,', '')
+                    imgdata = base64.b64decode(trimmed_base64_string)
+                    filePrefix = md5(str(localtime()).encode('utf-8')).hexdigest()
+                    filename = filePrefix+'_visitors.jpg'
+                    visitor.photo = ContentFile(imgdata, filename)
 
                 if security:
                     visitor.is_approved = 1
@@ -199,6 +200,7 @@ def visitor_reg_mobile(request, *args, **kwargs):
     # context['code'] = tenant.code
     # context['tenant'] = tenant
     context['form'] = form
+    context['hosts'] = hosts
     return render(request, 'visitors/visitor_self_register_mobile.html', context)
 
 def visitor_reg(request, *args, **kwargs):
@@ -365,6 +367,7 @@ def visitor_reg(request, *args, **kwargs):
             pass
         
         form = VisitorKioskRegistrationForm(request.POST or None, request.FILES or None)
+        hosts = HostForm(request.POST or None)
 
         if request.method == 'POST':
             tenant_id = request.POST.get('tenant')
@@ -448,16 +451,16 @@ def visitor_reg(request, *args, **kwargs):
 
                 if not security:
                     push_to_fra(device, host, absolute_uri, visitor)
-                    # try:
-                    #     initialize = initiate(device.device_username, device.device_password)
-                    #     auth = initialize['auth']
+
+                from django.conf import settings
+                url = settings.DOMAIN_SET
                     
-                self_register_url = str( str(request.scheme) + '://' + absolute_uri + '/self-register' )
+                self_register_url = str( url + '/self-register' )
                 
             messages.success(request, 'Visitor Registration Success. Thank you.')
             return render(request, 'visitors/success_kiosk.html', { 'code': visitor.code, 'visitor': visitor, 'self_register_url': self_register_url })
             
-        context = { 'segment': 'visitors kiosk', 'form': form }
+        context = { 'segment': 'visitors kiosk', 'form': form, 'hosts': hosts }
 
         return render(request, 'visitors/visitor_self_register.html', context)
 
@@ -1031,6 +1034,122 @@ def validate_photo(request):
         'error': True,
         'msg': 'Face verification failed. Try upload new selfies.'
     })
+
+
+def fra_validation(request):
+
+    try:
+        context = {}
+        model = PhotoValidation()
+        absolute_uri = sys.argv[-1]
+        from django.conf import settings
+        url = settings.DOMAIN_SET
+        # save photo and generate code into db
+        if request.method == 'POST':
+            if request.POST['type'] == 'webcam':
+                photoTemp = request.POST['photo']
+                trimmed_base64_string = photoTemp.replace('data:image/jpeg;base64,', '')
+                imgdata = base64.b64decode(trimmed_base64_string)
+                filePrefix = md5(str(localtime()).encode('utf-8')).hexdigest()
+                filename = filePrefix+'_tempImg.jpg'
+                model.photo = ContentFile(imgdata, filename)
+                model.save()
+            else:
+                print(request.POST)
+                # exit()
+                # pass
+
+            # push photo to FRA & return message\
+            try:
+                if model.photo:
+                    img = get_thumbnail(model.photo, '200x200', crop='center', quality=99)
+                    faceURL = str( str(request.scheme) + '://' + str(absolute_uri) + '/static' + str(img.url) )
+                    
+                    print('push face url', faceURL)
+
+                if request.POST['tenant_id']:
+                    tenant = Tenant.objects.get(pk=request.POST['tenant_id'])
+                    device = Device.objects.get(pk=tenant.device.id)
+                    host = str( str(request.scheme) + '://' + str(device.ip_addr) )
+                    # absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
+
+                    initialize = initiate(device.device_username, device.device_password)
+                    auth = initialize['auth']
+
+                    if initialize['client'] and auth:
+
+                        person_instance = Person()
+                        user_type = 'visitor'
+
+                        # Person Add - Step 2: Manipulating date to match time local format --> "endTime":"2023-02-09T17:30:08",
+                        # valid_begin = visitor_update.start_date.strftime("%Y-%m-%dT%H:%M:00")
+                        
+                        df = datetime.now()
+                        valid_begin = df.strftime("%Y-%m-%dT%H:%M:00")
+                        today = date.today()
+                        df_end = df + relativedelta(years=1)
+                        valid_end = df_end.strftime("%Y-%m-%dT%H:%M:00")
+
+                        print('valid end', valid_end)
+                        
+                        add_res = person_instance.add_for_validation_purpose(model, user_type, valid_begin, valid_end, host, auth)
+                        print(add_res)
+                        a_status = add_res['statusCode'] or None
+
+                        print(a_status)
+
+                        face_data_instance = FaceData()
+                        face_add_response = face_data_instance.face_data_add(1, model.code, model.code, faceURL, host, auth)
+                        print(face_add_response)
+
+                        if face_add_response['statusCode'] == 1:
+                            # handle delete from fra if failed to push photo
+                            search_res = person_instance.search(model.code, host, auth)
+                            print(search_res)
+
+                            delete_res = person_instance.delete(model.code, host, auth)
+                            print(delete_res)
+                            # success case
+                            
+                            newPath = str( str(url) + '/static' + str(img.url) )
+                            print('faceURL->',newPath)
+
+                            tempPath = os.path.join(BASE_DIR, 'static', 'media')
+
+                            return JsonResponse({
+                                'error': False,
+                                'msg': 'Face validated ✅',
+                                'photo': str( f"{absolute_uri}/static/media/validated_photo/{filename}" ),
+                                'imgSrc': str( f"{tempPath}\\validated_photo\\{filename}" ),
+                                'filename': filename
+                            })
+                        else:
+                            # handle delete from fra if failed to push photo
+                            search_res = person_instance.search(model.code, host, auth)
+                            print(search_res)
+
+                            delete_res = person_instance.delete(model.code, host, auth)
+                            print(delete_res)
+
+                            return JsonResponse({
+                                'error': True,
+                                'msg': 'Face verification failed. Try again.'
+                            })
+                        
+            except:
+                return JsonResponse({
+                    'error': True,
+                    'msg': 'Something went wrong during face validation. Try again.'
+                })
+
+            
+
+    except:
+        # error case
+        return JsonResponse({
+            'error': True,
+            'msg': 'Face validated ✅',
+        })
 
 def server_error(request, exception):
     return render(request, '500.html')

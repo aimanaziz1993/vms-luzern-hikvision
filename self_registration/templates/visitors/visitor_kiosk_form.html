@@ -29,7 +29,21 @@
    
     <div class="img-responsive mb-2 offset-4" id="results" style="margin-left: 15%"></div>
     <!-- hidden input to contain files -->
-    <input type="hidden" id="id_photo" name="id_photo" value="" >  
+    <input type="hidden" id="id_photo" name="id_photo" value="" >
+    
+    {% for host in hosts %}
+      <div class="form-group{% if host.errors or host.non_field_errors %} has-error{% endif %}">
+        <label for="{{ host.id_for_label }}">{{ host.label }}: </label>
+        {{host}}
+        
+        {% for error in host.errors %}
+          <p class="help-block text-danger">{{ error }}</p>
+        {% endfor %}
+        {% for error in host.non_field_errors %}
+          <p class="help-block text-danger">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
 
     <label for="photo">Capture:</label>
     <a class="btn btn-sm btn-secondary" onclick="openWebcam(event)" style="color: #fff;">Start Camera</a>
@@ -235,7 +249,7 @@
 
     $(document).ready(function () { //document ready call
       $("#id_photo").change(function(){
-          console.log('photo uploaded');
+          console.log('photo uploaded efg');
           resetPhotoValidation();
           preview_image(this);
       });
@@ -343,7 +357,12 @@
             Webcam.off();
         });
     }
-    
+
+    var tenant_id;
+
+    $('#id_tenant').on('change', function() {
+        tenant_id = $(this).val();
+    })
 
     function take_snapshot() {
         Webcam.snap( function(data_uri) {
@@ -377,53 +396,99 @@
 
             $.ajax({
                 headers: { "X-CSRFToken": getCookie('csrftoken') },
-                    url : '/self-register/validate-photo/',
-                    method : "POST",
-                    data: {'photo': data_uri},
-                    success : function(response) {
-                        var btn = document.getElementById('submit2');
+                url : '/self-register/fra-photo-validation/',
+                method : "POST",
+                data: { 'type': 'webcam', 'tenant_id': tenant_id ? tenant_id : null, 'photo': data_uri},
+                success : function(response) {
+                    console.log(response);
 
-                        if (response.error) {
-                            errorPhoto.innerHTML = response.msg;
-                            name_input.setAttribute("readonly", "true");
-                            // identification_no_input.setAttribute("readonly", "true");
-                            contact_no_input.setAttribute("readonly", "true");
-                            tenant_input.setAttribute("readonly", "true");
-                            start_date_input.setAttribute("readonly", "true");
-                            end_date_input.setAttribute("readonly", "true");
-                            remarks_input.setAttribute("readonly", "true");
-                            btn.setAttribute("disabled", true);
-                        } else {
-                            console.log('lalu sini')
-                            let imgSource = `file:///${response.imgSrc}`;
-                            var newImage = response.photo;
-                            $('#results').attr('src', newImage);
-                            
-                            // Append new image to file input
-                            var new_photo_input = document.getElementById('id_photo');
-                            const dataTransfer = new DataTransfer()
-                            const file = new File([imgSource], response.filename, { type: 'image/jpg' })
-                            dataTransfer.items.add(file);
+                    var btn = document.getElementById('submit2');
 
-                            new_photo_input.files = dataTransfer.files;
+                    if (response.error) {
+                        errorPhoto.innerHTML = response.msg;
+                        name_input.setAttribute("readonly", "true");
+                        // identification_no_input.setAttribute("readonly", "true");
+                        contact_no_input.setAttribute("readonly", "true");
+                        tenant_input.setAttribute("readonly", "true");
+                        start_date_input.setAttribute("readonly", "true");
+                        end_date_input.setAttribute("readonly", "true");
+                        remarks_input.setAttribute("readonly", "true");
+                        btn.setAttribute("disabled", true);
+                    } else {
+                        let imgSource = `file:///${response.imgSrc}`;
+                        var newImage = response.photo;
+                        $('#results').attr('src', newImage);
+                        
+                        // Append new image to file input
+                        var new_photo_input = document.getElementById('id_photo');
+                        const dataTransfer = new DataTransfer()
+                        const file = new File([imgSource], response.filename, { type: 'image/jpg' })
+                        dataTransfer.items.add(file);
 
-                            validPhoto.innerHTML = response.msg;
-                            name_input.removeAttribute("readonly", "false");
-                            // identification_no_input.removeAttribute("readonly", "false");
-                            contact_no_input.removeAttribute("readonly", "false");
-                            tenant_input.removeAttribute("readonly", "false");
-                            start_date_input.removeAttribute("readonly", "false");
-                            end_date_input.removeAttribute("readonly", "false");
-                            remarks_input.removeAttribute("readonly", "false");
-                            btn.removeAttribute("disabled", false);
-                        }
+                        new_photo_input.files = dataTransfer.files;
 
-                        $('#id_photo').val()
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        swal.fire("!Opps ", "Something went wrong. Try Again. Thank you.", "error");
+                        validPhoto.innerHTML = response.msg;
+                        name_input.removeAttribute("readonly", "false");
+                        // identification_no_input.removeAttribute("readonly", "false");
+                        contact_no_input.removeAttribute("readonly", "false");
+                        tenant_input.removeAttribute("readonly", "false");
+                        start_date_input.removeAttribute("readonly", "false");
+                        end_date_input.removeAttribute("readonly", "false");
+                        remarks_input.removeAttribute("readonly", "false");
+                        btn.removeAttribute("disabled", false);
                     }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    swal.fire("!Opps ", "Something went wrong. Try Again. Thank you.", "error");
+                }
             })
+
+            // $.ajax({
+            //     headers: { "X-CSRFToken": getCookie('csrftoken') },
+            //     url : '/self-register/validate-photo/',
+            //     method : "POST",
+            //     data: {'photo': data_uri},
+            //     success : function(response) {
+            //         var btn = document.getElementById('submit2');
+
+            //         if (response.error) {
+            //             errorPhoto.innerHTML = response.msg;
+            //             name_input.setAttribute("readonly", "true");
+            //             // identification_no_input.setAttribute("readonly", "true");
+            //             contact_no_input.setAttribute("readonly", "true");
+            //             tenant_input.setAttribute("readonly", "true");
+            //             start_date_input.setAttribute("readonly", "true");
+            //             end_date_input.setAttribute("readonly", "true");
+            //             remarks_input.setAttribute("readonly", "true");
+            //             btn.setAttribute("disabled", true);
+            //         } else {
+            //             let imgSource = `file:///${response.imgSrc}`;
+            //             var newImage = response.photo;
+            //             $('#results').attr('src', newImage);
+                        
+            //             // Append new image to file input
+            //             var new_photo_input = document.getElementById('id_photo');
+            //             const dataTransfer = new DataTransfer()
+            //             const file = new File([imgSource], response.filename, { type: 'image/jpg' })
+            //             dataTransfer.items.add(file);
+
+            //             new_photo_input.files = dataTransfer.files;
+
+            //             validPhoto.innerHTML = response.msg;
+            //             name_input.removeAttribute("readonly", "false");
+            //             // identification_no_input.removeAttribute("readonly", "false");
+            //             contact_no_input.removeAttribute("readonly", "false");
+            //             tenant_input.removeAttribute("readonly", "false");
+            //             start_date_input.removeAttribute("readonly", "false");
+            //             end_date_input.removeAttribute("readonly", "false");
+            //             remarks_input.removeAttribute("readonly", "false");
+            //             btn.removeAttribute("disabled", false);
+            //         }
+            //     },
+            //     error: function(jqXHR, textStatus, errorThrown) {
+            //         swal.fire("!Opps ", "Something went wrong. Try Again. Thank you.", "error");
+            //     }
+            // })
         });
     }
 
@@ -490,35 +555,35 @@
 
     $(document).ready(function () {
 
-        $('#id_identification_no').change(function(e) {
-            resetNric();
-            if (this.value !== '') {
-                $.ajax({
-                    headers: { "X-CSRFToken": getCookie('csrftoken') },
-                    url : '/self-register/validate-nric/',
-                    method : "POST",
-                    data: {
-                        'nric': this.value,
-                    },
-                    success : function(data) {
-                        if (data.valid) {
-                            validNRIC.innerHTML = data.message;
-                            $('#submit2').show('slow');
-                        } else {
-                            errorNRIC.innerHTML = data.message;
-                            $('#submit2').hide('slow');
-                        }
-                    },
-                    error : function(response) {
-                        console.log(response)
-                    },
-                    cache: false,
-                });
-            }
-        })
+        // $('#id_identification_no').change(function(e) {
+        //     resetNric();
+        //     if (this.value !== '') {
+        //         $.ajax({
+        //             headers: { "X-CSRFToken": getCookie('csrftoken') },
+        //             url : '/self-register/validate-nric/',
+        //             method : "POST",
+        //             data: {
+        //                 'nric': this.value,
+        //             },
+        //             success : function(data) {
+        //                 if (data.valid) {
+        //                     validNRIC.innerHTML = data.message;
+        //                     $('#submit2').show('slow');
+        //                 } else {
+        //                     errorNRIC.innerHTML = data.message;
+        //                     $('#submit2').hide('slow');
+        //                 }
+        //             },
+        //             error : function(response) {
+        //                 console.log(response)
+        //             },
+        //             cache: false,
+        //         });
+        //     }
+        // })
 
-        // nric.addEventListener('change', resetNric);
-        nric.addEventListener('keyup', resetNric);
+        // // nric.addEventListener('change', resetNric);
+        // nric.addEventListener('keyup', resetNric);
     });
     
     $(function () {

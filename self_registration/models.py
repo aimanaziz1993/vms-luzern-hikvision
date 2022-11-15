@@ -108,4 +108,18 @@ class Staff(models.Model):
         super().save(*args, **kwargs)
 
 
+class PhotoValidation(models.Model):
+    photo  = models.ImageField(default="", upload_to='validated_photo', blank=True, null=True)
+    code = models.CharField(max_length=12, blank=True, unique=True)
+
+    def __str__(self):
+        return '{}'.format(self.code)
+
+    def save(self, *args, **kwargs):
+        if self.code == "":
+            code = generate_ref_code()
+            # code = id_generator()
+            self.code = code
+        super().save(*args, **kwargs)
+
 # class Delivery

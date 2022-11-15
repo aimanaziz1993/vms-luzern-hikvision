@@ -221,3 +221,5 @@ Same as FileField, but you can specify:
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520
 
+DOMAIN_SET='https://luzerne.concordesecurity.com'
+

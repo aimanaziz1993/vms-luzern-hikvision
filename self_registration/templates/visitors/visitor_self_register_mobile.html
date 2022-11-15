@@ -47,8 +47,23 @@
                             {% endfor %}
                         {% endif %}
                     </div>
+                    
+                    {% for host in hosts %}
+                        <div class="form-group{% if host.errors or host.non_field_errors %} has-error{% endif %}">
+                        <label for="{{ host.id_for_label }}">{{ host.label }}: </label>
+                        {{host}}
+                        
+                        {% for error in host.errors %}
+                            <p class="help-block text-danger">{{ error }}</p>
+                        {% endfor %}
+                        {% for error in host.non_field_errors %}
+                            <p class="help-block text-danger">{{ error }}</p>
+                        {% endfor %}
+                        </div>
+                    {% endfor %}
                     <div class="img-responsive row d-flex justify-content-center">
                       <img id='visitor-photo' src="/static/icon/avatar.png" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
+                      
                       <br/>
                     </div>
                     {% for field in form %}
@@ -62,15 +77,10 @@
                             <span id="valid-msg" class="hide"></span>
                             <span id="error-msg" class="hide text-danger small py-1"></span>
                           </div>
-                        {% elif field.id_for_label == 'id_identification_no' %}
-                          <label for="id_identification_no">NRIC (e.g: last 3 digits and an alphabet): </label></br>
-                          {{ form.identification_no }}
-                          <div>
-                            <p><span id="valid-nric" class="hide small text-success py-1"></span></p>
-                            <p><span id="error-nric" class="hide small text-danger py-1"></span></p>
-                          </div> 
+                  
                         {% elif field.id_for_label == 'id_photo' %}
                           <label for="id_photo">Face Picture. Take your best possible selfie [Optional]: </label></br>
+                          <input type="hidden" id="photo2" name="photo2" value="" >
                           {{ form.photo }}
                           <div>
                             <p><span id="valid-photo" class="hide small text-success py-1"></span></p>
@@ -98,7 +108,8 @@
     </div>
 </div>
 
-{% block javascripts %}
+{% comment %} {% if isMobile %}
+{% block javascripts %} {% endcomment %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/static/js/vendor/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
 <script src="/static/js/heic2any.js"></script>
@@ -206,7 +217,7 @@
     var errorPhoto = document.querySelector("#error-photo");
     var validPhoto = document.querySelector("#valid-photo");
     var name_input = document.getElementById('id_name');
-    var identification_no_input = document.getElementById('id_identification_no');
+    {% comment %} var identification_no_input = document.getElementById('id_identification_no'); {% endcomment %}
     var contact_no_input = document.getElementById('phone');
     var start_date_input = document.getElementById('id_start_date');
     var end_date_input = document.getElementById('id_end_date');
@@ -220,7 +231,7 @@
         e.target.setSelectionRange(start, end);
     }
 
-    identification_no_input.addEventListener('keyup', forceInputUppercase, false);
+    {% comment %} identification_no_input.addEventListener('keyup', forceInputUppercase, false); {% endcomment %}
 
     var resetPhotoValidation = function() {
         $('#visitor-photo').attr('src', "/static/icon/avatar.png");
@@ -230,29 +241,35 @@
         validPhoto.classList.add("hide");
 
         name_input.setAttribute("readonly", "true");
-        identification_no_input.setAttribute("readonly", "true");
         contact_no_input.setAttribute("readonly", "true");
         start_date_input.setAttribute("readonly", "true");
         end_date_input.setAttribute("readonly", "true");
         remarks_input.setAttribute("readonly", "true");
     };
 
+    var tenant_id;
+
     $(document).ready(function () { //document ready call
-        $("#id_photo").change(function(){
-            console.log('photo uploaded');
-            resetPhotoValidation();
-            convertHeicToJpg(this);
-            // resetPhotoValidation();
-            // preview_image(this);
-        });
+        
+    });
+
+    $('#id_tenant').on('click', function() {
+        tenant_id = $(this).val();
+    })
+
+    $("#id_photo").change(function(){
+        resetPhotoValidation();
+        convertHeicToJpg(this);
+        // resetPhotoValidation();
+        // preview_image(this);
     });
 
     function preview_image(input) 
     {
         if (input.files && input.files[0]) {
+            
             var reader = new FileReader();
             reader.onload = function(e) {
-                // console.log(e.target.result);
                 $('#visitor-photo').attr('src', e.target.result);
                 
                 var photo_input = e.target.result;
@@ -261,9 +278,9 @@
                 // run check face with fra main
                 $.ajax({
                     headers: { "X-CSRFToken": getCookie('csrftoken') },
-                    url : '/self-register/validate-photo/',
+                    url : '/self-register/fra-photo-validation/',
                     method : "POST",
-                    data: {'photo': photo_input},
+                    data: { 'type': 'webcam', 'tenant_id': tenant_id ? tenant_id : null,'photo': photo_input},
                     success : function(response) {
                         
                         var btn = document.getElementById('submit');
@@ -271,7 +288,6 @@
                         if (response.error) {
                             errorPhoto.innerHTML = response.msg;
                             name_input.setAttribute("readonly", "true");
-                            identification_no_input.setAttribute("readonly", "true");
                             contact_no_input.setAttribute("readonly", "true");
                             start_date_input.setAttribute("readonly", "true");
                             end_date_input.setAttribute("readonly", "true");
@@ -280,19 +296,25 @@
                         } else {
                             let imgSource = `file:///${response.imgSrc}`;
                             var newImage = response.photo;
-                            $('#visitor-photo').attr('src', newImage);
+                            //$('#visitor-photo').attr('src', "");
+                            //$('#visitor-photo').attr('src', newImage);
+                            //$('#results').attr('src', newImage);
                             
                             // Append new image to file input
-                            var new_photo_input = document.getElementById('id_photo');
-                            const dataTransfer = new DataTransfer()
-                            const file = new File([imgSource], response.filename, { type: 'image/jpg' })
-                            dataTransfer.items.add(file);
+                            // var new_photo_input = document.getElementById('id_photo');
 
-                            new_photo_input.files = dataTransfer.files;
+                            $('#photo2').val(e.target.result);
+                            
+                            // const dataTransfer = new DataTransfer()
+                            // const file = new File([imgSource], response.filename, { type: 'image/jpg' })
+                            // dataTransfer.items.add(file);
+
+                            // new_photo_input.files = dataTransfer.files;
+
+                            // console.log(new_photo_input.files)
 
                             validPhoto.innerHTML = response.msg;
                             name_input.removeAttribute("readonly", "false");
-                            identification_no_input.removeAttribute("readonly", "false");
                             contact_no_input.removeAttribute("readonly", "false");
                             start_date_input.removeAttribute("readonly", "false");
                             end_date_input.removeAttribute("readonly", "false");
@@ -313,8 +335,7 @@
     {
         var fileName = $(input).val();
         var fileNameExt = fileName.substr(fileName.lastIndexOf('.') + 1);
-        console.log(fileName);
-        console.log(fileNameExt);
+
         if(fileNameExt == "HEIC") {
             console.log('heic detected');
             var blob = $(input)[0].files[0]; //ev.target.files[0];
@@ -347,7 +368,7 @@
         }
     }
 
-    var nric = document.querySelector("#id_identification_no");
+    {% comment %} var nric = document.querySelector("#id_identification_no");
     var errorNRIC = document.querySelector("#error-nric");
     var validNRIC = document.querySelector("#valid-nric");
 
@@ -356,9 +377,9 @@
         validNRIC.innerHTML = "";
         errorNRIC.classList.add("hide");
         validNRIC.classList.add("hide");
-    };
+    }; {% endcomment %}
 
-    $(document).ready(function () {
+    {% comment %} $(document).ready(function () {
 
         $('#id_identification_no').change(function(e) {
             resetNric();
@@ -390,7 +411,7 @@
 
         // nric.addEventListener('change', resetNric);
         nric.addEventListener('keyup', resetNric);
-    });
+    }); {% endcomment %}
 
     $(function () {
         $('#selfregister-visitor').on('submit', function() {
@@ -399,7 +420,8 @@
      });
   
   </script>
-
+{% comment %} 
 {% endblock javascripts %}
+{% endif %} {% endcomment %}
 
 {% endblock content_guest %}
