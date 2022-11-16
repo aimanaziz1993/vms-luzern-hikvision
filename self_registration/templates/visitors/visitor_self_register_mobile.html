@@ -253,8 +253,14 @@
         
     });
 
-    $('#id_tenant').on('click', function() {
+    $('#id_tenant').on('click', function() {        
         tenant_id = $(this).val();
+
+        if(tenant_id.length > 0){
+            $('#choose_file').attr('disabled', false);
+        }else{
+            $('#choose_file').attr('disabled', true);
+        }
     })
 
     $("#id_photo").change(function(){

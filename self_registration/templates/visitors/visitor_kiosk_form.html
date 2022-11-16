@@ -27,7 +27,7 @@
       <br/>
     </div> {% endcomment %}
    
-    <div class="img-responsive mb-2 offset-4" id="results" style="margin-left: 15%"></div>
+    
     <!-- hidden input to contain files -->
     <input type="hidden" id="id_photo" name="id_photo" value="" >
     
@@ -44,9 +44,9 @@
         {% endfor %}
       </div>
     {% endfor %}
-
+    <div class="img-responsive mb-2 offset-4" id="results" style="margin-left: 15%"></div>
     <label for="photo">Capture:</label>
-    <a class="btn btn-sm btn-secondary" onclick="openWebcam(event)" style="color: #fff;">Start Camera</a>
+    <button id="my_webcam" class="btn btn-sm btn-secondary" onclick="openWebcam(event)" style="color: #fff;" disabled>Start Camera</button>
 
     <div id="main_camera">
         <div id="my_camera" class="webcam mb-2 offset-4" style="width:320px; height:240px; margin-left: 12%;"></div>
@@ -362,6 +362,14 @@
 
     $('#id_tenant').on('change', function() {
         tenant_id = $(this).val();
+        console.log('tenant_id',tenant_id.length > 0)
+       
+        if(tenant_id.length > 0){
+            $('#my_webcam').attr('disabled', false);
+        }else{
+            $('#my_webcam').attr('disabled', true);
+        }
+       
     })
 
     function take_snapshot() {
