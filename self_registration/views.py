@@ -1079,15 +1079,16 @@ def fra_validation(request):
                 if model.photo:
                     img = get_thumbnail(model.photo, '200x200', crop='center', quality=99)
                     faceURL = str( str(request.scheme) + '://' + str(absolute_uri) + '/static' + str(img.url) )
-                    
                     print('push face url', faceURL)
                    
                 if request.POST['tenant_id']:
-                    if request.POST['isStaffReg'] == True:
+                    test = request.POST.get('isStaffReg')
+                    
+                    if test == '1':
                         tenant = Tenant.objects.get(code=request.POST['tenant_id'])
                     else:
                         tenant = Tenant.objects.get(pk=request.POST['tenant_id'])
-                    print('request--->>', tenant)    
+                       
                     device = Device.objects.get(pk=tenant.device.id)
                     host = str( str(request.scheme) + '://' + str(device.ip_addr) )
                     # absolute_uri = request.build_absolute_uri('/')[:-1].strip("/")
@@ -1122,7 +1123,7 @@ def fra_validation(request):
                         print(face_add_response)
 
                         if face_add_response['statusCode'] == 1:
-                            # handle delete from fra if failed to push photo
+                            # handle delete from fra after valid pushed photo
                             search_res = person_instance.search(model.code, host, auth)
                             print(search_res)
 
@@ -1152,15 +1153,14 @@ def fra_validation(request):
 
                             return JsonResponse({
                                 'error': True,
-                                'msg': 'Face verification failed. Try again.'
+                                'msg': 'Face validation failed. Please retake photo.'
                             })
                 else:
-                    print('tenant_id->', request.POST['tenant_id'])  
-                    exit()
+                    pass
             except:
                 return JsonResponse({
                     'error': True,
-                    'msg': 'Something went wrong during face validation. Try again.'
+                    'msg': 'Face validation failed. Please retake photo.'
                 })
 
             
@@ -1169,7 +1169,7 @@ def fra_validation(request):
         # error case
         return JsonResponse({
             'error': True,
-            'msg': 'Face validated ✅',
+            'msg': 'Something went wrong during face validation. Try again.',
         })
 
 def server_error(request, exception):

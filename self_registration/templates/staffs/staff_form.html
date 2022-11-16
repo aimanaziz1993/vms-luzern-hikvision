@@ -226,7 +226,7 @@
                     headers: { "X-CSRFToken": getCookie('csrftoken') },
                     url : '/self-register/fra-photo-validation/',
                     method : "POST",
-                    data: { 'isStaffReg': true, 'type': 'webcam', 'tenant_id': tenant_id,'photo': photo_input},
+                    data: { 'isStaffReg': 1, 'type': 'webcam', 'tenant_id': tenant_id,'photo': photo_input},
                     success : function(response) {
                         var btn = document.getElementById('submit');
 
