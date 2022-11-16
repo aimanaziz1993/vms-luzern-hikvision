@@ -29,7 +29,7 @@ class VisitorMobileRegistrationForm(BootstrapHelperForm, forms.ModelForm):
         }
 
         widgets = {
-            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'disabled': 'True', 'id': 'choose_file'}),
+            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'disabled': 'True'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
             # 'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),

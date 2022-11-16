@@ -257,13 +257,14 @@
         tenant_id = $(this).val();
 
         if(tenant_id.length > 0){
-            $('#choose_file').attr('disabled', false);
+            $('#id_photo').attr('disabled', false);
         }else{
-            $('#choose_file').attr('disabled', true);
+            $('#id_photo').attr('disabled', true);
         }
     })
 
     $("#id_photo").change(function(){
+        console.log('photo changed')
         resetPhotoValidation();
         convertHeicToJpg(this);
         // resetPhotoValidation();
