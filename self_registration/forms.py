@@ -22,14 +22,13 @@ class VisitorMobileRegistrationForm(BootstrapHelperForm, forms.ModelForm):
         fields = ('photo', 'name', 'contact_no', 'email', 'start_date', 'end_date', 'remarks', )
 
         labels = {
-            'photo': 'Face Picture. Take your best possible selfie.',
             # 'identification_no': 'NRIC (e.g: last 3 digits and an alphabet)',
             'remarks': 'Remarks [ Optional ]',
             'email': 'Email (Optional if you want to be notified status & details)'
         }
 
         widgets = {
-            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'disabled': 'True'}),
+            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'hidden':'True'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
             # 'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
@@ -135,7 +134,7 @@ class VisitorRegistrationForm(BootstrapHelperForm, forms.ModelForm):
         }
 
         widgets = {
-            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
+            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'hidden': 'TRUE'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
             # 'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),
@@ -212,7 +211,7 @@ class StaffRegistrationForm(forms.ModelForm):
         }
 
         widgets = {
-            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera'}),
+            'photo': FileInput(attrs={'class': 'form-control form_input', 'accept': 'image/*', 'capture': 'camera', 'hidden':'TRUE'}),
             'name': TextInput(attrs={'class': 'form-control form_input'}),
             # 'identification_no': TextInput(attrs={'class': 'form-control form_input'}),
             'contact_no': TextInput(attrs={'class': 'form-control form_input'}),

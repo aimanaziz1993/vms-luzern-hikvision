@@ -62,7 +62,9 @@
                         </div>
                     {% endfor %}
                     <div class="img-responsive row d-flex justify-content-center">
-                      <img id='visitor-photo' src="/static/icon/avatar.png" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar">
+                        <a href="#" for="id_photo">
+                            <label for="id_photo"><img id='visitor-photo' src="/static/icon/avatar.png" style="border-radius: 50%; width: 180px;" class="img-responsive2 mb-2" alt="avatar"></label>
+                        </a> 
                       
                       <br/>
                     </div>
@@ -79,7 +81,7 @@
                           </div>
                   
                         {% elif field.id_for_label == 'id_photo' %}
-                          <label for="id_photo">Face Picture. Take your best possible selfie [Optional]: </label></br>
+                        <label for="id_photo">Face Picture. Take your best possible selfie [Optional]: </label></br>
                           <input type="hidden" id="photo2" name="photo2" value="" >
                           {{ form.photo }}
                           <div>
